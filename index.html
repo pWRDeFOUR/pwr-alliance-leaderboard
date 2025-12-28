@@ -1082,7 +1082,16 @@ body {
                 }
                 
                 if (translation) {
-                    element.textContent = translation;
+                    // Special handling for labels with child inputs (like upload button)
+                    if (element.tagName === 'LABEL' && element.querySelector('input')) {
+                        // Only update the text node, preserve child elements
+                        const textNode = Array.from(element.childNodes).find(node => node.nodeType === 3);
+                        if (textNode) {
+                            textNode.textContent = translation;
+                        }
+                    } else {
+                        element.textContent = translation;
+                    }
                 }
             });
             
@@ -2307,7 +2316,11 @@ body {
                 }
                 if (uploadLabel) {
                     uploadLabel.style.display = 'inline-block';
-                    uploadLabel.textContent = t('buttons.upload');
+                    // Update only the text node, not the entire content (preserves the input element)
+                    const textNode = Array.from(uploadLabel.childNodes).find(node => node.nodeType === 3);
+                    if (textNode) {
+                        textNode.textContent = t('buttons.upload');
+                    }
                     uploadLabel.style.background = 'linear-gradient(135deg, #99cc33, #669900)';
                     uploadLabel.style.boxShadow = '0 0 20px rgba(153, 204, 51, 0.4)';
                     uploadLabel.title = `Signed in as ${user.email} - Click to upload`;
