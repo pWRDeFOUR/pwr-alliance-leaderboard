@@ -646,6 +646,8 @@ body {
                 </label>
                 <button class="action-btn" id="signInOutBtn" data-i18n="buttons.signIn">🔐 Sign In</button>
                 <button class="action-btn" id="refreshDataBtn" data-i18n="buttons.refresh">🔄 Refresh Data</button>
+                <button class="action-btn" id="deleteWeekBtn" data-i18n="buttons.deleteWeek" style="display: none;">🗑️ Delete Week</button>
+                <button class="action-btn" id="addPlayerBtn" data-i18n="buttons.addPlayer" style="display: none;">➕ Add Player</button>
                 <button class="action-btn" id="exportPdfBtn" data-i18n="buttons.exportPdf">📄 Export PDF</button>
                 <button class="action-btn" id="exportCsvBtn" data-i18n="buttons.exportCsv">💾 Export CSV</button>
                 <button class="action-btn" id="shareBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
@@ -2207,6 +2209,8 @@ body {
         document.getElementById('saveAddPlayerBtn')?.addEventListener('click', saveNewPlayer);
         
         // Control buttons
+        document.getElementById('deleteWeekBtn')?.addEventListener('click', deleteCurrentWeek);
+        document.getElementById('addPlayerBtn')?.addEventListener('click', showAddPlayerModal);
         document.getElementById('refreshDataBtn')?.addEventListener('click', refreshDataFromFirebase);
 
         // ============================================
@@ -2262,6 +2266,8 @@ body {
             const user = auth.currentUser;
             const signInBtn = document.getElementById('signInOutBtn');
             const uploadLabel = document.getElementById('uploadBtn');
+            const deleteWeekBtn = document.getElementById('deleteWeekBtn');
+            const addPlayerBtn = document.getElementById('addPlayerBtn');
             const refreshDataBtn = document.getElementById('refreshDataBtn');
             
             if (user) {
@@ -2277,6 +2283,14 @@ body {
                     uploadLabel.style.boxShadow = '0 0 20px rgba(153, 204, 51, 0.4)';
                     uploadLabel.title = `Signed in as ${user.email} - Click to upload`;
                 }
+                if (deleteWeekBtn) {
+                    deleteWeekBtn.style.display = 'inline-block';
+                    deleteWeekBtn.textContent = t('buttons.deleteWeek');
+                }
+                if (addPlayerBtn) {
+                    addPlayerBtn.style.display = 'inline-block';
+                    addPlayerBtn.textContent = t('buttons.addPlayer');
+                }
                 if (refreshDataBtn) {
                     refreshDataBtn.textContent = t('buttons.refresh');
                 }
@@ -2288,6 +2302,12 @@ body {
                 }
                 if (uploadLabel) {
                     uploadLabel.style.display = 'none';
+                }
+                if (deleteWeekBtn) {
+                    deleteWeekBtn.style.display = 'none';
+                }
+                if (addPlayerBtn) {
+                    addPlayerBtn.style.display = 'none';
                 }
                 if (refreshDataBtn) {
                     refreshDataBtn.textContent = t('buttons.refresh');
