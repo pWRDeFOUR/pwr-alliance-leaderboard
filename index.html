@@ -1032,11 +1032,14 @@ body {
         // === UTILITY FUNCTIONS ===
         function parseCSV(csv) {
             const lines = csv.trim().split('\n');
+            console.log('parseCSV: Total lines:', lines.length);
+            
             if (lines.length === 0) return [];
             
             // Get headers from first line
             const headerLine = lines[0];
             const headers = parseCSVLine(headerLine);
+            console.log('parseCSV: Headers:', headers);
             
             // Parse data rows
             const data = [];
@@ -1066,9 +1069,12 @@ body {
                 // Only add if we have valid data
                 if (obj['Player Name'] && obj.Rank && obj.Points) {
                     data.push(obj);
+                } else {
+                    console.log('parseCSV: Skipping invalid row:', obj);
                 }
             }
             
+            console.log('parseCSV: Parsed', data.length, 'valid rows');
             return data;
         }
 
@@ -1525,29 +1531,42 @@ body {
             reader.onload = async function(event) {
                 try {
                     const csvContent = event.target.result;
-                    const newPlayers = parseCSV(csvContent);
+                    console.log('CSV Content loaded, length:', csvContent.length);
                     
-                    if (newPlayers.length > 0) {
-                        const existingWeeks = Object.keys(weeklyData).map(Number);
-                        const nextWeek = existingWeeks.length > 0 ? Math.max(...existingWeeks) + 1 : 1;
-                        
-                        // Save to Firebase
-                        await saveWeekToFirebase(nextWeek, csvContent);
-                        
-                        // Update UI
-                        currentWeek = nextWeek;
-                        updateWeekButtons();
-                        updateDashboard();
-                        
-                        alert(`✅ Week ${nextWeek} uploaded successfully to Firebase!\n${newPlayers.length} players uploaded.`);
-                    } else {
-                        alert('❌ No valid data found in CSV');
+                    const newPlayers = parseCSV(csvContent);
+                    console.log('Parsed players:', newPlayers.length, newPlayers.slice(0, 3));
+                    
+                    if (!newPlayers || newPlayers.length === 0) {
+                        alert('❌ No valid data found in CSV. Please check the file format.\n\nExpected format:\nRank,Player Name,Points\n1,Name,"1,000,000"');
+                        e.target.value = '';
+                        return;
                     }
+                    
+                    const existingWeeks = Object.keys(weeklyData).map(Number);
+                    const nextWeek = existingWeeks.length > 0 ? Math.max(...existingWeeks) + 1 : 1;
+                    
+                    console.log(`Uploading Week ${nextWeek} with ${newPlayers.length} players...`);
+                    
+                    // Save to Firebase
+                    await saveWeekToFirebase(nextWeek, csvContent);
+                    
+                    // Update UI
+                    currentWeek = nextWeek;
+                    updateWeekButtons();
+                    updateDashboard();
+                    
+                    alert(`✅ Week ${nextWeek} uploaded successfully to Firebase!\n${newPlayers.length} players uploaded.`);
+                    
                 } catch (error) {
                     console.error('Upload error:', error);
-                    alert(`❌ Error uploading CSV: ${error.message}`);
+                    alert(`❌ Error uploading CSV: ${error.message}\n\nCheck browser console (F12) for details.`);
                 }
             };
+            
+            reader.onerror = function() {
+                alert('❌ Error reading file. Please try again.');
+            };
+            
             reader.readAsText(file);
             e.target.value = '';
         });
