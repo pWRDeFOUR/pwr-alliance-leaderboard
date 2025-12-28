@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>[pWR] Alliance Duel Weekly Leaderboard</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
+    <!-- Other Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -593,10 +600,11 @@ body {
         <div class="week-controls">
             <div class="week-selector" id="weekSelector"></div>
             <div class="control-buttons">
-                <label for="csvUpload" class="upload-btn">
+                <label for="csvUpload" class="upload-btn" id="uploadBtn">
                     📤 Upload Week Data
                     <input type="file" id="csvUpload" accept=".csv" style="display: none;">
                 </label>
+                <button class="action-btn" id="signInOutBtn">🔐 Sign In</button>
                 <button class="action-btn" id="exportPdfBtn">📄 Export PDF</button>
                 <button class="action-btn" id="exportCsvBtn">💾 Export CSV</button>
                 <button class="action-btn" id="shareBtn">📸 Screenshot</button>
@@ -758,6 +766,162 @@ body {
     </div>
 
     <script>
+        // ============================================
+        // FIREBASE CONFIGURATION
+        // ============================================
+        
+        const firebaseConfig = {
+          apiKey: "AIzaSyD7GiyI6DhBr_AYW8y_Rreyos5TLUazn-Q",
+          authDomain: "pwr-alliance-leaderboard-17775.firebaseapp.com",
+          databaseURL: "https://pwr-alliance-leaderboard-17775-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "pwr-alliance-leaderboard-17775",
+          storageBucket: "pwr-alliance-leaderboard-17775.firebasestorage.app",
+          messagingSenderId: "938865791588",
+          appId: "1:938865791588:web:9385747e23eb18a5a58571"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+        
+        console.log('🔥 Firebase initialized successfully!');
+        
+        // ============================================
+        // FIREBASE FUNCTIONS
+        // ============================================
+        
+        // Load week data from Firebase
+        async function loadWeekFromFirebase(weekNum) {
+            try {
+                const snapshot = await database.ref(`weeks/${weekNum}`).once('value');
+                const data = snapshot.val();
+                
+                if (!data) {
+                    console.log(`Week ${weekNum} not found in Firebase`);
+                    return null;
+                }
+                
+                // Convert Firebase object to array
+                const players = Object.values(data).map(player => ({
+                    Rank: player.rank,
+                    'Player Name': player.playerName,
+                    Points: player.points
+                }));
+                
+                weeklyData[weekNum] = players;
+                console.log(`✅ Loaded Week ${weekNum} from Firebase (${players.length} players)`);
+                return players;
+            } catch (error) {
+                console.error(`Error loading week ${weekNum}:`, error);
+                return null;
+            }
+        }
+        
+        // Load all available weeks
+        async function loadAllWeeksFromFirebase() {
+            try {
+                const metaSnapshot = await database.ref('metadata').once('value');
+                const metadata = metaSnapshot.val();
+                
+                const totalWeeks = metadata?.totalWeeks || 0;
+                
+                if (totalWeeks === 0) {
+                    console.log('No weeks found in Firebase');
+                    return 0;
+                }
+                
+                // Load all weeks
+                for (let i = 1; i <= totalWeeks; i++) {
+                    await loadWeekFromFirebase(i);
+                }
+                
+                console.log(`✅ Loaded ${totalWeeks} weeks from Firebase`);
+                return totalWeeks;
+            } catch (error) {
+                console.error('Error loading weeks from Firebase:', error);
+                return 0;
+            }
+        }
+        
+        // Save week data to Firebase
+        async function saveWeekToFirebase(weekNum, csvData) {
+            try {
+                if (!auth.currentUser) {
+                    throw new Error('You must be signed in to upload data');
+                }
+                
+                const players = parseCSV(csvData);
+                if (!players || players.length === 0) {
+                    throw new Error('Invalid CSV data');
+                }
+                
+                console.log(`Uploading Week ${weekNum} to Firebase (${players.length} players)...`);
+                
+                // Convert to Firebase format
+                const firebaseData = players.map(p => ({
+                    rank: p.Rank,
+                    playerName: p['Player Name'],
+                    points: p.Points
+                }));
+                
+                // Save to Firebase
+                await database.ref(`weeks/${weekNum}`).set(firebaseData);
+                
+                // Update metadata
+                const metaSnapshot = await database.ref('metadata').once('value');
+                const currentMeta = metaSnapshot.val() || {};
+                
+                await database.ref('metadata').set({
+                    totalWeeks: Math.max(currentMeta.totalWeeks || 0, weekNum),
+                    latestWeek: weekNum,
+                    lastUpdated: new Date().toISOString(),
+                    uploadedBy: auth.currentUser.email
+                });
+                
+                // Reload data locally
+                await loadWeekFromFirebase(weekNum);
+                
+                console.log(`✅ Week ${weekNum} uploaded successfully`);
+                return true;
+            } catch (error) {
+                console.error('Error saving to Firebase:', error);
+                throw error;
+            }
+        }
+        
+        // Authentication functions
+        async function signInToFirebase(email, password) {
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                console.log('✅ Signed in successfully');
+                return true;
+            } catch (error) {
+                console.error('Sign in error:', error);
+                throw error;
+            }
+        }
+        
+        function signOutFromFirebase() {
+            auth.signOut();
+            console.log('✅ Signed out');
+        }
+        
+        // Show loading state
+        function showFirebaseLoading() {
+            const kpiGrid = document.getElementById('kpiGrid');
+            if (kpiGrid) {
+                kpiGrid.innerHTML = `
+                    <div class="kpi-card" style="grid-column: 1 / -1;">
+                        <div class="kpi-label">🔥 LOADING FROM FIREBASE...</div>
+                        <div class="kpi-value">⏳</div>
+                        <div class="kpi-subtext">Fetching alliance data...</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // ============================================
         // === DATA MANAGEMENT ===
         let weeklyData = {};
         let currentWeek = 1;
@@ -1346,31 +1510,45 @@ body {
         }
 
         // CSV Upload
-        document.getElementById('csvUpload').addEventListener('change', function(e) {
+        document.getElementById('csvUpload').addEventListener('change', async function(e) {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    try {
-                        const csvContent = event.target.result;
-                        const newPlayers = parseCSV(csvContent);
-                        
-                        if (newPlayers.length > 0) {
-                            const nextWeek = Math.max(...Object.keys(weeklyData).map(Number)) + 1;
-                            weeklyData[nextWeek] = newPlayers;
-                            currentWeek = nextWeek;
-                            
-                            updateWeekButtons();
-                            updateDashboard();
-                            
-                            alert(`✅ Week ${nextWeek} data uploaded successfully! (${newPlayers.length} players)`);
-                        }
-                    } catch (error) {
-                        alert('❌ Error parsing CSV: ' + error.message);
-                    }
-                };
-                reader.readAsText(file);
+            if (!file) return;
+            
+            // Check authentication first
+            if (!auth.currentUser) {
+                alert('❌ Please sign in first to upload data');
+                e.target.value = '';
+                return;
             }
+            
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                try {
+                    const csvContent = event.target.result;
+                    const newPlayers = parseCSV(csvContent);
+                    
+                    if (newPlayers.length > 0) {
+                        const existingWeeks = Object.keys(weeklyData).map(Number);
+                        const nextWeek = existingWeeks.length > 0 ? Math.max(...existingWeeks) + 1 : 1;
+                        
+                        // Save to Firebase
+                        await saveWeekToFirebase(nextWeek, csvContent);
+                        
+                        // Update UI
+                        currentWeek = nextWeek;
+                        updateWeekButtons();
+                        updateDashboard();
+                        
+                        alert(`✅ Week ${nextWeek} uploaded successfully to Firebase!\n${newPlayers.length} players uploaded.`);
+                    } else {
+                        alert('❌ No valid data found in CSV');
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    alert(`❌ Error uploading CSV: ${error.message}`);
+                }
+            };
+            reader.readAsText(file);
             e.target.value = '';
         });
 
@@ -1423,10 +1601,113 @@ body {
             }
         });
 
-        // === INITIALIZATION ===
-        weeklyData[1] = parseCSV(week1CSV);
-        updateWeekButtons();
-        updateDashboard();
+        // ============================================
+        // === FIREBASE INITIALIZATION ===
+        // ============================================
+        
+        async function initializeDashboard() {
+            console.log('🚀 Initializing dashboard with Firebase...');
+            
+            showFirebaseLoading();
+            
+            // Try to load from Firebase first
+            const totalWeeks = await loadAllWeeksFromFirebase();
+            
+            if (totalWeeks === 0) {
+                // No data in Firebase - use default Week 1
+                console.log('⚠️ No Firebase data found, loading default Week 1');
+                weeklyData[1] = parseCSV(week1CSV);
+                currentWeek = 1;
+                
+                // Optionally auto-upload Week 1 if signed in
+                if (auth.currentUser) {
+                    console.log('Uploading default Week 1 to Firebase...');
+                    try {
+                        await saveWeekToFirebase(1, week1CSV);
+                    } catch (error) {
+                        console.error('Error auto-uploading Week 1:', error);
+                    }
+                }
+            } else {
+                // Set current week to latest available
+                currentWeek = totalWeeks;
+            }
+            
+            // Update UI
+            updateWeekButtons();
+            updateDashboard();
+            updateAuthUI();
+            
+            console.log('✅ Dashboard initialized');
+        }
+        
+        // Auth state observer
+        auth.onAuthStateChanged((user) => {
+            console.log('Auth state changed:', user ? `Signed in as ${user.email}` : 'Signed out');
+            updateAuthUI();
+        });
+        
+        // Update UI based on auth state
+        function updateAuthUI() {
+            const user = auth.currentUser;
+            const signInBtn = document.getElementById('signInOutBtn');
+            const uploadLabel = document.getElementById('uploadBtn');
+            
+            if (user) {
+                // User is signed in
+                if (signInBtn) {
+                    signInBtn.textContent = '🔓 Sign Out';
+                    signInBtn.title = `Signed in as ${user.email}`;
+                }
+                if (uploadLabel) {
+                    uploadLabel.style.background = 'linear-gradient(135deg, #99cc33, #669900)';
+                    uploadLabel.style.boxShadow = '0 0 20px rgba(153, 204, 51, 0.4)';
+                    uploadLabel.title = `Signed in as ${user.email} - Click to upload`;
+                }
+            } else {
+                // User is signed out
+                if (signInBtn) {
+                    signInBtn.textContent = '🔐 Sign In';
+                    signInBtn.title = 'Sign in to upload data';
+                }
+                if (uploadLabel) {
+                    uploadLabel.style.background = 'linear-gradient(135deg, #cc5200, #993d00)';
+                    uploadLabel.style.boxShadow = '0 4px 15px rgba(255, 102, 0, 0.3)';
+                    uploadLabel.title = 'Please sign in first to upload data';
+                }
+            }
+        }
+        
+        // Sign In/Out button handler
+        document.getElementById('signInOutBtn').addEventListener('click', async () => {
+            const user = auth.currentUser;
+            
+            if (user) {
+                // User is signed in - sign out
+                if (confirm(`Sign out from ${user.email}?`)) {
+                    signOutFromFirebase();
+                    alert('✅ Signed out successfully');
+                }
+            } else {
+                // User is signed out - prompt for sign in
+                const email = prompt('Enter your email:', '');
+                if (!email) return;
+                
+                const password = prompt('Enter your password:', '');
+                if (!password) return;
+                
+                try {
+                    await signInToFirebase(email, password);
+                    alert(`✅ Signed in successfully as ${email}!`);
+                } catch (error) {
+                    alert(`❌ Sign in failed: ${error.message}`);
+                }
+            }
+        });
+        
+        // Start the app
+        initializeDashboard();
     </script>
+
 </body>
 </html>
