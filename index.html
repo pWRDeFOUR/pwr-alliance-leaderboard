@@ -605,6 +605,9 @@ body {
                     <input type="file" id="csvUpload" accept=".csv" style="display: none;">
                 </label>
                 <button class="action-btn" id="signInOutBtn">🔐 Sign In</button>
+                <button class="action-btn" id="refreshDataBtn">🔄 Refresh Data</button>
+                <button class="action-btn" id="deleteWeekBtn">🗑️ Delete Week</button>
+                <button class="action-btn" id="addPlayerBtn">➕ Add Player</button>
                 <button class="action-btn" id="exportPdfBtn">📄 Export PDF</button>
                 <button class="action-btn" id="exportCsvBtn">💾 Export CSV</button>
                 <button class="action-btn" id="shareBtn">📸 Screenshot</button>
@@ -754,6 +757,65 @@ body {
                         <h3 style="color: #8b45ff; margin-bottom: 15px;">Weekly Performance History</h3>
                         <canvas id="playerHistoryChart"></canvas>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Player Modal -->
+        <div id="editPlayerModal" class="modal">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2>✏️ EDIT PLAYER</h2>
+                    <span class="modal-close" id="closeEditModal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editPlayerOriginalName">
+                    <input type="hidden" id="editPlayerOriginalRank">
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Player Name:</label>
+                        <input type="text" id="editPlayerName" class="search-bar" style="margin-bottom: 15px;">
+                        
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Rank:</label>
+                        <input type="number" id="editPlayerRank" class="search-bar" min="1" style="margin-bottom: 15px;">
+                        
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Points:</label>
+                        <input type="text" id="editPlayerPoints" class="search-bar" placeholder="Enter points (e.g., 254714950)">
+                    </div>
+                    
+                    <button class="upload-btn" id="saveEditPlayerBtn" style="width: 100%; margin-bottom: 10px;">
+                        💾 SAVE CHANGES
+                    </button>
+                    
+                    <div id="editPlayerStatus" style="text-align: center; color: #ffaa33; margin-top: 10px; font-weight: 600;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Player Modal -->
+        <div id="addPlayerModal" class="modal">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2>➕ ADD NEW PLAYER</h2>
+                    <span class="modal-close" id="closeAddModal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: 20px;">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Player Name:</label>
+                        <input type="text" id="addPlayerName" class="search-bar" style="margin-bottom: 15px;" placeholder="Enter player name">
+                        
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Rank:</label>
+                        <input type="number" id="addPlayerRank" class="search-bar" min="1" style="margin-bottom: 15px;" placeholder="Enter rank">
+                        
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Points:</label>
+                        <input type="text" id="addPlayerPoints" class="search-bar" placeholder="Enter points (e.g., 254714950)">
+                    </div>
+                    
+                    <button class="upload-btn" id="saveAddPlayerBtn" style="width: 100%; margin-bottom: 10px;">
+                        ➕ ADD PLAYER
+                    </button>
+                    
+                    <div id="addPlayerStatus" style="text-align: center; color: #ffaa33; margin-top: 10px; font-weight: 600;"></div>
                 </div>
             </div>
         </div>
@@ -1432,7 +1494,11 @@ body {
                         <td>${player.Points.toLocaleString()}</td>
                         <td>${achievements.map(a => `<span class="achievement-badge">${a}</span>`).join('')}</td>
                         <td>${division}</td>
-                        <td><button class="view-profile-btn" onclick="openPlayerProfile('${player['Player Name']}')">View</button></td>
+                        <td>
+                            <button class="view-profile-btn" onclick="openPlayerProfile('${player['Player Name'].replace(/'/g, "\\'")}')">View</button>
+                            <button class="view-profile-btn" onclick="editPlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(153, 204, 51, 0.4); border-color: #99cc33;">✏️ Edit</button>
+                            <button class="view-profile-btn" onclick="deletePlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(204, 51, 0, 0.4); border-color: #cc3300;">🗑️ Del</button>
+                        </td>
                     </tr>
                 `;
             }).join('');
@@ -1621,6 +1687,358 @@ body {
                 document.getElementById('playerModal').style.display = 'none';
             }
         });
+
+        // ============================================
+        // === EDIT/DELETE/ADD PLAYER FUNCTIONS ===
+        // ============================================
+        
+        // Edit Player
+        function editPlayer(playerName, rank) {
+            if (!auth.currentUser) {
+                alert('❌ Please sign in to edit players');
+                return;
+            }
+            
+            const players = getCurrentPlayers();
+            const player = players.find(p => p['Player Name'] === playerName && p.Rank === rank);
+            
+            if (!player) {
+                alert('❌ Player not found');
+                return;
+            }
+            
+            // Populate modal
+            document.getElementById('editPlayerOriginalName').value = playerName;
+            document.getElementById('editPlayerOriginalRank').value = rank;
+            document.getElementById('editPlayerName').value = playerName;
+            document.getElementById('editPlayerRank').value = rank;
+            document.getElementById('editPlayerPoints').value = player.Points;
+            document.getElementById('editPlayerStatus').textContent = '';
+            
+            // Show modal
+            document.getElementById('editPlayerModal').style.display = 'block';
+        }
+        
+        // Save Edited Player
+        async function saveEditedPlayer() {
+            const statusDiv = document.getElementById('editPlayerStatus');
+            
+            try {
+                const originalName = document.getElementById('editPlayerOriginalName').value;
+                const originalRank = parseInt(document.getElementById('editPlayerOriginalRank').value);
+                const newName = document.getElementById('editPlayerName').value.trim();
+                const newRank = parseInt(document.getElementById('editPlayerRank').value);
+                const newPoints = parseInt(document.getElementById('editPlayerPoints').value.replace(/,/g, ''));
+                
+                if (!newName || !newRank || !newPoints) {
+                    statusDiv.textContent = '⚠️ All fields are required';
+                    return;
+                }
+                
+                if (newPoints <= 0) {
+                    statusDiv.textContent = '⚠️ Points must be greater than 0';
+                    return;
+                }
+                
+                statusDiv.textContent = '⏳ Saving...';
+                
+                // Get current week data
+                const players = getCurrentPlayers();
+                
+                // Find and update the player
+                const playerIndex = players.findIndex(p => 
+                    p['Player Name'] === originalName && p.Rank === originalRank
+                );
+                
+                if (playerIndex === -1) {
+                    throw new Error('Player not found');
+                }
+                
+                // Update player data
+                players[playerIndex] = {
+                    Rank: newRank,
+                    'Player Name': newName,
+                    Points: newPoints
+                };
+                
+                // Sort by rank
+                players.sort((a, b) => a.Rank - b.Rank);
+                
+                // Convert to CSV format
+                const csvContent = 'Rank,Player Name,Points\n' + 
+                    players.map(p => `${p.Rank},"${p['Player Name']}","${p.Points}"`).join('\n');
+                
+                // Save to Firebase (this will overwrite the week)
+                await saveWeekToFirebase(currentWeek, csvContent);
+                
+                // Update local data
+                weeklyData[currentWeek] = players;
+                
+                // Refresh UI
+                updateDashboard();
+                
+                statusDiv.textContent = '✅ Player updated successfully!';
+                
+                setTimeout(() => {
+                    document.getElementById('editPlayerModal').style.display = 'none';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Error saving player:', error);
+                statusDiv.textContent = `❌ ${error.message}`;
+            }
+        }
+        
+        // Delete Player
+        async function deletePlayer(playerName, rank) {
+            if (!auth.currentUser) {
+                alert('❌ Please sign in to delete players');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete "${playerName}" (Rank #${rank}) from Week ${currentWeek}?\n\nThis action cannot be undone!`)) {
+                return;
+            }
+            
+            try {
+                // Get current week data
+                const players = getCurrentPlayers();
+                
+                // Remove the player
+                const filteredPlayers = players.filter(p => 
+                    !(p['Player Name'] === playerName && p.Rank === rank)
+                );
+                
+                if (filteredPlayers.length === players.length) {
+                    alert('❌ Player not found');
+                    return;
+                }
+                
+                // Re-assign ranks
+                filteredPlayers.forEach((p, index) => {
+                    p.Rank = index + 1;
+                });
+                
+                // Convert to CSV format
+                const csvContent = 'Rank,Player Name,Points\n' + 
+                    filteredPlayers.map(p => `${p.Rank},"${p['Player Name']}","${p.Points}"`).join('\n');
+                
+                // Save to Firebase
+                await saveWeekToFirebase(currentWeek, csvContent);
+                
+                // Update local data
+                weeklyData[currentWeek] = filteredPlayers;
+                
+                // Refresh UI
+                updateDashboard();
+                
+                alert(`✅ "${playerName}" has been deleted from Week ${currentWeek}`);
+                
+            } catch (error) {
+                console.error('Error deleting player:', error);
+                alert(`❌ Error deleting player: ${error.message}`);
+            }
+        }
+        
+        // Show Add Player Modal
+        function showAddPlayerModal() {
+            if (!auth.currentUser) {
+                alert('❌ Please sign in to add players');
+                return;
+            }
+            
+            document.getElementById('addPlayerName').value = '';
+            document.getElementById('addPlayerRank').value = '';
+            document.getElementById('addPlayerPoints').value = '';
+            document.getElementById('addPlayerStatus').textContent = '';
+            
+            document.getElementById('addPlayerModal').style.display = 'block';
+        }
+        
+        // Save New Player
+        async function saveNewPlayer() {
+            const statusDiv = document.getElementById('addPlayerStatus');
+            
+            try {
+                const newName = document.getElementById('addPlayerName').value.trim();
+                const newRank = parseInt(document.getElementById('addPlayerRank').value);
+                const newPoints = parseInt(document.getElementById('addPlayerPoints').value.replace(/,/g, ''));
+                
+                if (!newName || !newRank || !newPoints) {
+                    statusDiv.textContent = '⚠️ All fields are required';
+                    return;
+                }
+                
+                if (newPoints <= 0) {
+                    statusDiv.textContent = '⚠️ Points must be greater than 0';
+                    return;
+                }
+                
+                statusDiv.textContent = '⏳ Adding player...';
+                
+                // Get current week data
+                const players = getCurrentPlayers();
+                
+                // Add new player
+                players.push({
+                    Rank: newRank,
+                    'Player Name': newName,
+                    Points: newPoints
+                });
+                
+                // Sort by rank
+                players.sort((a, b) => a.Rank - b.Rank);
+                
+                // Re-assign ranks to ensure no gaps
+                players.forEach((p, index) => {
+                    p.Rank = index + 1;
+                });
+                
+                // Convert to CSV format
+                const csvContent = 'Rank,Player Name,Points\n' + 
+                    players.map(p => `${p.Rank},"${p['Player Name']}","${p.Points}"`).join('\n');
+                
+                // Save to Firebase
+                await saveWeekToFirebase(currentWeek, csvContent);
+                
+                // Update local data
+                weeklyData[currentWeek] = players;
+                
+                // Refresh UI
+                updateDashboard();
+                
+                statusDiv.textContent = '✅ Player added successfully!';
+                
+                setTimeout(() => {
+                    document.getElementById('addPlayerModal').style.display = 'none';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Error adding player:', error);
+                statusDiv.textContent = `❌ ${error.message}`;
+            }
+        }
+        
+        // Delete Week
+        async function deleteCurrentWeek() {
+            if (!auth.currentUser) {
+                alert('❌ Please sign in to delete weeks');
+                return;
+            }
+            
+            if (Object.keys(weeklyData).length === 1) {
+                alert('❌ Cannot delete the only week! You must have at least one week of data.');
+                return;
+            }
+            
+            const confirmText = prompt(
+                `⚠️ WARNING: You are about to delete Week ${currentWeek} permanently!\n\n` +
+                `This will remove all ${getCurrentPlayers().length} players from Week ${currentWeek}.\n\n` +
+                `Type "DELETE" to confirm:`
+            );
+            
+            if (confirmText !== 'DELETE') {
+                alert('Deletion cancelled');
+                return;
+            }
+            
+            try {
+                // Delete from Firebase
+                await database.ref(`weeks/${currentWeek}`).remove();
+                
+                // Update metadata
+                delete weeklyData[currentWeek];
+                const weeks = Object.keys(weeklyData).map(Number);
+                const newTotalWeeks = Math.max(...weeks);
+                const newLatestWeek = newTotalWeeks;
+                
+                await database.ref('metadata').set({
+                    totalWeeks: weeks.length,
+                    latestWeek: newLatestWeek,
+                    lastUpdated: new Date().toISOString(),
+                    uploadedBy: auth.currentUser.email
+                });
+                
+                // Switch to another week
+                currentWeek = newLatestWeek;
+                
+                // Refresh UI
+                updateWeekButtons();
+                updateDashboard();
+                
+                alert(`✅ Week ${currentWeek} has been deleted`);
+                
+            } catch (error) {
+                console.error('Error deleting week:', error);
+                alert(`❌ Error deleting week: ${error.message}`);
+            }
+        }
+        
+        // Refresh Data from Firebase
+        async function refreshDataFromFirebase() {
+            try {
+                const refreshBtn = document.getElementById('refreshDataBtn');
+                if (refreshBtn) {
+                    refreshBtn.textContent = '⏳ Refreshing...';
+                    refreshBtn.disabled = true;
+                }
+                
+                showFirebaseLoading();
+                
+                // Clear local data
+                weeklyData = {};
+                
+                // Reload from Firebase
+                const totalWeeks = await loadAllWeeksFromFirebase();
+                
+                if (totalWeeks > 0) {
+                    currentWeek = totalWeeks;
+                }
+                
+                // Refresh UI
+                updateWeekButtons();
+                updateDashboard();
+                
+                alert(`✅ Data refreshed! Loaded ${totalWeeks} weeks from Firebase.`);
+                
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                alert(`❌ Error refreshing data: ${error.message}`);
+            } finally {
+                const refreshBtn = document.getElementById('refreshDataBtn');
+                if (refreshBtn) {
+                    refreshBtn.textContent = '🔄 Refresh Data';
+                    refreshBtn.disabled = false;
+                }
+            }
+        }
+        
+        // Modal Close Handlers
+        document.getElementById('closeEditModal')?.addEventListener('click', () => {
+            document.getElementById('editPlayerModal').style.display = 'none';
+        });
+        
+        document.getElementById('closeAddModal')?.addEventListener('click', () => {
+            document.getElementById('addPlayerModal').style.display = 'none';
+        });
+        
+        window.addEventListener('click', (e) => {
+            if (e.target.id === 'editPlayerModal') {
+                document.getElementById('editPlayerModal').style.display = 'none';
+            }
+            if (e.target.id === 'addPlayerModal') {
+                document.getElementById('addPlayerModal').style.display = 'none';
+            }
+        });
+        
+        // Save buttons
+        document.getElementById('saveEditPlayerBtn')?.addEventListener('click', saveEditedPlayer);
+        document.getElementById('saveAddPlayerBtn')?.addEventListener('click', saveNewPlayer);
+        
+        // Control buttons
+        document.getElementById('deleteWeekBtn')?.addEventListener('click', deleteCurrentWeek);
+        document.getElementById('refreshDataBtn')?.addEventListener('click', refreshDataFromFirebase);
+        document.getElementById('addPlayerBtn')?.addEventListener('click', showAddPlayerModal);
 
         // ============================================
         // === FIREBASE INITIALIZATION ===
