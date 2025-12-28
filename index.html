@@ -25,6 +25,41 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* ===== RTL SUPPORT ===== */
+[dir="rtl"] {
+    text-align: right;
+}
+
+[dir="rtl"] .header {
+    direction: rtl;
+}
+
+[dir="rtl"] .week-controls {
+    direction: rtl;
+}
+
+[dir="rtl"] .control-buttons {
+    direction: rtl;
+}
+
+[dir="rtl"] .data-table {
+    direction: rtl;
+}
+
+[dir="rtl"] .modal-content {
+    direction: rtl;
+    text-align: right;
+}
+
+[dir="rtl"] .search-bar {
+    text-align: right;
+}
+
+[dir="rtl"] #languageToggle {
+    left: 20px;
+    right: auto;
+}
+
 /* ===== APOCALYPTIC BACKGROUND ===== */
 body {
     font-family: 'Rajdhani', sans-serif;
@@ -590,27 +625,32 @@ body {
     <div class="dashboard-container">
         <!-- Header -->
         <div class="header">
+            <div style="position: absolute; top: 20px; right: 20px;">
+                <button class="action-btn" id="languageToggle" style="font-size: 0.9rem; padding: 8px 15px;">
+                    🌐 العربية
+                </button>
+            </div>
             <div class="alliance-logo">pWR</div>
-            <h1>⚔️ ALLIANCE DUEL LEADERBOARD ⚔️</h1>
-            <p class="alliance-name">[pWR] POWEr Alliance</p>
-            <p class="event-subtitle">Weekly Alliance Duel Event</p>
+            <h1 data-i18n="header.title">⚔️ ALLIANCE DUEL LEADERBOARD ⚔️</h1>
+            <p class="alliance-name" data-i18n="header.alliance">[pWR] POWEr Alliance</p>
+            <p class="event-subtitle" data-i18n="header.event">Weekly Alliance Duel Event</p>
         </div>
 
         <!-- Week Controls -->
         <div class="week-controls">
             <div class="week-selector" id="weekSelector"></div>
             <div class="control-buttons">
-                <label for="csvUpload" class="upload-btn" id="uploadBtn">
+                <label for="csvUpload" class="upload-btn" id="uploadBtn" data-i18n="buttons.upload">
                     📤 Upload Week Data
                     <input type="file" id="csvUpload" accept=".csv" style="display: none;">
                 </label>
-                <button class="action-btn" id="signInOutBtn">🔐 Sign In</button>
-                <button class="action-btn" id="refreshDataBtn">🔄 Refresh Data</button>
-                <button class="action-btn" id="deleteWeekBtn">🗑️ Delete Week</button>
-                <button class="action-btn" id="addPlayerBtn">➕ Add Player</button>
-                <button class="action-btn" id="exportPdfBtn">📄 Export PDF</button>
-                <button class="action-btn" id="exportCsvBtn">💾 Export CSV</button>
-                <button class="action-btn" id="shareBtn">📸 Screenshot</button>
+                <button class="action-btn" id="signInOutBtn" data-i18n="buttons.signIn">🔐 Sign In</button>
+                <button class="action-btn" id="refreshDataBtn" data-i18n="buttons.refresh">🔄 Refresh Data</button>
+                <button class="action-btn" id="deleteWeekBtn" data-i18n="buttons.deleteWeek">🗑️ Delete Week</button>
+                <button class="action-btn" id="addPlayerBtn" data-i18n="buttons.addPlayer">➕ Add Player</button>
+                <button class="action-btn" id="exportPdfBtn" data-i18n="buttons.exportPdf">📄 Export PDF</button>
+                <button class="action-btn" id="exportCsvBtn" data-i18n="buttons.exportCsv">💾 Export CSV</button>
+                <button class="action-btn" id="shareBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
             </div>
         </div>
 
@@ -717,13 +757,13 @@ body {
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Rank</th>
-                            <th>Movement</th>
-                            <th>Player Name</th>
-                            <th>Points</th>
-                            <th>Achievements</th>
-                            <th>Division</th>
-                            <th>Actions</th>
+                            <th data-i18n="table.rank">Rank</th>
+                            <th data-i18n="table.movement">Movement</th>
+                            <th data-i18n="table.playerName">Player Name</th>
+                            <th data-i18n="table.points">Points</th>
+                            <th data-i18n="table.achievements">Achievements</th>
+                            <th data-i18n="table.division">Division</th>
+                            <th data-i18n="table.actions">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -848,6 +888,234 @@ body {
         const auth = firebase.auth();
         
         console.log('🔥 Firebase initialized successfully!');
+        
+        // ============================================
+        // INTERNATIONALIZATION (i18n) SYSTEM
+        // ============================================
+        
+        const translations = {
+            en: {
+                header: {
+                    title: "⚔️ ALLIANCE DUEL LEADERBOARD ⚔️",
+                    alliance: "[pWR] POWEr Alliance",
+                    event: "Weekly Alliance Duel Event"
+                },
+                buttons: {
+                    upload: "📤 Upload Week Data",
+                    signIn: "🔐 Sign In",
+                    signOut: "🔓 Sign Out",
+                    refresh: "🔄 Refresh Data",
+                    deleteWeek: "🗑️ Delete Week",
+                    addPlayer: "➕ Add Player",
+                    exportPdf: "📄 Export PDF",
+                    exportCsv: "💾 Export CSV",
+                    screenshot: "📸 Screenshot",
+                    view: "View",
+                    edit: "✏️ Edit",
+                    delete: "🗑️ Del"
+                },
+                table: {
+                    rank: "Rank",
+                    movement: "Movement",
+                    playerName: "Player Name",
+                    points: "Points",
+                    achievements: "Achievements",
+                    division: "Division",
+                    actions: "Actions"
+                },
+                kpi: {
+                    totalPlayers: "Total Survivors",
+                    avgPoints: "Average Points",
+                    topScore: "Top Score",
+                    totalPoints: "Total Points"
+                },
+                movement: {
+                    title: "📈 Weekly Movement Highlights",
+                    climber: "Biggest Climber",
+                    faller: "Biggest Drop",
+                    mvp: "Weekly MVP",
+                    streak: "Top Streak"
+                },
+                charts: {
+                    top10: "🏆 Top 10 Champions",
+                    distribution: "📊 Score Distribution",
+                    topPerformance: "🔥 Top 20 Performance",
+                    bottomPerformance: "📉 Bottom 20 Performance"
+                },
+                divisions: {
+                    title: "🏆 Division Rankings",
+                    elite: "Elite Division",
+                    master: "Master Division",
+                    warrior: "Warrior Division",
+                    players: "Players"
+                },
+                leaderboard: {
+                    title: "📋 COMPLETE SURVIVOR RANKINGS",
+                    searchPlaceholder: "Search player name..."
+                },
+                modals: {
+                    editPlayer: "✏️ EDIT PLAYER",
+                    addPlayer: "➕ ADD NEW PLAYER",
+                    playerName: "Player Name:",
+                    rank: "Rank:",
+                    points: "Points:",
+                    save: "💾 SAVE CHANGES",
+                    add: "➕ ADD PLAYER",
+                    cancel: "✖ Cancel"
+                },
+                messages: {
+                    signInRequired: "❌ Please sign in to upload data",
+                    deleteConfirm: "Are you sure you want to delete",
+                    uploadSuccess: "✅ Week {week} uploaded successfully!",
+                    deleteSuccess: "✅ Player deleted successfully",
+                    saveSuccess: "✅ Changes saved successfully!",
+                    error: "❌ Error"
+                },
+                week: "Week"
+            },
+            ar: {
+                header: {
+                    title: "⚔️ لوحة صدارة مبارزة التحالف ⚔️",
+                    alliance: "تحالف [pWR] POWEr",
+                    event: "حدث المبارزة الأسبوعية للتحالف"
+                },
+                buttons: {
+                    upload: "📤 رفع بيانات الأسبوع",
+                    signIn: "🔐 تسجيل الدخول",
+                    signOut: "🔓 تسجيل الخروج",
+                    refresh: "🔄 تحديث البيانات",
+                    deleteWeek: "🗑️ حذف الأسبوع",
+                    addPlayer: "➕ إضافة لاعب",
+                    exportPdf: "📄 تصدير PDF",
+                    exportCsv: "💾 تصدير CSV",
+                    screenshot: "📸 لقطة شاشة",
+                    view: "عرض",
+                    edit: "✏️ تعديل",
+                    delete: "🗑️ حذف"
+                },
+                table: {
+                    rank: "الترتيب",
+                    movement: "الحركة",
+                    playerName: "اسم اللاعب",
+                    points: "النقاط",
+                    achievements: "الإنجازات",
+                    division: "الفئة",
+                    actions: "الإجراءات"
+                },
+                kpi: {
+                    totalPlayers: "إجمالي الناجين",
+                    avgPoints: "متوسط النقاط",
+                    topScore: "أعلى نتيجة",
+                    totalPoints: "إجمالي النقاط"
+                },
+                movement: {
+                    title: "📈 أبرز التحركات الأسبوعية",
+                    climber: "أكبر صعود",
+                    faller: "أكبر هبوط",
+                    mvp: "أفضل لاعب",
+                    streak: "أطول سلسلة"
+                },
+                charts: {
+                    top10: "🏆 أفضل 10 أبطال",
+                    distribution: "📊 توزيع النقاط",
+                    topPerformance: "🔥 أداء أفضل 20",
+                    bottomPerformance: "📉 أداء أسفل 20"
+                },
+                divisions: {
+                    title: "🏆 ترتيب الفئات",
+                    elite: "فئة النخبة",
+                    master: "فئة الماسترز",
+                    warrior: "فئة المحاربين",
+                    players: "لاعبين"
+                },
+                leaderboard: {
+                    title: "📋 ترتيب الناجين الكامل",
+                    searchPlaceholder: "ابحث عن اسم اللاعب..."
+                },
+                modals: {
+                    editPlayer: "✏️ تعديل اللاعب",
+                    addPlayer: "➕ إضافة لاعب جديد",
+                    playerName: "اسم اللاعب:",
+                    rank: "الترتيب:",
+                    points: "النقاط:",
+                    save: "💾 حفظ التغييرات",
+                    add: "➕ إضافة لاعب",
+                    cancel: "✖ إلغاء"
+                },
+                messages: {
+                    signInRequired: "❌ يرجى تسجيل الدخول لرفع البيانات",
+                    deleteConfirm: "هل أنت متأكد من حذف",
+                    uploadSuccess: "✅ تم رفع الأسبوع {week} بنجاح!",
+                    deleteSuccess: "✅ تم حذف اللاعب بنجاح",
+                    saveSuccess: "✅ تم حفظ التغييرات بنجاح!",
+                    error: "❌ خطأ"
+                },
+                week: "الأسبوع"
+            }
+        };
+        
+        let currentLanguage = localStorage.getItem('dashboardLanguage') || 'en';
+        
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('dashboardLanguage', lang);
+            
+            // Update HTML direction
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.lang = lang;
+            
+            // Update language toggle button
+            const toggleBtn = document.getElementById('languageToggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = lang === 'en' ? '🌐 العربية' : '🌐 English';
+            }
+            
+            // Translate all elements with data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                const keys = key.split('.');
+                let translation = translations[lang];
+                
+                for (const k of keys) {
+                    translation = translation[k];
+                    if (!translation) break;
+                }
+                
+                if (translation) {
+                    element.textContent = translation;
+                }
+            });
+            
+            // Update dynamic content
+            updateDashboard();
+        }
+        
+        function t(key, replacements = {}) {
+            const keys = key.split('.');
+            let translation = translations[currentLanguage];
+            
+            for (const k of keys) {
+                translation = translation[k];
+                if (!translation) return key;
+            }
+            
+            // Replace placeholders
+            if (typeof translation === 'string') {
+                for (const [placeholder, value] of Object.entries(replacements)) {
+                    translation = translation.replace(`{${placeholder}}`, value);
+                }
+            }
+            
+            return translation;
+        }
+        
+        // Language toggle button handler
+        document.getElementById('languageToggle')?.addEventListener('click', () => {
+            setLanguage(currentLanguage === 'en' ? 'ar' : 'en');
+        });
+        
+        // Initialize language on load
+        setLanguage(currentLanguage);
         
         // ============================================
         // FIREBASE FUNCTIONS
@@ -1489,8 +1757,8 @@ body {
                 
                 // Admin buttons (only show if signed in)
                 const adminButtons = isAdmin ? `
-                    <button class="view-profile-btn" onclick="editPlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(153, 204, 51, 0.4); border-color: #99cc33;">✏️ Edit</button>
-                    <button class="view-profile-btn" onclick="deletePlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(204, 51, 0, 0.4); border-color: #cc3300;">🗑️ Del</button>
+                    <button class="view-profile-btn" onclick="editPlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(153, 204, 51, 0.4); border-color: #99cc33;">${t('buttons.edit')}</button>
+                    <button class="view-profile-btn" onclick="deletePlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(204, 51, 0, 0.4); border-color: #cc3300;">${t('buttons.delete')}</button>
                 ` : '';
                 
                 return `
@@ -1502,7 +1770,7 @@ body {
                         <td>${achievements.map(a => `<span class="achievement-badge">${a}</span>`).join('')}</td>
                         <td>${division}</td>
                         <td>
-                            <button class="view-profile-btn" onclick="openPlayerProfile('${player['Player Name'].replace(/'/g, "\\'")}')">View</button>
+                            <button class="view-profile-btn" onclick="openPlayerProfile('${player['Player Name'].replace(/'/g, "\\'")}')">  ${t('buttons.view')}</button>
                             ${adminButtons}
                         </td>
                     </tr>
@@ -1515,7 +1783,7 @@ body {
             const weekSelector = document.getElementById('weekSelector');
             
             weekSelector.innerHTML = weeks.map(week => 
-                `<button class="week-btn ${week == currentWeek ? 'active' : ''}" onclick="selectWeek(${week})">Week ${week}</button>`
+                `<button class="week-btn ${week == currentWeek ? 'active' : ''}" onclick="selectWeek(${week})">${t('week')} ${week}</button>`
             ).join('');
         }
 
@@ -2104,28 +2372,32 @@ body {
             if (user) {
                 // User is signed in - SHOW admin buttons
                 if (signInBtn) {
-                    signInBtn.textContent = '🔓 Sign Out';
+                    signInBtn.textContent = t('buttons.signOut');
                     signInBtn.title = `Signed in as ${user.email}`;
                 }
                 if (uploadLabel) {
                     uploadLabel.style.display = 'inline-block';
+                    uploadLabel.textContent = t('buttons.upload');
                     uploadLabel.style.background = 'linear-gradient(135deg, #99cc33, #669900)';
                     uploadLabel.style.boxShadow = '0 0 20px rgba(153, 204, 51, 0.4)';
                     uploadLabel.title = `Signed in as ${user.email} - Click to upload`;
                 }
                 if (deleteWeekBtn) {
                     deleteWeekBtn.style.display = 'inline-block';
+                    deleteWeekBtn.textContent = t('buttons.deleteWeek');
                 }
                 if (addPlayerBtn) {
                     addPlayerBtn.style.display = 'inline-block';
+                    addPlayerBtn.textContent = t('buttons.addPlayer');
                 }
                 if (refreshDataBtn) {
                     refreshDataBtn.style.display = 'inline-block';
+                    refreshDataBtn.textContent = t('buttons.refresh');
                 }
             } else {
                 // User is signed out - HIDE admin buttons
                 if (signInBtn) {
-                    signInBtn.textContent = '🔐 Sign In';
+                    signInBtn.textContent = t('buttons.signIn');
                     signInBtn.title = 'Sign in to manage data';
                 }
                 if (uploadLabel) {
@@ -2138,7 +2410,8 @@ body {
                     addPlayerBtn.style.display = 'none';
                 }
                 if (refreshDataBtn) {
-                    refreshDataBtn.style.display = 'inline-block'; // Keep visible - anyone can refresh
+                    refreshDataBtn.style.display = 'inline-block';
+                    refreshDataBtn.textContent = t('buttons.refresh');
                 }
             }
         }
