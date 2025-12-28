@@ -1471,6 +1471,7 @@ body {
         function renderTable(data = null) {
             const players = data || getCurrentPlayers();
             const tbody = document.getElementById('tableBody');
+            const isAdmin = auth.currentUser !== null;
             
             tbody.innerHTML = players.map(player => {
                 let rankClass = 'rank-default';
@@ -1486,6 +1487,12 @@ body {
                 const achievements = getAchievements(player, currentWeek);
                 const division = getDivision(player.Points);
                 
+                // Admin buttons (only show if signed in)
+                const adminButtons = isAdmin ? `
+                    <button class="view-profile-btn" onclick="editPlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(153, 204, 51, 0.4); border-color: #99cc33;">✏️ Edit</button>
+                    <button class="view-profile-btn" onclick="deletePlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(204, 51, 0, 0.4); border-color: #cc3300;">🗑️ Del</button>
+                ` : '';
+                
                 return `
                     <tr>
                         <td><span class="rank-badge ${rankClass}">#${player.Rank}</span></td>
@@ -1496,8 +1503,7 @@ body {
                         <td>${division}</td>
                         <td>
                             <button class="view-profile-btn" onclick="openPlayerProfile('${player['Player Name'].replace(/'/g, "\\'")}')">View</button>
-                            <button class="view-profile-btn" onclick="editPlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(153, 204, 51, 0.4); border-color: #99cc33;">✏️ Edit</button>
-                            <button class="view-profile-btn" onclick="deletePlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(204, 51, 0, 0.4); border-color: #cc3300;">🗑️ Del</button>
+                            ${adminButtons}
                         </td>
                     </tr>
                 `;
@@ -2091,28 +2097,48 @@ body {
             const user = auth.currentUser;
             const signInBtn = document.getElementById('signInOutBtn');
             const uploadLabel = document.getElementById('uploadBtn');
+            const deleteWeekBtn = document.getElementById('deleteWeekBtn');
+            const addPlayerBtn = document.getElementById('addPlayerBtn');
+            const refreshDataBtn = document.getElementById('refreshDataBtn');
             
             if (user) {
-                // User is signed in
+                // User is signed in - SHOW admin buttons
                 if (signInBtn) {
                     signInBtn.textContent = '🔓 Sign Out';
                     signInBtn.title = `Signed in as ${user.email}`;
                 }
                 if (uploadLabel) {
+                    uploadLabel.style.display = 'inline-block';
                     uploadLabel.style.background = 'linear-gradient(135deg, #99cc33, #669900)';
                     uploadLabel.style.boxShadow = '0 0 20px rgba(153, 204, 51, 0.4)';
                     uploadLabel.title = `Signed in as ${user.email} - Click to upload`;
                 }
+                if (deleteWeekBtn) {
+                    deleteWeekBtn.style.display = 'inline-block';
+                }
+                if (addPlayerBtn) {
+                    addPlayerBtn.style.display = 'inline-block';
+                }
+                if (refreshDataBtn) {
+                    refreshDataBtn.style.display = 'inline-block';
+                }
             } else {
-                // User is signed out
+                // User is signed out - HIDE admin buttons
                 if (signInBtn) {
                     signInBtn.textContent = '🔐 Sign In';
-                    signInBtn.title = 'Sign in to upload data';
+                    signInBtn.title = 'Sign in to manage data';
                 }
                 if (uploadLabel) {
-                    uploadLabel.style.background = 'linear-gradient(135deg, #cc5200, #993d00)';
-                    uploadLabel.style.boxShadow = '0 4px 15px rgba(255, 102, 0, 0.3)';
-                    uploadLabel.title = 'Please sign in first to upload data';
+                    uploadLabel.style.display = 'none';
+                }
+                if (deleteWeekBtn) {
+                    deleteWeekBtn.style.display = 'none';
+                }
+                if (addPlayerBtn) {
+                    addPlayerBtn.style.display = 'none';
+                }
+                if (refreshDataBtn) {
+                    refreshDataBtn.style.display = 'inline-block'; // Keep visible - anyone can refresh
                 }
             }
         }
