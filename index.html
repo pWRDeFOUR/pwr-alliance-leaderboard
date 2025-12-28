@@ -646,8 +646,6 @@ body {
                 </label>
                 <button class="action-btn" id="signInOutBtn" data-i18n="buttons.signIn">🔐 Sign In</button>
                 <button class="action-btn" id="refreshDataBtn" data-i18n="buttons.refresh">🔄 Refresh Data</button>
-                <button class="action-btn" id="deleteWeekBtn" data-i18n="buttons.deleteWeek">🗑️ Delete Week</button>
-                <button class="action-btn" id="addPlayerBtn" data-i18n="buttons.addPlayer">➕ Add Player</button>
                 <button class="action-btn" id="exportPdfBtn" data-i18n="buttons.exportPdf">📄 Export PDF</button>
                 <button class="action-btn" id="exportCsvBtn" data-i18n="buttons.exportCsv">💾 Export CSV</button>
                 <button class="action-btn" id="shareBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
@@ -1257,107 +1255,6 @@ body {
         let currentWeek = 1;
         let chartInstances = {};
         let playerHistory = {}; // Track each player across weeks
-
-        // Week 1 CSV Data
-        const week1CSV = `Rank,Player Name,Points
-1,Ibrahim 506,"254,714,950"
-2,Abo Mohammed,"222,079,491"
-3,Abdol28,"180,506,633"
-4,Abo Adnan,"173,667,879"
-5,Ahmad,"134,543,890"
-6,SLAYER,"126,951,974"
-7,ABDULAZIZALMALKI,"118,571,944"
-8,Muath Alqahtani,"111,049,134"
-9,DeFOUR,"97,202,531"
-10,DrSolo,"91,974,532"
-11,KurdeCR7,"86,022,193"
-12,Kh20s,"84,333,138"
-13,Prince Faas,"83,901,842"
-14,Silver,"83,891,034"
-15,FNFH,"82,813,666"
-16,3toos,"82,270,188"
-17,MoD515,"81,708,133"
-18,araalaa,"81,696,038"
-19,Odin,"81,374,060"
-20,Puno Kawan212,"76,801,589"
-21,BadLayy,"76,642,782"
-22,REEKI,"75,053,779"
-23,AbuZahrah,"74,035,082"
-24,Stiner,"73,552,818"
-25,Abu Ghaith,"72,558,455"
-26,heavenly way,"68,779,646"
-27,Duaa,"67,121,386"
-28,Librta,"66,270,258"
-29,Raed 966,"64,873,382"
-30,777Chris,"63,581,728"
-31,Abusalwati,"63,329,661"
-32,Call Me Sarass,"60,184,658"
-33,BoYousef16,"59,801,715"
-34,LiemKo,"59,489,836"
-35,ابو نواف,"57,938,576"
-36,Liu Porsche,"57,633,240"
-37,ciki33,"57,176,638"
-38,aboyaamen,"56,817,080"
-39,JokerR5,"56,485,471"
-40,jumanto,"56,066,666"
-41,Rawan,"55,489,643"
-42,batttosai,"55,475,449"
-43,Emonbdwy,"55,080,311"
-44,AbuHaitham94,"55,063,094"
-45,FAHad,"53,197,906"
-46,BlackWolf05,"52,839,177"
-47,MoroccanPatriots,"52,103,149"
-48,PERNAMA,"52,000,712"
-49,SKYLINE,"51,834,583"
-50,Abu Jassim,"50,513,844"
-51,letnanmm,"50,504,397"
-52,AzD69,"50,470,907"
-53,DOOMSKY,"50,463,540"
-54,The Dreamer,"49,876,426"
-55,TheRagy,"49,161,384"
-56,FalconOfPrey Yahya,"48,798,782"
-57,louiieee,"48,699,193"
-58,AfroZack,"48,589,570"
-59,MaulanaMalik,"48,575,383"
-60,DewolARZ,"48,117,286"
-61,Abu Yazan12,"47,702,991"
-62,LaoBan,"47,329,765"
-63,BU SULTAN,"47,310,813"
-64,Komandan29f11,"46,947,538"
-65,Zincoo,"46,253,199"
-66,Stellaquantum,"46,195,001"
-67,Sahroni Anti Hero,"45,099,933"
-68,AlaaNa22,"43,132,672"
-69,PeCeLeLe,"42,323,581"
-70,19Maho94,"41,083,116"
-71,NatanRGL,"38,333,989"
-72,A506d,"37,675,665"
-73,commandos np,"36,380,736"
-74,NEVER TOP UP,"36,060,184"
-75,Moha1994a,"35,946,151"
-76,Ns911,"35,796,681"
-77,dloah,"35,450,464"
-78,Hussein12,"35,158,478"
-79,Niro1973,"34,697,302"
-80,Prestige,"31,073,684"
-81,Abu Jassim jr,"31,051,153"
-82,Burkan5,"30,501,191"
-83,Safiraalyysa,"30,160,926"
-84,Khaledkhaba,"28,709,046"
-85,KhaledQ8,"28,404,426"
-86,ViniJR,"28,320,266"
-87,Fighter,"27,639,212"
-88,Tito EmamAdel,"27,534,558"
-89,ANGDO,"25,060,798"
-90,CaptainOMN,"24,245,736"
-91,LOOKAS07,"21,958,420"
-92,TAZ,"18,412,925"
-93,AlModamer77,"17,095,087"
-94,AlQatras,"16,570,020"
-95,Majedz31,"13,836,563"
-96,feasta,"7,215,356"
-97,DanPlex768,"2,944,502"
-98,Abood19973,"2,500,065"`;
 
         // === UTILITY FUNCTIONS ===
         function parseCSV(csv) {
@@ -2310,9 +2207,7 @@ body {
         document.getElementById('saveAddPlayerBtn')?.addEventListener('click', saveNewPlayer);
         
         // Control buttons
-        document.getElementById('deleteWeekBtn')?.addEventListener('click', deleteCurrentWeek);
         document.getElementById('refreshDataBtn')?.addEventListener('click', refreshDataFromFirebase);
-        document.getElementById('addPlayerBtn')?.addEventListener('click', showAddPlayerModal);
 
         // ============================================
         // === FIREBASE INITIALIZATION ===
@@ -2327,30 +2222,32 @@ body {
             const totalWeeks = await loadAllWeeksFromFirebase();
             
             if (totalWeeks === 0) {
-                // No data in Firebase - use default Week 1
-                console.log('⚠️ No Firebase data found, loading default Week 1');
-                weeklyData[1] = parseCSV(week1CSV);
-                currentWeek = 1;
+                // No data in Firebase - show empty state
+                console.log('⚠️ No Firebase data found. Please upload Week 1 data.');
                 
-                // Optionally auto-upload Week 1 if signed in
-                if (auth.currentUser) {
-                    console.log('Uploading default Week 1 to Firebase...');
-                    try {
-                        await saveWeekToFirebase(1, week1CSV);
-                    } catch (error) {
-                        console.error('Error auto-uploading Week 1:', error);
-                    }
+                // Show message to user
+                const kpiGrid = document.getElementById('kpiGrid');
+                if (kpiGrid) {
+                    kpiGrid.innerHTML = `
+                        <div class="kpi-card" style="grid-column: 1 / -1;">
+                            <div class="kpi-label">📤 ${t('messages.noData') || 'NO DATA UPLOADED YET'}</div>
+                            <div class="kpi-value">⚠️</div>
+                            <div class="kpi-subtext">${t('messages.uploadFirst') || 'Please sign in and upload Week 1 data to get started'}</div>
+                        </div>
+                    `;
                 }
+                
+                currentWeek = 1;
             } else {
                 // Set current week to latest available
                 currentWeek = totalWeeks;
+                
+                // Update UI
+                updateWeekButtons();
+                updateDashboard();
             }
             
-            // Update UI
-            updateWeekButtons();
-            updateDashboard();
             updateAuthUI();
-            
             console.log('✅ Dashboard initialized');
         }
         
@@ -2365,8 +2262,6 @@ body {
             const user = auth.currentUser;
             const signInBtn = document.getElementById('signInOutBtn');
             const uploadLabel = document.getElementById('uploadBtn');
-            const deleteWeekBtn = document.getElementById('deleteWeekBtn');
-            const addPlayerBtn = document.getElementById('addPlayerBtn');
             const refreshDataBtn = document.getElementById('refreshDataBtn');
             
             if (user) {
@@ -2382,16 +2277,7 @@ body {
                     uploadLabel.style.boxShadow = '0 0 20px rgba(153, 204, 51, 0.4)';
                     uploadLabel.title = `Signed in as ${user.email} - Click to upload`;
                 }
-                if (deleteWeekBtn) {
-                    deleteWeekBtn.style.display = 'inline-block';
-                    deleteWeekBtn.textContent = t('buttons.deleteWeek');
-                }
-                if (addPlayerBtn) {
-                    addPlayerBtn.style.display = 'inline-block';
-                    addPlayerBtn.textContent = t('buttons.addPlayer');
-                }
                 if (refreshDataBtn) {
-                    refreshDataBtn.style.display = 'inline-block';
                     refreshDataBtn.textContent = t('buttons.refresh');
                 }
             } else {
@@ -2403,14 +2289,7 @@ body {
                 if (uploadLabel) {
                     uploadLabel.style.display = 'none';
                 }
-                if (deleteWeekBtn) {
-                    deleteWeekBtn.style.display = 'none';
-                }
-                if (addPlayerBtn) {
-                    addPlayerBtn.style.display = 'none';
-                }
                 if (refreshDataBtn) {
-                    refreshDataBtn.style.display = 'inline-block';
                     refreshDataBtn.textContent = t('buttons.refresh');
                 }
             }
