@@ -1086,8 +1086,10 @@ body {
                 }
             });
             
-            // Update dynamic content
-            updateDashboard();
+            // Update dynamic content only if data is loaded
+            if (Object.keys(weeklyData).length > 0) {
+                updateDashboard();
+            }
         }
         
         function t(key, replacements = {}) {
@@ -1114,8 +1116,14 @@ body {
             setLanguage(currentLanguage === 'en' ? 'ar' : 'en');
         });
         
-        // Initialize language on load
-        setLanguage(currentLanguage);
+        // Initialize language direction and translations (but not dashboard update)
+        document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.lang = currentLanguage;
+        
+        const toggleBtn = document.getElementById('languageToggle');
+        if (toggleBtn) {
+            toggleBtn.textContent = currentLanguage === 'en' ? '🌐 العربية' : '🌐 English';
+        }
         
         // ============================================
         // FIREBASE FUNCTIONS
@@ -2252,6 +2260,10 @@ body {
             }
             
             updateAuthUI();
+            
+            // Apply full language translations now that data is loaded
+            setLanguage(currentLanguage);
+            
             console.log('✅ Dashboard initialized');
         }
         
