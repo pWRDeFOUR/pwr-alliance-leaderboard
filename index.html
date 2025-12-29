@@ -73,6 +73,77 @@ body {
 }
 
 .dashboard-container { max-width: 1600px; margin: 0 auto; }
+.tabs-container { max-width: 1650px; margin: 0 auto; }
+.global-bar {
+    max-width: 1650px;
+    margin: 0 auto 20px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, rgba(40, 35, 25, 0.95), rgba(25, 20, 15, 0.95));
+    border: 2px solid #6b5a3d;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.alliance-logo.mini {
+    font-size: 2rem;
+    padding: 10px 16px;
+    letter-spacing: 4px;
+}
+.brand-text { line-height: 1.2; }
+.brand-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.2rem;
+    color: #ffaa33;
+    letter-spacing: 1px;
+}
+.brand-sub {
+    font-size: 0.95rem;
+    color: #9a8970;
+}
+.global-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+.action-btn.compact {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+}
+.tab-buttons {
+    display: flex;
+    gap: 10px;
+    margin: 0 auto 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.tab-btn {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #2a2515, #1f1910);
+    border: 2px solid #6b5a3d;
+    border-radius: 6px;
+    color: #d4a765;
+    font-family: 'Teko', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+.tab-btn:hover { border-color: #ff9933; color: #ffcc66; box-shadow: 0 0 15px rgba(255, 153, 51, 0.4); transform: translateY(-2px); }
+.tab-btn.active { background: linear-gradient(135deg, #ff6600, #cc5200); color: #fff; border-color: #ff9933; box-shadow: 0 0 20px rgba(255, 102, 0, 0.6); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
 
 /* ===== MILITARY HEADER ===== */
 .header {
@@ -622,14 +693,31 @@ body {
 }</style>
 </head>
 <body>
-    <div class="dashboard-container">
+    <div class="global-bar">
+        <div class="brand">
+            <div class="alliance-logo mini">pWR</div>
+            <div class="brand-text">
+                <div class="brand-title">POWEr Alliance Command Center</div>
+                <div class="brand-sub">Live Leaderboards & Admin Controls</div>
+            </div>
+        </div>
+        <div class="global-actions">
+            <button class="action-btn compact" id="languageToggle" style="font-size: 0.9rem;">🌐 العربية</button>
+            <button class="action-btn compact" id="signInOutBtn" data-i18n="buttons.signIn">🔐 Sign In</button>
+            <button class="action-btn compact" id="shareBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
+        </div>
+    </div>
+
+    <div class="tabs-container">
+        <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="duelTab">⚔️ Alliance Duel</button>
+            <button class="tab-btn" data-tab="donationTab">🤝 Donation Leaderboard</button>
+        </div>
+
+        <div id="duelTab" class="tab-panel active">
+            <div class="dashboard-container">
         <!-- Header -->
         <div class="header">
-            <div style="position: absolute; top: 20px; right: 20px;">
-                <button class="action-btn" id="languageToggle" style="font-size: 0.9rem; padding: 8px 15px;">
-                    🌐 العربية
-                </button>
-            </div>
             <div class="alliance-logo">pWR</div>
             <h1 data-i18n="header.title">⚔️ ALLIANCE DUEL LEADERBOARD ⚔️</h1>
             <p class="alliance-name" data-i18n="header.alliance">[pWR] POWEr Alliance</p>
@@ -644,13 +732,12 @@ body {
                     📤 Upload Week Data
                     <input type="file" id="csvUpload" accept=".csv" style="display: none;">
                 </label>
-                <button class="action-btn" id="signInOutBtn" data-i18n="buttons.signIn">🔐 Sign In</button>
                 <button class="action-btn" id="refreshDataBtn" data-i18n="buttons.refresh">🔄 Refresh Data</button>
                 <button class="action-btn" id="deleteWeekBtn" data-i18n="buttons.deleteWeek" style="display: none;">🗑️ Delete Week</button>
                 <button class="action-btn" id="addPlayerBtn" data-i18n="buttons.addPlayer" style="display: none;">➕ Add Player</button>
+                <button class="action-btn" id="resetDuelBtn" style="display: none;">♻️ Reset Duel Data</button>
                 <button class="action-btn" id="exportPdfBtn" data-i18n="buttons.exportPdf">📄 Export PDF</button>
                 <button class="action-btn" id="exportCsvBtn" data-i18n="buttons.exportCsv">💾 Export CSV</button>
-                <button class="action-btn" id="shareBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
             </div>
         </div>
 
@@ -860,10 +947,207 @@ body {
             </div>
         </div>
 
+        <!-- Auth Modal -->
+        <div id="authModal" class="modal">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h2>🔐 Sign In</h2>
+                    <span class="modal-close" id="closeAuthModal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: 20px;">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Email</label>
+                        <input type="email" id="authEmail" class="search-bar" placeholder="admin@example.com" autocomplete="username">
+                        
+                        <label style="color: #997755; display: block; margin: 15px 0 8px; font-weight: 600;">Password</label>
+                        <input type="password" id="authPassword" class="search-bar" placeholder="Enter password" autocomplete="current-password">
+                        
+                        <label style="display: flex; align-items: center; gap: 8px; margin-top: 12px; color: #997755; font-weight: 600;">
+                            <input type="checkbox" id="authRememberMe" checked style="width: 18px; height: 18px;">
+                            Remember me
+                        </label>
+                    </div>
+                    
+                    <button class="upload-btn" id="authSubmitBtn" style="width: 100%; margin-bottom: 10px;">
+                        🔐 Sign In
+                    </button>
+                    
+                    <div id="authStatus" style="text-align: center; color: #ffaa33; margin-top: 10px; font-weight: 600;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Donation Profile Modal -->
+        <div id="donationProfileModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="donationModalName">Donation Profile</h2>
+                    <span class="modal-close" id="closeDonationModal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <div class="stat-label">Current Rank</div>
+                            <div class="stat-value" id="donationModalRank">-</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="stat-label">Total Points</div>
+                            <div class="stat-value" id="donationModalPoints">-</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="stat-label">Tier</div>
+                            <div class="stat-value" id="donationModalTier">-</div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="color: #8b45ff; margin-bottom: 15px;">Donation History</h3>
+                        <canvas id="donationHistoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer -->
         <div class="footer">
             <p>Created by: <span class="creator-tag">#1918 [pWR] DeFOUR</span></p>
             <p style="font-size: 0.9rem; color: #808080; margin-top: 5px;">Elite Alliance Dashboard System</p>
+        </div>
+            </div>
+        </div>
+
+        <div id="donationTab" class="tab-panel">
+            <div class="dashboard-container">
+                <div class="header">
+                    <div class="alliance-logo">pWR</div>
+                    <h1>🤝 ALLIANCE DONATION LEADERBOARD</h1>
+                    <p class="alliance-name">[pWR] POWEr Alliance</p>
+                    <p class="event-subtitle">Weekly Alliance Donations</p>
+                </div>
+
+                <div class="week-controls">
+                    <div class="week-selector" id="donationWeekSelector"></div>
+                    <div class="control-buttons">
+                        <label for="donationUpload" class="upload-btn" id="donationUploadLabel" style="display: none;">
+                            📤 Upload Donation CSV
+                            <input type="file" id="donationUpload" accept=".csv" style="display: none;">
+                        </label>
+                        <button class="action-btn" id="donationExportPdfBtn">📄 Export PDF</button>
+                        <button class="action-btn" id="donationExportCsvBtn">💾 Export CSV</button>
+                        <button class="action-btn" id="donationExportPngBtn">📸 Screenshot</button>
+                        <button class="action-btn" id="resetDonationBtn" style="display: none;">♻️ Reset Donation Data</button>
+                    </div>
+                </div>
+
+                <div class="kpi-grid" id="donationKpiGrid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Total Commanders</div>
+                        <div class="kpi-value" id="donationTotalPlayers">-</div>
+                        <div class="kpi-subtext">Entries in CSV</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Top Commander</div>
+                        <div class="kpi-value" id="donationTopCommander">-</div>
+                        <div class="kpi-subtext" id="donationTopPoints">-</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Total Donations</div>
+                        <div class="kpi-value" id="donationTotalPoints">-</div>
+                        <div class="kpi-subtext">Sum of all points</div>
+                    </div>
+                </div>
+
+                <div class="movement-section" id="donationMovementSection" style="display: none;">
+                    <h2 class="section-title">📈 Donation Highlights</h2>
+                    <div class="movement-grid">
+                        <div class="movement-card">
+                            <div class="movement-icon">🚀</div>
+                            <div class="movement-title">Biggest Climber</div>
+                            <div class="movement-player" id="donationBiggestClimber">-</div>
+                            <div class="movement-stats" id="donationClimberStats">-</div>
+                        </div>
+                        <div class="movement-card">
+                            <div class="movement-icon">📉</div>
+                            <div class="movement-title">Biggest Drop</div>
+                            <div class="movement-player" id="donationBiggestFaller">-</div>
+                            <div class="movement-stats" id="donationFallerStats">-</div>
+                        </div>
+                        <div class="movement-card">
+                            <div class="movement-icon">👑</div>
+                            <div class="movement-title">Weekly MVP</div>
+                            <div class="movement-player" id="donationWeeklyMvp">-</div>
+                            <div class="movement-stats" id="donationMvpStats">-</div>
+                        </div>
+                        <div class="movement-card">
+                            <div class="movement-icon">🔥</div>
+                            <div class="movement-title">Top Streak</div>
+                            <div class="movement-player" id="donationTopStreak">-</div>
+                            <div class="movement-stats" id="donationStreakStats">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="division-grid" id="donationDivisionGrid">
+                    <div class="division-card elite">
+                        <div class="division-header">
+                            <div class="division-icon">💎</div>
+                            <div class="division-name">100k+ Donors</div>
+                            <div class="division-req">Elite Tier</div>
+                        </div>
+                        <div class="division-count" id="donationEliteCount">0 Commanders</div>
+                        <div class="division-players" id="donationElitePlayers">-</div>
+                    </div>
+                    <div class="division-card master">
+                        <div class="division-header">
+                            <div class="division-icon">⚔️</div>
+                            <div class="division-name">50k - 99k</div>
+                            <div class="division-req">Master Tier</div>
+                        </div>
+                        <div class="division-count" id="donationMasterCount">0 Commanders</div>
+                        <div class="division-players" id="donationMasterPlayers">-</div>
+                    </div>
+                    <div class="division-card warrior">
+                        <div class="division-header">
+                            <div class="division-icon">🛡️</div>
+                            <div class="division-name">Below 50k</div>
+                            <div class="division-req">Warrior Tier</div>
+                        </div>
+                        <div class="division-count" id="donationWarriorCount">0 Commanders</div>
+                        <div class="division-players" id="donationWarriorPlayers">-</div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-title">Top 10 Donors</div>
+                        <canvas id="donationBarChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">Donation Distribution</div>
+                        <canvas id="donationPieChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h2 class="section-title" style="margin-top: 0;">Donation Leaderboard</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 180px 180px; gap: 12px;">
+                    <input type="text" id="donationSearch" class="search-bar" placeholder="Search commander...">
+                        <input type="number" id="donationMinPoints" class="search-bar" placeholder="Min points">
+                        <select id="donationTierFilter" class="search-bar">
+                            <option value="">All tiers</option>
+                            <option value="elite">100k+</option>
+                            <option value="master">50k-99k</option>
+                            <option value="warrior">Below 50k</option>
+                        </select>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead id="donationTableHead"></thead>
+                            <tbody id="donationTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="donationStatus" style="margin-top: 10px; color: #ffaa33; text-align: center;"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1095,9 +1379,21 @@ body {
                 }
             });
             
+            // Re-apply auth-specific labels/visibility after translations
+            updateAuthUI();
+            
             // Update dynamic content only if data is loaded
             if (Object.keys(weeklyData).length > 0) {
                 updateDashboard();
+            }
+
+            // Update donation label when language changes (text only)
+            const donationLabel = document.getElementById('donationUploadLabel');
+            if (donationLabel) {
+                const textNode = Array.from(donationLabel.childNodes).find(node => node.nodeType === 3);
+                if (textNode) {
+                    textNode.textContent = '📤 Upload Donation CSV';
+                }
             }
         }
         
@@ -1236,6 +1532,81 @@ body {
                 throw error;
             }
         }
+
+        // Donation Firebase functions
+        async function loadDonationWeekFromFirebase(weekNum) {
+            try {
+                const snapshot = await database.ref(`donations/weeks/${weekNum}`).once('value');
+                const data = snapshot.val();
+                if (!data) return null;
+
+                const rows = Object.values(data).map(entry => ({
+                    Rank: entry.rank,
+                    Commander: entry.commanderName,
+                    Points: entry.points
+                }));
+                donationWeeksData[weekNum] = rows;
+                return rows;
+            } catch (error) {
+                console.error(`Error loading donation week ${weekNum}:`, error);
+                return null;
+            }
+        }
+
+        async function loadAllDonationWeeksFromFirebase() {
+            try {
+                const metaSnapshot = await database.ref('donations/metadata').once('value');
+                const metadata = metaSnapshot.val();
+                const totalWeeks = metadata?.totalWeeks || 0;
+                if (!totalWeeks) return 0;
+
+                for (let i = 1; i <= totalWeeks; i++) {
+                    await loadDonationWeekFromFirebase(i);
+                }
+
+                currentDonationWeek = metadata.latestWeek || totalWeeks;
+                return totalWeeks;
+            } catch (error) {
+                console.error('Error loading donation weeks:', error);
+                return 0;
+            }
+        }
+
+        async function saveDonationWeekToFirebase(weekNum, csvData) {
+            try {
+                if (!auth.currentUser) {
+                    throw new Error('You must be signed in to upload donations');
+                }
+
+                const rows = parseDonationCSV(csvData);
+                if (!rows.length) {
+                    throw new Error('No valid donation data');
+                }
+
+                const firebaseData = rows.map(row => ({
+                    rank: row.Rank,
+                    commanderName: row['Commander Name'] || row.Commander || row['Player Name'],
+                    points: row.Points
+                }));
+
+                await database.ref(`donations/weeks/${weekNum}`).set(firebaseData);
+
+                const metaSnapshot = await database.ref('donations/metadata').once('value');
+                const currentMeta = metaSnapshot.val() || {};
+                await database.ref('donations/metadata').set({
+                    totalWeeks: Math.max(currentMeta.totalWeeks || 0, weekNum),
+                    latestWeek: weekNum,
+                    lastUpdated: new Date().toISOString(),
+                    uploadedBy: auth.currentUser.email
+                });
+
+                await loadDonationWeekFromFirebase(weekNum);
+                return true;
+            } catch (error) {
+                console.error('Error saving donation week:', error);
+                throw error;
+            }
+        }
         
         // Authentication functions
         async function signInToFirebase(email, password) {
@@ -1252,6 +1623,57 @@ body {
         function signOutFromFirebase() {
             auth.signOut();
             console.log('✅ Signed out');
+        }
+
+        // Auth modal helpers
+        function openAuthModal() {
+            const savedEmail = localStorage.getItem('authRememberEmail') || '';
+            document.getElementById('authEmail').value = savedEmail;
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authStatus').textContent = '';
+            document.getElementById('authSubmitBtn').disabled = false;
+            const rememberCheckbox = document.getElementById('authRememberMe');
+            if (rememberCheckbox) {
+                rememberCheckbox.checked = !!savedEmail;
+            }
+            document.getElementById('authModal').style.display = 'block';
+            document.getElementById('authEmail').focus();
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
+        async function handleAuthSubmit(event) {
+            event?.preventDefault();
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const statusDiv = document.getElementById('authStatus');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            const remember = document.getElementById('authRememberMe')?.checked;
+
+            if (!email || !password) {
+                statusDiv.textContent = '⚠️ Email and password are required';
+                return;
+            }
+
+            try {
+                statusDiv.textContent = '⏳ Signing in...';
+                submitBtn.disabled = true;
+                await signInToFirebase(email, password);
+                if (remember) {
+                    localStorage.setItem('authRememberEmail', email);
+                } else {
+                    localStorage.removeItem('authRememberEmail');
+                }
+                statusDiv.textContent = '✅ Signed in';
+                setTimeout(() => closeAuthModal(), 500);
+            } catch (error) {
+                console.error('Auth modal sign-in error:', error);
+                statusDiv.textContent = `❌ ${error.message}`;
+            } finally {
+                submitBtn.disabled = false;
+            }
         }
         
         // Show loading state
@@ -1274,6 +1696,10 @@ body {
         let currentWeek = 1;
         let chartInstances = {};
         let playerHistory = {}; // Track each player across weeks
+        let donationData = [];
+        let donationWeeksData = {};
+        let currentDonationWeek = 1;
+        let currentDonationView = 'all';
 
         // === UTILITY FUNCTIONS ===
         function parseCSV(csv) {
@@ -1326,6 +1752,41 @@ body {
             return data;
         }
 
+        function parseDonationCSV(csv) {
+            const normalizedCSV = csv.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            const lines = normalizedCSV.trim().split('\n');
+            if (lines.length === 0) return [];
+
+            const headerLine = lines[0];
+            const headers = parseCSVLine(headerLine).map(h => h.trim());
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim() === '') continue;
+                const values = parseCSVLine(lines[i]);
+                const obj = {};
+
+                headers.forEach((header, index) => {
+                    let value = (values[index] || '').trim();
+                    if (header === 'Points') {
+                        obj[header] = parseInt(value.replace(/,/g, '')) || 0;
+                    } else if (header === 'Rank') {
+                        obj[header] = parseInt(value) || 0;
+                    } else {
+                        obj[header] = value;
+                    }
+                });
+
+                const commander = obj['Commander Name'] || obj['Commander'] || obj['Player Name'];
+                if (commander && obj.Rank && obj.Points >= 0) {
+                    obj['Commander Name'] = commander;
+                    data.push(obj);
+                }
+            }
+
+            return data;
+        }
+
         // Helper function to parse a single CSV line
         function parseCSVLine(line) {
             const result = [];
@@ -1362,6 +1823,45 @@ body {
 
         function getCurrentPlayers() {
             return weeklyData[currentWeek] || [];
+        }
+
+        function getDonationWeeksList() {
+            return Object.keys(donationWeeksData).map(Number).sort((a, b) => a - b);
+        }
+
+        function getCurrentDonationRows() {
+            if (currentDonationView === 'all') {
+                return buildDonationCumulativeRows();
+            }
+            const stored = donationWeeksData[currentDonationWeek];
+            if (stored && stored.length) return stored;
+            return donationData || [];
+        }
+
+        function buildDonationCumulativeRows() {
+            const weeks = getDonationWeeksList();
+            if (!weeks.length) return donationData || [];
+
+            const map = {};
+            weeks.forEach(week => {
+                const rows = donationWeeksData[week] || [];
+                rows.forEach(row => {
+                    const key = row.Commander;
+                    if (!map[key]) {
+                        map[key] = { Commander: key, TotalPoints: 0, WeekPoints: {} };
+                    }
+                    map[key].WeekPoints[week] = row.Points || 0;
+                    map[key].TotalPoints += row.Points || 0;
+                });
+            });
+
+            const combined = Object.values(map).sort((a, b) => b.TotalPoints - a.TotalPoints);
+            return combined.map((row, index) => ({
+                Rank: index + 1,
+                Commander: row.Commander,
+                Points: row.TotalPoints,
+                WeekPoints: row.WeekPoints
+            }));
         }
 
         function destroyChart(chartId) {
@@ -1712,7 +2212,499 @@ body {
             document.getElementById('searchBar').value = '';
         }
 
+        // === DONATION LEADERBOARD ===
+        function renderDonationKPIs(rows = getCurrentDonationRows()) {
+            const totalPlayersEl = document.getElementById('donationTotalPlayers');
+            const topCommanderEl = document.getElementById('donationTopCommander');
+            const topPointsEl = document.getElementById('donationTopPoints');
+            const totalPointsEl = document.getElementById('donationTotalPoints');
+
+            if (!totalPlayersEl || !topCommanderEl || !topPointsEl || !totalPointsEl) return;
+
+            const top = rows[0];
+            const totalPoints = rows.reduce((sum, p) => sum + (p.Points || 0), 0);
+
+            totalPlayersEl.textContent = rows.length || '-';
+            topCommanderEl.textContent = top ? top.Commander : '-';
+            topPointsEl.textContent = top ? `${top.Points.toLocaleString()} pts` : '-';
+            totalPointsEl.textContent = totalPoints ? totalPoints.toLocaleString() : '-';
+        }
+
+        function renderDonationTable(rows = getCurrentDonationRows()) {
+            const tbody = document.getElementById('donationTableBody');
+            const thead = document.getElementById('donationTableHead');
+            if (!tbody || !thead) return;
+
+            const safeRows = rows || [];
+            const weeks = getDonationWeeksList();
+            const isCumulative = currentDonationView === 'all' && weeks.length > 0;
+
+            if (isCumulative) {
+                thead.innerHTML = `
+                    <tr>
+                        <th>Rank</th>
+                        <th>Commander</th>
+                        ${weeks.map(w => `<th>Week ${w}</th>`).join('')}
+                        <th>Total</th>
+                        <th>Achievements</th>
+                        <th>Actions</th>
+                    </tr>
+                `;
+            } else {
+                thead.innerHTML = `
+                    <tr>
+                        <th>Rank</th>
+                        <th>Commander</th>
+                        <th>Points</th>
+                        <th>Achievements</th>
+                        <th>Actions</th>
+                    </tr>
+                `;
+            }
+
+            tbody.innerHTML = safeRows.map(player => {
+                const rankClass = player.Rank === 1 ? 'rank-1' : player.Rank === 2 ? 'rank-2' : player.Rank === 3 ? 'rank-3' : player.Rank <= 10 ? 'rank-top10' : 'rank-default';
+                const achievements = getDonationAchievements(player);
+                const points = (player.Points || 0);
+                const actions = `<button class="view-profile-btn" onclick="openDonationProfile('${player.Commander.replace(/'/g, "\\'")}')">View</button>`;
+
+                if (isCumulative) {
+                    const weekCells = weeks.map(w => `<td>${(player.WeekPoints?.[w] || 0).toLocaleString()}</td>`).join('');
+                    return `
+                        <tr>
+                            <td><span class="rank-badge ${rankClass}">#${player.Rank}</span></td>
+                            <td>${player.Commander}</td>
+                            ${weekCells}
+                            <td>${points.toLocaleString()}</td>
+                            <td>${achievements.map(a => `<span class="achievement-badge">${a}</span>`).join('')}</td>
+                            <td>${actions}</td>
+                        </tr>
+                    `;
+                }
+
+                return `
+                    <tr>
+                        <td><span class="rank-badge ${rankClass}">#${player.Rank}</span></td>
+                        <td>${player.Commander}</td>
+                        <td>${points.toLocaleString()}</td>
+                        <td>${achievements.map(a => `<span class="achievement-badge">${a}</span>`).join('')}</td>
+                        <td>${actions}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            renderDonationKPIs(safeRows);
+            renderDonationCharts(safeRows);
+            renderDonationDivisions(safeRows);
+            renderDonationMovementHighlights();
+        }
+
+        function getDonationTier(points) {
+            if (points >= 100000) return 'elite';
+            if (points >= 50000) return 'master';
+            return 'warrior';
+        }
+
+        function getDonationAchievements(player) {
+            const badges = [];
+            const points = player.Points || 0;
+            const rank = player.Rank || 0;
+            if (rank === 1) badges.push('👑 Top Donor');
+            if (rank <= 3) badges.push('🥇 Top 3');
+            if (rank <= 10) badges.push('⭐ Top 10');
+            if (points >= 100000) badges.push('💎 100k Club');
+            if (points >= 50000) badges.push('💰 50k+');
+            return badges;
+        }
+
+        function renderDonationDivisions(rows) {
+            const elite = rows.filter(p => getDonationTier(p.Points) === 'elite');
+            const master = rows.filter(p => getDonationTier(p.Points) === 'master');
+            const warrior = rows.filter(p => getDonationTier(p.Points) === 'warrior');
+
+            const eliteNames = elite.slice(0, 5).map(p => p.Commander).join(', ') || '-';
+            const masterNames = master.slice(0, 5).map(p => p.Commander).join(', ') || '-';
+            const warriorNames = warrior.slice(0, 5).map(p => p.Commander).join(', ') || '-';
+
+            document.getElementById('donationEliteCount').textContent = `${elite.length} Commanders`;
+            document.getElementById('donationElitePlayers').textContent = eliteNames + (elite.length > 5 ? '...' : '');
+            document.getElementById('donationMasterCount').textContent = `${master.length} Commanders`;
+            document.getElementById('donationMasterPlayers').textContent = masterNames + (master.length > 5 ? '...' : '');
+            document.getElementById('donationWarriorCount').textContent = `${warrior.length} Commanders`;
+            document.getElementById('donationWarriorPlayers').textContent = warriorNames + (warrior.length > 5 ? '...' : '');
+        }
+
+        function renderDonationMovementHighlights() {
+            const weeks = getDonationWeeksList();
+            if (weeks.length < 2) {
+                document.getElementById('donationMovementSection').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('donationMovementSection').style.display = 'block';
+            const currentIndex = weeks.indexOf(Number(currentDonationWeek));
+            const currentWeek = currentIndex >= 0 ? weeks[currentIndex] : weeks[weeks.length - 1];
+            const prevWeek = weeks[weeks.indexOf(currentWeek) - 1];
+            const currentData = donationWeeksData[currentWeek] || [];
+            const prevData = donationWeeksData[prevWeek] || [];
+
+            const movements = currentData.map(p => {
+                const prev = prevData.find(pp => pp.Commander === p.Commander);
+                if (!prev) return null;
+                return {
+                    name: p.Commander,
+                    rankChange: prev.Rank - p.Rank,
+                    pointsGain: (p.Points || 0) - (prev.Points || 0)
+                };
+            }).filter(Boolean);
+
+            if (!movements.length) {
+                document.getElementById('donationMovementSection').style.display = 'none';
+                return;
+            }
+
+            const biggestClimber = movements.reduce((max, m) => m.rankChange > max.rankChange ? m : max, movements[0]);
+            const biggestFaller = movements.reduce((min, m) => m.rankChange < min.rankChange ? m : min, movements[0]);
+            const mvp = movements.reduce((max, m) => m.pointsGain > max.pointsGain ? m : max, movements[0]);
+
+            document.getElementById('donationBiggestClimber').textContent = biggestClimber?.name || '-';
+            document.getElementById('donationClimberStats').textContent = `↑ ${biggestClimber?.rankChange || 0} positions`;
+            document.getElementById('donationBiggestFaller').textContent = biggestFaller?.name || '-';
+            document.getElementById('donationFallerStats').textContent = `↓ ${Math.abs(biggestFaller?.rankChange || 0)} positions`;
+            document.getElementById('donationWeeklyMvp').textContent = mvp?.name || '-';
+            document.getElementById('donationMvpStats').textContent = `+${(mvp?.pointsGain || 0).toLocaleString()} points`;
+
+            const streakResult = getDonationTopStreak(weeks);
+            document.getElementById('donationTopStreak').textContent = streakResult.name || '-';
+            document.getElementById('donationStreakStats').textContent = streakResult.count ? `${streakResult.count} consecutive weeks in Top 10` : '-';
+        }
+
+        function getDonationTopStreak(weeks) {
+            const streaks = {};
+            const maxStreaks = {};
+
+            weeks.forEach(week => {
+                const weekRows = donationWeeksData[week] || [];
+                const topSet = new Set(weekRows.slice(0, 10).map(row => row.Commander));
+
+                topSet.forEach(name => {
+                    streaks[name] = (streaks[name] || 0) + 1;
+                    maxStreaks[name] = Math.max(maxStreaks[name] || 0, streaks[name]);
+                });
+
+                Object.keys(streaks).forEach(name => {
+                    if (!topSet.has(name)) {
+                        streaks[name] = 0;
+                    }
+                });
+            });
+
+            const entries = Object.entries(maxStreaks).sort((a, b) => b[1] - a[1]);
+            return entries.length ? { name: entries[0][0], count: entries[0][1] } : { name: '', count: 0 };
+        }
+
+        function openDonationProfile(commanderName) {
+            const weeks = getDonationWeeksList();
+            const currentRows = getCurrentDonationRows();
+            const playerData = currentRows.find(p => p.Commander === commanderName);
+            const points = playerData?.Points || 0;
+
+            document.getElementById('donationModalName').textContent = commanderName;
+            document.getElementById('donationModalRank').textContent = playerData?.Rank ? `#${playerData.Rank}` : '-';
+            document.getElementById('donationModalPoints').textContent = points.toLocaleString();
+            document.getElementById('donationModalTier').textContent = getDonationTier(points).toUpperCase();
+
+            if (!weeks.length) {
+                destroyChart('donationHistoryChart');
+                document.getElementById('donationProfileModal').style.display = 'block';
+                return;
+            }
+
+            const history = weeks.map(week => {
+                const entry = donationWeeksData[week]?.find(row => row.Commander === commanderName);
+                return entry ? entry.Points : 0;
+            });
+
+            const ctx = document.getElementById('donationHistoryChart')?.getContext('2d');
+            if (ctx) {
+                destroyChart('donationHistoryChart');
+                chartInstances['donationHistoryChart'] = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: weeks.map(w => `Week ${w}`),
+                        datasets: [{
+                            label: 'Points',
+                            data: history,
+                            borderColor: 'rgba(255, 153, 51, 1)',
+                            backgroundColor: 'rgba(255, 153, 51, 0.2)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { color: '#b0b0b0' }, grid: { color: 'rgba(255, 153, 51, 0.1)' } },
+                            x: { ticks: { color: '#b0b0b0' }, grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            document.getElementById('donationProfileModal').style.display = 'block';
+        }
+
+        function renderDonationCharts(rows) {
+            if (!rows || !rows.length) return;
+
+            const top10 = rows.slice(0, 10);
+            const barCtx = document.getElementById('donationBarChart')?.getContext('2d');
+            if (barCtx) {
+                destroyChart('donationBarChart');
+                chartInstances['donationBarChart'] = new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: top10.map(p => p.Commander),
+                        datasets: [{
+                            label: 'Points',
+                            data: top10.map(p => p.Points),
+                            backgroundColor: 'rgba(255, 140, 0, 0.8)',
+                            borderColor: 'rgba(255, 140, 0, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255, 140, 0, 0.1)' },
+                                ticks: { color: '#b0b0b0' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#b0b0b0', maxRotation: 45 }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const tiers = {
+                '100k+': rows.filter(p => p.Points >= 100000).length,
+                '50k-99k': rows.filter(p => p.Points >= 50000 && p.Points < 100000).length,
+                'Below 50k': rows.filter(p => p.Points < 50000).length
+            };
+            const pieCtx = document.getElementById('donationPieChart')?.getContext('2d');
+            if (pieCtx) {
+                destroyChart('donationPieChart');
+                chartInstances['donationPieChart'] = new Chart(pieCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(tiers),
+                        datasets: [{
+                            data: Object.values(tiers),
+                            backgroundColor: ['rgba(255, 204, 102, 0.8)', 'rgba(255, 140, 0, 0.8)', 'rgba(255, 80, 0, 0.8)'],
+                            borderColor: ['rgba(255, 204, 102, 1)', 'rgba(255, 140, 0, 1)', 'rgba(255, 80, 0, 1)'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#b0b0b0', font: { size: 14 }, padding: 20 }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateDonationWeekButtons() {
+            const weeks = getDonationWeeksList();
+            const selector = document.getElementById('donationWeekSelector');
+            if (!selector) return;
+
+            if (!weeks.length) {
+                selector.innerHTML = '';
+                return;
+            }
+
+            const allActive = currentDonationView === 'all';
+            selector.innerHTML = `
+                <button class="week-btn ${allActive ? 'active' : ''}" onclick="selectDonationView('all')">All Weeks</button>
+                ${weeks.map(week =>
+                    `<button class="week-btn ${!allActive && week == currentDonationWeek ? 'active' : ''}" onclick="selectDonationWeek(${week})">Week ${week}</button>`
+                ).join('')}
+            `;
+        }
+
+        function selectDonationWeek(week) {
+            currentDonationWeek = week;
+            currentDonationView = 'week';
+            updateDonationWeekButtons();
+            renderDonationTable(getCurrentDonationRows());
+        }
+
+        function selectDonationView(view) {
+            currentDonationView = view;
+            updateDonationWeekButtons();
+            renderDonationTable(getCurrentDonationRows());
+        }
+
+        async function loadDonationLeaderboard() {
+            const statusEl = document.getElementById('donationStatus');
+            try {
+                if (statusEl) statusEl.textContent = '⏳ Loading donations...';
+                const totalWeeks = await loadAllDonationWeeksFromFirebase();
+                if (totalWeeks > 0) {
+                    currentDonationView = 'all';
+                    const rows = getCurrentDonationRows();
+                    updateDonationWeekButtons();
+                    renderDonationTable(rows);
+                    if (statusEl) statusEl.textContent = `Loaded All Weeks (${rows.length} commanders)`;
+                    return rows;
+                }
+
+                return await loadDonationDefaultCSV();
+            } catch (error) {
+                console.error('Error loading donation leaderboard:', error);
+                if (statusEl) statusEl.textContent = `❌ ${error.message}`;
+                return [];
+            }
+        }
+
+        async function loadDonationDefaultCSV() {
+            const statusEl = document.getElementById('donationStatus');
+            const response = await fetch('alliance_donation_week_1.csv');
+            if (!response.ok) {
+                throw new Error('Unable to load donation CSV');
+            }
+            const csvText = await response.text();
+            const parsed = parseDonationCSV(csvText);
+            donationData = parsed.map(row => {
+                const commander = row['Commander Name'] || row.Commander || row['Commander'] || row['Player Name'] || row.Player;
+                const pointsVal = typeof row.Points === 'number' ? row.Points : parseInt(String(row.Points || '0').replace(/,/g, '')) || 0;
+                const rankVal = parseInt(row.Rank, 10) || 0;
+                return { Rank: rankVal, Commander: commander || 'Unknown', Points: pointsVal };
+            }).filter(p => p.Commander);
+
+            donationData.sort((a, b) => a.Rank - b.Rank);
+            currentDonationView = 'week';
+            currentDonationWeek = 1;
+            renderDonationTable(donationData);
+            updateDonationWeekButtons();
+            if (statusEl) statusEl.textContent = `Loaded default CSV (${donationData.length} commanders)`;
+            return donationData;
+        }
+
+        function showDonationUpload() {
+            const label = document.getElementById('donationUploadLabel');
+            if (auth.currentUser && label) {
+                label.style.display = 'inline-block';
+            } else if (label) {
+                label.style.display = 'none';
+            }
+        }
+
+        function setDonationStatus(text) {
+            const statusEl = document.getElementById('donationStatus');
+            if (statusEl) statusEl.textContent = text || '';
+        }
+
+        async function resetAllianceDuelData() {
+            if (!auth.currentUser) {
+                alert('❌ Please sign in to reset data');
+                return;
+            }
+
+            const confirmText = prompt(
+                `⚠️ This will permanently delete ALL Alliance Duel data in Firebase.\n\n` +
+                `Type "RESET" to confirm:`
+            );
+            if (confirmText !== 'RESET') {
+                alert('Reset cancelled');
+                return;
+            }
+
+            try {
+                await database.ref('weeks').remove();
+                await database.ref('metadata').remove();
+                weeklyData = {};
+                currentWeek = 1;
+                updateWeekButtons();
+                updateDashboard();
+
+                const kpiGrid = document.getElementById('kpiGrid');
+                if (kpiGrid) {
+                    kpiGrid.innerHTML = `
+                        <div class="kpi-card" style="grid-column: 1 / -1;">
+                            <div class="kpi-label">📤 ${t('messages.noData') || 'NO DATA UPLOADED YET'}</div>
+                            <div class="kpi-value">⚠️</div>
+                            <div class="kpi-subtext">${t('messages.uploadFirst') || 'Please sign in and upload Week 1 data to get started'}</div>
+                        </div>
+                    `;
+                }
+
+                alert('✅ Alliance Duel data reset');
+            } catch (error) {
+                console.error('Reset duel error:', error);
+                alert(`❌ Reset failed: ${error.message}`);
+            }
+        }
+
+        async function resetDonationData() {
+            if (!auth.currentUser) {
+                alert('❌ Please sign in to reset data');
+                return;
+            }
+
+            const confirmText = prompt(
+                `⚠️ This will permanently delete ALL Donation data in Firebase.\n\n` +
+                `Type "RESET" to confirm:`
+            );
+            if (confirmText !== 'RESET') {
+                alert('Reset cancelled');
+                return;
+            }
+
+            try {
+                await database.ref('donations').remove();
+                donationWeeksData = {};
+                donationData = [];
+                currentDonationWeek = 1;
+                currentDonationView = 'week';
+                updateDonationWeekButtons();
+                renderDonationTable([]);
+                setDonationStatus('Donation data reset');
+                alert('✅ Donation data reset');
+            } catch (error) {
+                console.error('Reset donation error:', error);
+                alert(`❌ Reset failed: ${error.message}`);
+            }
+        }
+
         // === USER INTERACTIONS ===
+        function setActiveTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                const target = btn.getAttribute('data-tab');
+                btn.classList.toggle('active', target === tabId);
+            });
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.toggle('active', panel.id === tabId);
+            });
+
+            if (tabId === 'donationTab') {
+                loadDonationLeaderboard();
+            }
+        }
+
         function selectWeek(week) {
             currentWeek = week;
             updateWeekButtons();
@@ -1866,9 +2858,10 @@ body {
         });
 
         document.getElementById('shareBtn').addEventListener('click', () => {
-            html2canvas(document.querySelector('.dashboard-container')).then(canvas => {
+            const activePanel = document.querySelector('.tab-panel.active') || document.querySelector('.dashboard-container');
+            html2canvas(activePanel).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `pwr_alliance_week${currentWeek}.png`;
+                link.download = 'pwr_alliance_dashboard.png';
                 link.href = canvas.toDataURL();
                 link.click();
             });
@@ -2228,6 +3221,14 @@ body {
         document.getElementById('closeAddModal')?.addEventListener('click', () => {
             document.getElementById('addPlayerModal').style.display = 'none';
         });
+
+        document.getElementById('closeAuthModal')?.addEventListener('click', () => {
+            closeAuthModal();
+        });
+
+        document.getElementById('closeDonationModal')?.addEventListener('click', () => {
+            document.getElementById('donationProfileModal').style.display = 'none';
+        });
         
         window.addEventListener('click', (e) => {
             if (e.target.id === 'editPlayerModal') {
@@ -2236,16 +3237,140 @@ body {
             if (e.target.id === 'addPlayerModal') {
                 document.getElementById('addPlayerModal').style.display = 'none';
             }
+            if (e.target.id === 'authModal') {
+                closeAuthModal();
+            }
+            if (e.target.id === 'donationProfileModal') {
+                document.getElementById('donationProfileModal').style.display = 'none';
+            }
         });
         
         // Save buttons
         document.getElementById('saveEditPlayerBtn')?.addEventListener('click', saveEditedPlayer);
         document.getElementById('saveAddPlayerBtn')?.addEventListener('click', saveNewPlayer);
+        document.getElementById('authSubmitBtn')?.addEventListener('click', handleAuthSubmit);
+        document.getElementById('authPassword')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleAuthSubmit(e);
+            }
+        });
         
         // Control buttons
         document.getElementById('deleteWeekBtn')?.addEventListener('click', deleteCurrentWeek);
         document.getElementById('addPlayerBtn')?.addEventListener('click', showAddPlayerModal);
         document.getElementById('refreshDataBtn')?.addEventListener('click', refreshDataFromFirebase);
+
+        // Tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => setActiveTab(btn.getAttribute('data-tab')));
+        });
+
+        function applyDonationFilters() {
+            const term = document.getElementById('donationSearch')?.value.toLowerCase() || '';
+            const minPoints = parseInt(document.getElementById('donationMinPoints')?.value || '0', 10) || 0;
+            const tierFilter = document.getElementById('donationTierFilter')?.value || '';
+            const baseRows = getCurrentDonationRows();
+            const filtered = baseRows.filter(p => {
+                const matchesName = p.Commander.toLowerCase().includes(term);
+                const matchesPoints = (p.Points || 0) >= minPoints;
+                const matchesTier = tierFilter ? getDonationTier(p.Points || 0) === tierFilter : true;
+                return matchesName && matchesPoints && matchesTier;
+            });
+            renderDonationTable(filtered);
+        }
+
+        // Donation search/filters
+        document.getElementById('donationSearch')?.addEventListener('input', applyDonationFilters);
+        document.getElementById('donationMinPoints')?.addEventListener('input', applyDonationFilters);
+        document.getElementById('donationTierFilter')?.addEventListener('change', applyDonationFilters);
+
+        // Donation upload
+        document.getElementById('donationUpload')?.addEventListener('change', (e) => {
+            if (!auth.currentUser) {
+                alert('❌ Please sign in to upload donations');
+                e.target.value = '';
+                return;
+            }
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                try {
+                    const csvContent = event.target.result;
+                    const existingWeeks = Object.keys(donationWeeksData).map(Number);
+                    const nextWeek = existingWeeks.length > 0 ? Math.max(...existingWeeks) + 1 : 1;
+                    await saveDonationWeekToFirebase(nextWeek, csvContent);
+                    currentDonationWeek = nextWeek;
+                    currentDonationView = 'week';
+                    const rows = getCurrentDonationRows();
+                    updateDonationWeekButtons();
+                    renderDonationTable(rows);
+                    setDonationStatus(`✅ Uploaded Week ${nextWeek} (${rows.length} commanders)`);
+                } catch (error) {
+                    console.error('Donation upload error:', error);
+                    alert(`❌ Error uploading donations: ${error.message}`);
+                } finally {
+                    e.target.value = '';
+                }
+            };
+            reader.onerror = function() {
+                alert('❌ Error reading file. Please try again.');
+                e.target.value = '';
+            };
+            reader.readAsText(file);
+        });
+
+        document.getElementById('donationExportCsvBtn')?.addEventListener('click', () => {
+            const rows = getCurrentDonationRows();
+            if (!rows.length) {
+                alert('⚠️ No donation data to export');
+                return;
+            }
+            const weeks = getDonationWeeksList();
+            const isCumulative = currentDonationView === 'all' && weeks.length > 0;
+            let csv = '';
+            if (isCumulative) {
+                csv = 'Rank,Commander Name,' + weeks.map(w => `Week ${w}`).join(',') + ',Total\n' +
+                    rows.map(p => `${p.Rank},"${p.Commander}",${weeks.map(w => p.WeekPoints?.[w] || 0).join(',')},${p.Points}`).join('\n');
+            } else {
+                csv = 'Rank,Commander Name,Points\n' + rows.map(p => `${p.Rank},"${p.Commander}","${p.Points}"`).join('\n');
+            }
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'pwr_alliance_donations.csv';
+            a.click();
+        });
+
+        document.getElementById('donationExportPdfBtn')?.addEventListener('click', () => {
+            const panel = document.getElementById('donationTab');
+            html2canvas(panel).then(canvas => {
+                const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
+                const imgData = canvas.toDataURL('image/png');
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+                const imgWidth = canvas.width * ratio;
+                const imgHeight = canvas.height * ratio;
+                pdf.addImage(imgData, 'PNG', (pageWidth - imgWidth) / 2, 20, imgWidth, imgHeight);
+                pdf.save('pwr_alliance_donations.pdf');
+            });
+        });
+
+        document.getElementById('donationExportPngBtn')?.addEventListener('click', () => {
+            const panel = document.getElementById('donationTab');
+            html2canvas(panel).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'pwr_alliance_donations.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        });
+
+        document.getElementById('resetDuelBtn')?.addEventListener('click', resetAllianceDuelData);
+        document.getElementById('resetDonationBtn')?.addEventListener('click', resetDonationData);
 
         // ============================================
         // === FIREBASE INITIALIZATION ===
@@ -2286,6 +3411,7 @@ body {
             }
             
             updateAuthUI();
+            showDonationUpload();
             
             // Apply full language translations now that data is loaded
             setLanguage(currentLanguage);
@@ -2331,6 +3457,14 @@ body {
                     addPlayerBtn.style.display = 'inline-block';
                     addPlayerBtn.textContent = t('buttons.addPlayer');
                 }
+                const resetDuelBtn = document.getElementById('resetDuelBtn');
+                if (resetDuelBtn) {
+                    resetDuelBtn.style.display = 'inline-block';
+                }
+                const resetDonationBtn = document.getElementById('resetDonationBtn');
+                if (resetDonationBtn) {
+                    resetDonationBtn.style.display = 'inline-block';
+                }
                 if (refreshDataBtn) {
                     refreshDataBtn.textContent = t('buttons.refresh');
                 }
@@ -2350,6 +3484,14 @@ body {
                 if (addPlayerBtn) {
                     addPlayerBtn.style.display = 'none';
                 }
+                const resetDuelBtn = document.getElementById('resetDuelBtn');
+                if (resetDuelBtn) {
+                    resetDuelBtn.style.display = 'none';
+                }
+                const resetDonationBtn = document.getElementById('resetDonationBtn');
+                if (resetDonationBtn) {
+                    resetDonationBtn.style.display = 'none';
+                }
                 if (refreshDataBtn) {
                     refreshDataBtn.textContent = t('buttons.refresh');
                 }
@@ -2360,6 +3502,7 @@ body {
         auth.onAuthStateChanged((user) => {
             console.log('Auth state changed:', user ? `Signed in as ${user.email}` : 'Signed out');
             updateAuthUI();
+            showDonationUpload();
         });
         
         // Sign In/Out button handler
@@ -2373,19 +3516,8 @@ body {
                     alert('✅ Signed out successfully');
                 }
             } else {
-                // User is signed out - prompt for sign in
-                const email = prompt('Enter your email:', '');
-                if (!email) return;
-                
-                const password = prompt('Enter your password:', '');
-                if (!password) return;
-                
-                try {
-                    await signInToFirebase(email, password);
-                    alert(`✅ Signed in successfully as ${email}!`);
-                } catch (error) {
-                    alert(`❌ Sign in failed: ${error.message}`);
-                }
+                // User is signed out - show inline auth modal
+                openAuthModal();
             }
         });
         
