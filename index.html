@@ -2293,12 +2293,6 @@ body {
             console.log('✅ Dashboard initialized');
         }
         
-        // Auth state observer
-        auth.onAuthStateChanged((user) => {
-            console.log('Auth state changed:', user ? `Signed in as ${user.email}` : 'Signed out');
-            updateAuthUI();
-        });
-        
         // Update UI based on auth state
         function updateAuthUI() {
             const user = auth.currentUser;
@@ -2308,11 +2302,14 @@ body {
             const addPlayerBtn = document.getElementById('addPlayerBtn');
             const refreshDataBtn = document.getElementById('refreshDataBtn');
             
+            console.log('🔄 Updating Auth UI, user:', user ? user.email : 'None');
+            
             if (user) {
                 // User is signed in - SHOW admin buttons
                 if (signInBtn) {
                     signInBtn.textContent = t('buttons.signOut');
                     signInBtn.title = `Signed in as ${user.email}`;
+                    console.log('✅ Sign out button set');
                 }
                 if (uploadLabel) {
                     uploadLabel.style.display = 'inline-block';
@@ -2324,6 +2321,7 @@ body {
                     uploadLabel.style.background = 'linear-gradient(135deg, #99cc33, #669900)';
                     uploadLabel.style.boxShadow = '0 0 20px rgba(153, 204, 51, 0.4)';
                     uploadLabel.title = `Signed in as ${user.email} - Click to upload`;
+                    console.log('✅ Upload button shown');
                 }
                 if (deleteWeekBtn) {
                     deleteWeekBtn.style.display = 'inline-block';
@@ -2341,6 +2339,7 @@ body {
                 if (signInBtn) {
                     signInBtn.textContent = t('buttons.signIn');
                     signInBtn.title = 'Sign in to manage data';
+                    console.log('✅ Sign in button set');
                 }
                 if (uploadLabel) {
                     uploadLabel.style.display = 'none';
@@ -2356,6 +2355,12 @@ body {
                 }
             }
         }
+        
+        // Auth state observer
+        auth.onAuthStateChanged((user) => {
+            console.log('Auth state changed:', user ? `Signed in as ${user.email}` : 'Signed out');
+            updateAuthUI();
+        });
         
         // Sign In/Out button handler
         document.getElementById('signInOutBtn').addEventListener('click', async () => {
