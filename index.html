@@ -697,28 +697,62 @@ body {
 :root {
     --font-body: 'Sora', 'Cairo', sans-serif;
     --font-display: 'Sora', 'Cairo', sans-serif;
-    --bg: #f6f3ee;
-    --bg-accent: #eef5f8;
-    --surface: #ffffff;
-    --surface-muted: #f9f6f1;
-    --surface-strong: #fff4e6;
-    --border: #e3dbd0;
-    --text: #1f1a15;
-    --text-muted: #6b625a;
-    --accent: #d46a2d;
-    --accent-strong: #b9541d;
-    --accent-soft: #ffe0c7;
+    --bg: #eee7df;
+    --bg-accent: #f3ede6;
+    --surface: #f6f0ea;
+    --surface-muted: #ede4db;
+    --surface-strong: #f4dfcb;
+    --border: #ded2c7;
+    --text: #2c241e;
+    --text-muted: #6f655b;
+    --accent: #d06b2f;
+    --accent-strong: #b8571d;
+    --accent-soft: #f0ccb0;
     --teal: #1f8a83;
     --shadow-sm: 0 6px 18px rgba(20, 16, 12, 0.08);
     --shadow-md: 0 16px 30px rgba(20, 16, 12, 0.12);
     --shadow-lg: 0 24px 48px rgba(20, 16, 12, 0.18);
+    --bg-glow-1: rgba(255, 245, 236, 0.55);
+    --bg-glow-2: rgba(255, 220, 190, 0.32);
+    --chart-text: #6f655b;
+    --chart-grid: rgba(43, 36, 30, 0.12);
+    --table-head: linear-gradient(135deg, #f1ddca, #f4d9c4);
+    --row-hover: rgba(212, 106, 45, 0.08);
+    --scroll-track: #e9dfd6;
+    --scroll-thumb: linear-gradient(135deg, #f0c8a9, #e2b46f);
+}
+
+[data-theme="dark"] {
+    --bg: #151312;
+    --bg-accent: #1a1715;
+    --surface: #1d1a18;
+    --surface-muted: #23201d;
+    --surface-strong: #2a1f18;
+    --border: #332c26;
+    --text: #f4f0ea;
+    --text-muted: #b7aea6;
+    --accent: #f0a560;
+    --accent-strong: #e28a40;
+    --accent-soft: #3a2a20;
+    --teal: #4cc1b2;
+    --shadow-sm: 0 10px 22px rgba(0, 0, 0, 0.45);
+    --shadow-md: 0 18px 34px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 28px 48px rgba(0, 0, 0, 0.6);
+    --bg-glow-1: rgba(255, 196, 150, 0.08);
+    --bg-glow-2: rgba(255, 180, 120, 0.05);
+    --chart-text: #d7ccc3;
+    --chart-grid: rgba(244, 240, 234, 0.12);
+    --table-head: linear-gradient(135deg, #2c2018, #33261c);
+    --row-hover: rgba(240, 165, 96, 0.15);
+    --scroll-track: #1c1916;
+    --scroll-thumb: linear-gradient(135deg, #f0a560, #c97a3d);
 }
 
 body {
     font-family: var(--font-body);
-    background: radial-gradient(800px 400px at 10% -10%, rgba(255, 255, 255, 0.75), transparent 60%),
-        radial-gradient(650px 420px at 90% 0%, rgba(255, 236, 214, 0.7), transparent 55%),
-        linear-gradient(180deg, #f7f2ec 0%, #eef5f8 60%, #f8efe4 100%);
+    background: radial-gradient(800px 400px at 10% -10%, var(--bg-glow-1), transparent 60%),
+        radial-gradient(650px 420px at 90% 0%, var(--bg-glow-2), transparent 55%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-accent) 60%, var(--bg) 100%);
     color: var(--text);
 }
 
@@ -736,7 +770,7 @@ body {
 }
 
 .global-bar {
-    background: linear-gradient(135deg, #ffffff, #f8f5f0);
+    background: linear-gradient(135deg, var(--surface), var(--surface-muted));
     border: 1px solid var(--border);
     box-shadow: var(--shadow-md);
 }
@@ -764,7 +798,7 @@ body {
     box-shadow: var(--shadow-sm);
 }
 .tab-btn.active {
-    background: linear-gradient(135deg, #fff2e6, #ffe6d3);
+    background: linear-gradient(135deg, var(--surface-strong), var(--accent-soft));
     color: var(--text);
     border-color: var(--accent);
     box-shadow: var(--shadow-sm);
@@ -802,7 +836,7 @@ body {
 }
 
 .alliance-name { color: var(--text-muted); text-shadow: none; }
-.event-subtitle { color: var(--text-muted); }
+.event-subtitle { color: var(--text-muted); text-shadow: none; }
 
 .week-controls,
 .table-container,
@@ -827,6 +861,7 @@ body {
     color: var(--text);
     font-family: var(--font-display);
     text-transform: none;
+    text-shadow: none;
     box-shadow: none;
 }
 
@@ -839,9 +874,10 @@ body {
 }
 
 .week-btn.active {
-    background: linear-gradient(135deg, #fff2e6, #ffe6d3);
+    background: linear-gradient(135deg, var(--surface-strong), var(--accent-soft));
     border-color: var(--accent);
     color: var(--text);
+    text-shadow: none;
 }
 
 .upload-btn {
@@ -882,7 +918,7 @@ body {
 .division-players { color: var(--text-muted); }
 
 .search-bar {
-    background: #ffffff;
+    background: var(--surface);
     border: 1px solid var(--border);
     color: var(--text);
 }
@@ -898,23 +934,23 @@ body {
 }
 
 .data-table thead {
-    background: linear-gradient(135deg, #ffe9d6, #ffd9bf);
+    background: var(--table-head);
 }
 .data-table th { color: var(--text); text-shadow: none; font-family: var(--font-display); }
 .data-table td { color: var(--text-muted); font-family: var(--font-body); }
-.data-table tbody tr:hover { background: rgba(212, 106, 45, 0.08); }
+.data-table tbody tr:hover { background: var(--row-hover); }
 
-.table-wrapper::-webkit-scrollbar-track { background: #f0ebe4; }
+.table-wrapper::-webkit-scrollbar-track { background: var(--scroll-track); }
 .table-wrapper::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #ffd9bf, #f2c053);
-    border: 2px solid #f0ebe4;
+    background: var(--scroll-thumb);
+    border: 2px solid var(--scroll-track);
 }
 
 .rank-1 { background: linear-gradient(135deg, #f6d37a, #f2c053); }
 .rank-2 { background: linear-gradient(135deg, #dfe3e8, #c9ced6); }
 .rank-3 { background: linear-gradient(135deg, #e8b28a, #d99361); }
 .rank-top10 { background: rgba(212, 106, 45, 0.12); color: var(--accent-strong); border-color: rgba(212, 106, 45, 0.4); }
-.rank-default { background: #f4f0ea; color: var(--text-muted); }
+.rank-default { background: var(--surface-muted); color: var(--text-muted); }
 .rank-badge { font-family: var(--font-display); }
 .rank-movement.up { color: var(--teal); text-shadow: none; }
 .rank-movement.down { color: #d9776a; text-shadow: none; }
@@ -943,7 +979,7 @@ body {
     backdrop-filter: blur(8px);
 }
 .modal-header {
-    background: linear-gradient(135deg, #ffe9d6, #ffd9bf);
+    background: var(--table-head);
 }
 .modal-header h2 { color: var(--text); text-shadow: none; }
 .modal-close { color: var(--text); text-shadow: none; }
@@ -995,6 +1031,7 @@ body {
         </div>
         <div class="global-actions">
             <button class="action-btn compact" id="languageToggle" style="font-size: 0.9rem;">🌐 العربية</button>
+            <button class="action-btn compact" id="themeToggle">🌙 Dark</button>
             <button class="action-btn compact" id="signInOutBtn" data-i18n="buttons.signIn">🔐 Sign In</button>
             <button class="action-btn compact" id="shareBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
         </div>
@@ -1476,6 +1513,10 @@ body {
                     subtitle: "Live Leaderboards & Admin Controls",
                     pageTitle: "[pWR] Alliance Command Center"
                 },
+                theme: {
+                    dark: "🌙 Dark",
+                    light: "☀️ Light"
+                },
                 footer: {
                     createdBy: "Created by:",
                     subtitle: "Elite Alliance Dashboard System"
@@ -1734,6 +1775,10 @@ body {
                     subtitle: "لوحات صدارة مباشرة وأدوات الإدارة",
                     pageTitle: "[pWR] مركز قيادة التحالف"
                 },
+                theme: {
+                    dark: "🌙 داكن",
+                    light: "☀️ فاتح"
+                },
                 footer: {
                     createdBy: "تم الإنشاء بواسطة:",
                     subtitle: "نظام لوحة قيادة تحالف النخبة"
@@ -1989,6 +2034,10 @@ body {
         };
         
         let currentLanguage = localStorage.getItem('dashboardLanguage') || 'en';
+        let currentTheme = localStorage.getItem('dashboardTheme');
+        if (!currentTheme) {
+            currentTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
         
         function setLanguage(lang) {
             currentLanguage = lang;
@@ -2067,6 +2116,8 @@ body {
                     textNode.textContent = t('buttons.uploadDonation');
                 }
             }
+
+            updateThemeToggle();
         }
         
         function t(key, replacements = {}) {
@@ -2087,20 +2138,72 @@ body {
             
             return translation;
         }
+
+        function getThemeValue(varName, fallback) {
+            const value = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+            return value || fallback;
+        }
+
+        function getChartTheme() {
+            return {
+                text: getThemeValue('--chart-text', '#6f655b'),
+                grid: getThemeValue('--chart-grid', 'rgba(43, 36, 30, 0.12)')
+            };
+        }
+
+        function updateThemeToggle() {
+            const themeBtn = document.getElementById('themeToggle');
+            if (!themeBtn) return;
+            const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            themeBtn.textContent = nextTheme === 'dark' ? t('theme.dark') : t('theme.light');
+            themeBtn.setAttribute('aria-pressed', currentTheme === 'dark' ? 'true' : 'false');
+        }
+
+        function refreshChartsForTheme() {
+            if (Object.keys(weeklyData).length > 0) {
+                renderCharts();
+                if (currentProfilePlayer) {
+                    openPlayerProfile(currentProfilePlayer);
+                }
+            }
+
+            const donationRows = getCurrentDonationRows();
+            if (donationRows && donationRows.length) {
+                renderDonationCharts(donationRows);
+                if (currentDonationProfile) {
+                    openDonationProfile(currentDonationProfile);
+                }
+            }
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('dashboardTheme', theme);
+            updateThemeToggle();
+            refreshChartsForTheme();
+        }
         
         // Language toggle button handler
         document.getElementById('languageToggle')?.addEventListener('click', () => {
             setLanguage(currentLanguage === 'en' ? 'ar' : 'en');
         });
+
+        document.getElementById('themeToggle')?.addEventListener('click', () => {
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
         
         // Initialize language direction and translations (but not dashboard update)
         document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
         document.documentElement.lang = currentLanguage;
+        document.documentElement.setAttribute('data-theme', currentTheme);
         
         const toggleBtn = document.getElementById('languageToggle');
         if (toggleBtn) {
             toggleBtn.textContent = currentLanguage === 'en' ? '🌐 العربية' : '🌐 English';
         }
+
+        updateThemeToggle();
         
         // ============================================
         // FIREBASE FUNCTIONS
@@ -2367,6 +2470,8 @@ body {
         let weeklyData = {};
         let currentWeek = 1;
         let chartInstances = {};
+        let currentProfilePlayer = null;
+        let currentDonationProfile = null;
         let playerHistory = {}; // Track each player across weeks
         let donationData = [];
         let donationWeeksData = {};
@@ -2664,6 +2769,8 @@ body {
         function renderCharts() {
             const players = getCurrentPlayers();
             if (!players.length) return;
+
+            const chartTheme = getChartTheme();
             
             // Top 10 Bar Chart
             const top10 = players.slice(0, 10);
@@ -2688,15 +2795,15 @@ body {
                     scales: {
                         y: {
                             beginAtZero: true,
-                                grid: { color: 'rgba(212, 106, 45, 0.12)' },
+                                grid: { color: chartTheme.grid },
                             ticks: {
-                                color: '#6b625a',
+                                color: chartTheme.text,
                                 callback: v => (v / 1000000).toFixed(0) + 'M'
                             }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#6b625a', maxRotation: 45 }
+                            ticks: { color: chartTheme.text, maxRotation: 45 }
                         }
                     }
                 }
@@ -2726,7 +2833,7 @@ body {
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: { color: '#6b625a', font: { size: 14 }, padding: 20 }
+                            labels: { color: chartTheme.text, font: { size: 14 }, padding: 20 }
                         }
                     }
                 }
@@ -2755,15 +2862,15 @@ body {
                     plugins: { legend: { display: false } },
                     scales: {
                         y: {
-                                grid: { color: 'rgba(31, 138, 131, 0.12)' },
+                                grid: { color: chartTheme.grid },
                             ticks: {
-                                color: '#6b625a',
+                                color: chartTheme.text,
                                 callback: v => (v / 1000000).toFixed(0) + 'M'
                             }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#6b625a', maxRotation: 45 }
+                            ticks: { color: chartTheme.text, maxRotation: 45 }
                         }
                     }
                 }
@@ -2793,15 +2900,15 @@ body {
                     scales: {
                         y: {
                             beginAtZero: true,
-                                grid: { color: 'rgba(224, 108, 95, 0.12)' },
+                                grid: { color: chartTheme.grid },
                             ticks: {
-                                color: '#6b625a',
+                                color: chartTheme.text,
                                 callback: v => (v / 1000000).toFixed(0) + 'M'
                             }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#6b625a', maxRotation: 45 }
+                            ticks: { color: chartTheme.text, maxRotation: 45 }
                         }
                     }
                 }
@@ -3086,6 +3193,9 @@ body {
             const playerData = currentRows.find(p => p.Commander === commanderName);
             const points = playerData?.Points || 0;
 
+            currentDonationProfile = commanderName;
+            const chartTheme = getChartTheme();
+
             document.getElementById('donationModalName').textContent = `${t('donation.modal.title')} — ${commanderName}`;
             document.getElementById('donationModalRank').textContent = playerData?.Rank ? `#${playerData.Rank}` : '-';
             document.getElementById('donationModalPoints').textContent = points.toLocaleString();
@@ -3129,8 +3239,8 @@ body {
                         responsive: true,
                         plugins: { legend: { display: false } },
                         scales: {
-                            y: { beginAtZero: true, ticks: { color: '#6b625a' }, grid: { color: 'rgba(212, 106, 45, 0.12)' } },
-                            x: { ticks: { color: '#6b625a' }, grid: { display: false } }
+                            y: { beginAtZero: true, ticks: { color: chartTheme.text }, grid: { color: chartTheme.grid } },
+                            x: { ticks: { color: chartTheme.text }, grid: { display: false } }
                         }
                     }
                 });
@@ -3142,6 +3252,7 @@ body {
         function renderDonationCharts(rows) {
             if (!rows || !rows.length) return;
 
+            const chartTheme = getChartTheme();
             const top10 = rows.slice(0, 10);
             const barCtx = document.getElementById('donationBarChart')?.getContext('2d');
             if (barCtx) {
@@ -3165,12 +3276,12 @@ body {
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                grid: { color: 'rgba(212, 106, 45, 0.12)' },
-                                ticks: { color: '#6b625a' }
+                                grid: { color: chartTheme.grid },
+                                ticks: { color: chartTheme.text }
                             },
                             x: {
                                 grid: { display: false },
-                                ticks: { color: '#6b625a', maxRotation: 45 }
+                                ticks: { color: chartTheme.text, maxRotation: 45 }
                             }
                         }
                     }
@@ -3201,7 +3312,7 @@ body {
                         plugins: {
                             legend: {
                                 position: 'bottom',
-                                labels: { color: '#6b625a', font: { size: 14 }, padding: 20 }
+                                labels: { color: chartTheme.text, font: { size: 14 }, padding: 20 }
                             }
                         }
                     }
@@ -3393,6 +3504,9 @@ body {
             const playerData = getCurrentPlayers().find(p => p['Player Name'] === playerName);
             
             if (!playerData) return;
+
+            currentProfilePlayer = playerName;
+            const chartTheme = getChartTheme();
             
             document.getElementById('modalPlayerName').textContent = `${t('modals.playerProfile')} — ${playerName}`;
             document.getElementById('modalRank').textContent = `#${playerData.Rank}`;
@@ -3428,12 +3542,12 @@ body {
                     plugins: { legend: { display: false } },
                     scales: {
                         y: {
-                            grid: { color: 'rgba(31, 138, 131, 0.12)' },
-                            ticks: { color: '#6b625a' }
+                            grid: { color: chartTheme.grid },
+                            ticks: { color: chartTheme.text }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#6b625a' }
+                            ticks: { color: chartTheme.text }
                         }
                     }
                 }
@@ -3557,11 +3671,13 @@ body {
         // Modal Close
         document.getElementById('closeModal').addEventListener('click', () => {
             document.getElementById('playerModal').style.display = 'none';
+            currentProfilePlayer = null;
         });
 
         window.addEventListener('click', (e) => {
             if (e.target.id === 'playerModal') {
                 document.getElementById('playerModal').style.display = 'none';
+                currentProfilePlayer = null;
             }
         });
 
@@ -3906,6 +4022,7 @@ body {
 
         document.getElementById('closeDonationModal')?.addEventListener('click', () => {
             document.getElementById('donationProfileModal').style.display = 'none';
+            currentDonationProfile = null;
         });
         
         window.addEventListener('click', (e) => {
@@ -3920,6 +4037,7 @@ body {
             }
             if (e.target.id === 'donationProfileModal') {
                 document.getElementById('donationProfileModal').style.display = 'none';
+                currentDonationProfile = null;
             }
         });
         
