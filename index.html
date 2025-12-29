@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[pWR] Alliance Duel Weekly Leaderboard</title>
+    <title>[pWR] Alliance Command Center</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -17,11 +17,10 @@
     
     <style>
 /* =================================================================
-   LAST WAR: SURVIVAL THEME - POST-APOCALYPTIC ZOMBIE SURVIVAL STYLE
-   Replace the <style> section in your dashboard with this CSS
+   POWEr ALLIANCE COMMAND CENTER THEME - LIGHT INTERFACE
    ================================================================= */
 
-   @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Rajdhani:wght@400;600;700&family=Teko:wght@400;600;700&display=swap');
+   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Cairo:wght@400;600;700&display=swap');
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -690,15 +689,308 @@ body {
     .alliance-logo { font-size: 2.5rem; padding: 15px; }
     .charts-grid, .kpi-grid { grid-template-columns: 1fr; }
     .week-controls { flex-direction: column; }
-}</style>
+}
+
+/* =================================================================
+   LIGHT COMMAND CENTER THEME OVERRIDES
+   ================================================================= */
+:root {
+    --font-body: 'Sora', 'Cairo', sans-serif;
+    --font-display: 'Sora', 'Cairo', sans-serif;
+    --bg: #f6f3ee;
+    --bg-accent: #eef5f8;
+    --surface: #ffffff;
+    --surface-muted: #f9f6f1;
+    --surface-strong: #fff4e6;
+    --border: #e3dbd0;
+    --text: #1f1a15;
+    --text-muted: #6b625a;
+    --accent: #d46a2d;
+    --accent-strong: #b9541d;
+    --accent-soft: #ffe0c7;
+    --teal: #1f8a83;
+    --shadow-sm: 0 6px 18px rgba(20, 16, 12, 0.08);
+    --shadow-md: 0 16px 30px rgba(20, 16, 12, 0.12);
+    --shadow-lg: 0 24px 48px rgba(20, 16, 12, 0.18);
+}
+
+body {
+    font-family: var(--font-body);
+    background: radial-gradient(800px 400px at 10% -10%, rgba(255, 255, 255, 0.75), transparent 60%),
+        radial-gradient(650px 420px at 90% 0%, rgba(255, 236, 214, 0.7), transparent 55%),
+        linear-gradient(180deg, #f7f2ec 0%, #eef5f8 60%, #f8efe4 100%);
+    color: var(--text);
+}
+
+[dir="rtl"] body {
+    font-family: 'Cairo', sans-serif;
+}
+[dir="rtl"] .global-bar {
+    flex-direction: row-reverse;
+}
+[dir="rtl"] .brand {
+    flex-direction: row-reverse;
+}
+[dir="rtl"] .global-actions {
+    justify-content: flex-start;
+}
+
+.global-bar {
+    background: linear-gradient(135deg, #ffffff, #f8f5f0);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+}
+
+.brand-title {
+    font-family: var(--font-display);
+    color: var(--text);
+}
+
+.brand-sub { color: var(--text-muted); }
+
+.tab-buttons { margin-bottom: 22px; }
+
+.tab-btn {
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: var(--font-display);
+    text-transform: none;
+    box-shadow: none;
+}
+.tab-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+}
+.tab-btn.active {
+    background: linear-gradient(135deg, #fff2e6, #ffe6d3);
+    color: var(--text);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-sm);
+}
+
+.header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+}
+.header::before { display: none; }
+
+.alliance-logo {
+    font-family: var(--font-display);
+    color: var(--accent-strong);
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    text-shadow: none;
+    animation: none;
+    letter-spacing: 3px;
+}
+
+.alliance-logo.mini {
+    background: var(--surface);
+    border: 1px solid var(--border);
+}
+
+.header h1,
+.section-title,
+.chart-title {
+    font-family: var(--font-display);
+    color: var(--text);
+    text-shadow: none;
+    letter-spacing: 1px;
+}
+
+.alliance-name { color: var(--text-muted); text-shadow: none; }
+.event-subtitle { color: var(--text-muted); }
+
+.week-controls,
+.table-container,
+.kpi-card,
+.movement-card,
+.chart-card,
+.division-card,
+.footer,
+.modal-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+.kpi-card { border-left: 4px solid var(--accent); }
+
+.week-controls { gap: 20px; }
+
+.action-btn,
+.week-btn {
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-display);
+    text-transform: none;
+    box-shadow: none;
+}
+
+.action-btn:hover,
+.week-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+}
+
+.week-btn.active {
+    background: linear-gradient(135deg, #fff2e6, #ffe6d3);
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+.upload-btn {
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    border: 1px solid var(--accent);
+    color: #ffffff;
+    font-family: var(--font-display);
+    box-shadow: var(--shadow-sm);
+}
+.upload-btn:hover { box-shadow: var(--shadow-sm); }
+
+.kpi-label { color: var(--text-muted); }
+.kpi-value { color: var(--text); text-shadow: none; font-family: var(--font-display); }
+.kpi-subtext { color: var(--text-muted); }
+
+.movement-title,
+.movement-stats { color: var(--text-muted); }
+.movement-player { color: var(--text); text-shadow: none; font-family: var(--font-display); }
+.movement-icon { filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12)); }
+
+.profile-stat {
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+}
+.stat-label { color: var(--text-muted); }
+.stat-value { color: var(--text); text-shadow: none; font-family: var(--font-display); }
+
+.charts-grid { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+
+.division-card.elite { border-color: #f2c879; box-shadow: var(--shadow-sm); }
+.division-card.master { border-color: #9fd8c1; box-shadow: var(--shadow-sm); }
+.division-card.warrior { border-color: #f0b88b; box-shadow: var(--shadow-sm); }
+
+.division-name { color: var(--text); }
+.division-name { font-family: var(--font-display); }
+.division-req { color: var(--text-muted); }
+.division-count { color: var(--text); }
+.division-players { color: var(--text-muted); }
+
+.search-bar {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+.search-bar:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(212, 106, 45, 0.2);
+}
+
+.donation-filters {
+    display: grid;
+    grid-template-columns: 1fr 180px 180px;
+    gap: 12px;
+}
+
+.data-table thead {
+    background: linear-gradient(135deg, #ffe9d6, #ffd9bf);
+}
+.data-table th { color: var(--text); text-shadow: none; font-family: var(--font-display); }
+.data-table td { color: var(--text-muted); font-family: var(--font-body); }
+.data-table tbody tr:hover { background: rgba(212, 106, 45, 0.08); }
+
+.table-wrapper::-webkit-scrollbar-track { background: #f0ebe4; }
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #ffd9bf, #f2c053);
+    border: 2px solid #f0ebe4;
+}
+
+.rank-1 { background: linear-gradient(135deg, #f6d37a, #f2c053); }
+.rank-2 { background: linear-gradient(135deg, #dfe3e8, #c9ced6); }
+.rank-3 { background: linear-gradient(135deg, #e8b28a, #d99361); }
+.rank-top10 { background: rgba(212, 106, 45, 0.12); color: var(--accent-strong); border-color: rgba(212, 106, 45, 0.4); }
+.rank-default { background: #f4f0ea; color: var(--text-muted); }
+.rank-badge { font-family: var(--font-display); }
+.rank-movement.up { color: var(--teal); text-shadow: none; }
+.rank-movement.down { color: #d9776a; text-shadow: none; }
+.rank-movement.same { color: var(--text-muted); }
+
+.achievement-badge {
+    background: rgba(31, 138, 131, 0.12);
+    border: 1px solid rgba(31, 138, 131, 0.4);
+    color: var(--text);
+}
+
+.view-profile-btn {
+    background: rgba(31, 138, 131, 0.12);
+    border: 1px solid rgba(31, 138, 131, 0.4);
+    color: var(--text);
+    font-family: var(--font-display);
+}
+.view-profile-btn:hover {
+    background: rgba(31, 138, 131, 0.2);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+}
+
+.modal {
+    background-color: rgba(18, 14, 10, 0.35);
+    backdrop-filter: blur(8px);
+}
+.modal-header {
+    background: linear-gradient(135deg, #ffe9d6, #ffd9bf);
+}
+.modal-header h2 { color: var(--text); text-shadow: none; }
+.modal-close { color: var(--text); text-shadow: none; }
+
+.footer {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+}
+.creator-tag { color: var(--accent-strong); text-shadow: none; }
+
+@keyframes fadeRise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tab-panel.active {
+    animation: fadeRise 0.4s ease;
+}
+
+.kpi-card,
+.movement-card,
+.chart-card,
+.division-card,
+.table-container {
+    animation: fadeRise 0.5s ease;
+}
+
+@media (max-width: 900px) {
+    .global-bar { flex-direction: column; align-items: flex-start; }
+    .global-actions { width: 100%; justify-content: flex-start; }
+    .tab-buttons { justify-content: flex-start; }
+    .charts-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .donation-filters { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
     <div class="global-bar">
         <div class="brand">
             <div class="alliance-logo mini">pWR</div>
             <div class="brand-text">
-                <div class="brand-title">POWEr Alliance Command Center</div>
-                <div class="brand-sub">Live Leaderboards & Admin Controls</div>
+                <div class="brand-title" data-i18n="global.title">POWEr Alliance Command Center</div>
+                <div class="brand-sub" data-i18n="global.subtitle">Live Leaderboards & Admin Controls</div>
             </div>
         </div>
         <div class="global-actions">
@@ -710,8 +1002,8 @@ body {
 
     <div class="tabs-container">
         <div class="tab-buttons">
-            <button class="tab-btn active" data-tab="duelTab">⚔️ Alliance Duel</button>
-            <button class="tab-btn" data-tab="donationTab">🤝 Donation Leaderboard</button>
+            <button class="tab-btn active" data-tab="duelTab" data-i18n="tabs.duel">⚔️ Alliance Duel</button>
+            <button class="tab-btn" data-tab="donationTab" data-i18n="tabs.donation">🤝 Donation Leaderboard</button>
         </div>
 
         <div id="duelTab" class="tab-panel active">
@@ -735,7 +1027,7 @@ body {
                 <button class="action-btn" id="refreshDataBtn" data-i18n="buttons.refresh">🔄 Refresh Data</button>
                 <button class="action-btn" id="deleteWeekBtn" data-i18n="buttons.deleteWeek" style="display: none;">🗑️ Delete Week</button>
                 <button class="action-btn" id="addPlayerBtn" data-i18n="buttons.addPlayer" style="display: none;">➕ Add Player</button>
-                <button class="action-btn" id="resetDuelBtn" style="display: none;">♻️ Reset Duel Data</button>
+                <button class="action-btn" id="resetDuelBtn" data-i18n="buttons.resetDuel" style="display: none;">♻️ Reset Duel Data</button>
                 <button class="action-btn" id="exportPdfBtn" data-i18n="buttons.exportPdf">📄 Export PDF</button>
                 <button class="action-btn" id="exportCsvBtn" data-i18n="buttons.exportCsv">💾 Export CSV</button>
             </div>
@@ -746,29 +1038,29 @@ body {
 
         <!-- Movement Highlights -->
         <div class="movement-section" id="movementSection" style="display: none;">
-            <h2 class="section-title">📈 Weekly Movement Highlights</h2>
+            <h2 class="section-title" data-i18n="movement.title">📈 Weekly Movement Highlights</h2>
             <div class="movement-grid">
                 <div class="movement-card">
                     <div class="movement-icon">🚀</div>
-                    <div class="movement-title">Biggest Climber</div>
+                    <div class="movement-title" data-i18n="movement.climber">Biggest Climber</div>
                     <div class="movement-player" id="biggestClimber">-</div>
                     <div class="movement-stats" id="climberStats">-</div>
                 </div>
                 <div class="movement-card">
                     <div class="movement-icon">📉</div>
-                    <div class="movement-title">Biggest Drop</div>
+                    <div class="movement-title" data-i18n="movement.faller">Biggest Drop</div>
                     <div class="movement-player" id="biggestFaller">-</div>
                     <div class="movement-stats" id="fallerStats">-</div>
                 </div>
                 <div class="movement-card">
                     <div class="movement-icon">👑</div>
-                    <div class="movement-title">Weekly MVP</div>
+                    <div class="movement-title" data-i18n="movement.mvp">Weekly MVP</div>
                     <div class="movement-player" id="weeklyMvp">-</div>
                     <div class="movement-stats" id="mvpStats">-</div>
                 </div>
                 <div class="movement-card">
                     <div class="movement-icon">🔥</div>
-                    <div class="movement-title">Top Streak</div>
+                    <div class="movement-title" data-i18n="movement.streak">Top Streak</div>
                     <div class="movement-player" id="topStreak">-</div>
                     <div class="movement-stats" id="streakStats">-</div>
                 </div>
@@ -778,11 +1070,11 @@ body {
         <!-- Charts -->
         <div class="charts-grid">
             <div class="chart-card">
-                <h3 class="chart-title">🏆 Top 10 Champions</h3>
+                <h3 class="chart-title" data-i18n="charts.top10">🏆 Top 10 Champions</h3>
                 <canvas id="barChart"></canvas>
             </div>
             <div class="chart-card">
-                <h3 class="chart-title">📊 Score Distribution</h3>
+                <h3 class="chart-title" data-i18n="charts.distribution">📊 Score Distribution</h3>
                 <canvas id="pieChart"></canvas>
             </div>
         </div>
@@ -792,11 +1084,11 @@ body {
             <h2 class="section-title">📈 Performance Analysis</h2>
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h3 class="chart-title">🔥 Top 20 Performance</h3>
+                    <h3 class="chart-title" data-i18n="charts.topPerformance">🔥 Top 20 Performance</h3>
                     <canvas id="topPerformanceChart"></canvas>
                 </div>
                 <div class="chart-card">
-                    <h3 class="chart-title">📉 Bottom 20 Performance</h3>
+                    <h3 class="chart-title" data-i18n="charts.bottomPerformance">📉 Bottom 20 Performance</h3>
                     <canvas id="bottomPerformanceChart"></canvas>
                 </div>
             </div>
@@ -809,8 +1101,8 @@ body {
                 <div class="division-card elite">
                     <div class="division-header">
                         <span class="division-icon">👑</span>
-                        <span class="division-name">Elite Division</span>
-                        <span class="division-req">&gt;100M</span>
+                        <span class="division-name" data-i18n="divisions.elite">Elite Division</span>
+                        <span class="division-req" data-i18n="divisions.eliteReq">&gt;100M</span>
                     </div>
                     <div class="division-count" id="eliteDivisionCount">0 Players</div>
                     <div class="division-players" id="eliteDivisionPlayers"></div>
@@ -818,8 +1110,8 @@ body {
                 <div class="division-card master">
                     <div class="division-header">
                         <span class="division-icon">⚔️</span>
-                        <span class="division-name">Master Division</span>
-                        <span class="division-req">50M-100M</span>
+                        <span class="division-name" data-i18n="divisions.master">Master Division</span>
+                        <span class="division-req" data-i18n="divisions.masterReq">50M-100M</span>
                     </div>
                     <div class="division-count" id="masterDivisionCount">0 Players</div>
                     <div class="division-players" id="masterDivisionPlayers"></div>
@@ -827,8 +1119,8 @@ body {
                 <div class="division-card warrior">
                     <div class="division-header">
                         <span class="division-icon">🛡️</span>
-                        <span class="division-name">Warrior Division</span>
-                        <span class="division-req">&lt;50M</span>
+                        <span class="division-name" data-i18n="divisions.warrior">Warrior Division</span>
+                        <span class="division-req" data-i18n="divisions.warriorReq">&lt;50M</span>
                     </div>
                     <div class="division-count" id="warriorDivisionCount">0 Players</div>
                     <div class="division-players" id="warriorDivisionPlayers"></div>
@@ -838,8 +1130,8 @@ body {
 
         <!-- Data Table -->
         <div class="table-container">
-            <h3 class="chart-title">📋 Complete Leaderboard</h3>
-            <input type="text" id="searchBar" class="search-bar" placeholder="🔍 Search player name...">
+            <h3 class="chart-title" data-i18n="leaderboard.title">📋 Complete Leaderboard</h3>
+            <input type="text" id="searchBar" class="search-bar" data-i18n-placeholder="leaderboard.searchPlaceholder" placeholder="🔍 Search player name...">
             <div class="table-wrapper">
                 <table class="data-table">
                     <thead>
@@ -868,20 +1160,20 @@ body {
                 <div class="modal-body">
                     <div class="profile-stats">
                         <div class="profile-stat">
-                            <div class="stat-label">Current Rank</div>
+                            <div class="stat-label" data-i18n="modals.currentRank">Current Rank</div>
                             <div class="stat-value" id="modalRank">-</div>
                         </div>
                         <div class="profile-stat">
-                            <div class="stat-label">Total Points</div>
+                            <div class="stat-label" data-i18n="modals.totalPoints">Total Points</div>
                             <div class="stat-value" id="modalPoints">-</div>
                         </div>
                         <div class="profile-stat">
-                            <div class="stat-label">Division</div>
+                            <div class="stat-label" data-i18n="modals.division">Division</div>
                             <div class="stat-value" id="modalDivision">-</div>
                         </div>
                     </div>
                     <div>
-                        <h3 style="color: #8b45ff; margin-bottom: 15px;">Weekly Performance History</h3>
+                        <h3 style="color: #b9541d; margin-bottom: 15px;" data-i18n="modals.performanceHistory">Weekly Performance History</h3>
                         <canvas id="playerHistoryChart"></canvas>
                     </div>
                 </div>
@@ -892,7 +1184,7 @@ body {
         <div id="editPlayerModal" class="modal">
             <div class="modal-content" style="max-width: 600px;">
                 <div class="modal-header">
-                    <h2>✏️ EDIT PLAYER</h2>
+                    <h2 data-i18n="modals.editPlayer">✏️ EDIT PLAYER</h2>
                     <span class="modal-close" id="closeEditModal">&times;</span>
                 </div>
                 <div class="modal-body">
@@ -900,17 +1192,17 @@ body {
                     <input type="hidden" id="editPlayerOriginalRank">
                     
                     <div style="margin-bottom: 20px;">
-                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Player Name:</label>
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="modals.playerName">Player Name:</label>
                         <input type="text" id="editPlayerName" class="search-bar" style="margin-bottom: 15px;">
                         
-                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Rank:</label>
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="modals.rank">Rank:</label>
                         <input type="number" id="editPlayerRank" class="search-bar" min="1" style="margin-bottom: 15px;">
                         
-                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Points:</label>
-                        <input type="text" id="editPlayerPoints" class="search-bar" placeholder="Enter points (e.g., 254714950)">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="modals.points">Points:</label>
+                        <input type="text" id="editPlayerPoints" class="search-bar" data-i18n-placeholder="modals.pointsPlaceholder" placeholder="Enter points (e.g., 254714950)">
                     </div>
                     
-                    <button class="upload-btn" id="saveEditPlayerBtn" style="width: 100%; margin-bottom: 10px;">
+                    <button class="upload-btn" id="saveEditPlayerBtn" data-i18n="modals.save" style="width: 100%; margin-bottom: 10px;">
                         💾 SAVE CHANGES
                     </button>
                     
@@ -923,22 +1215,22 @@ body {
         <div id="addPlayerModal" class="modal">
             <div class="modal-content" style="max-width: 600px;">
                 <div class="modal-header">
-                    <h2>➕ ADD NEW PLAYER</h2>
+                    <h2 data-i18n="modals.addPlayer">➕ ADD NEW PLAYER</h2>
                     <span class="modal-close" id="closeAddModal">&times;</span>
                 </div>
                 <div class="modal-body">
                     <div style="margin-bottom: 20px;">
-                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Player Name:</label>
-                        <input type="text" id="addPlayerName" class="search-bar" style="margin-bottom: 15px;" placeholder="Enter player name">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="modals.playerName">Player Name:</label>
+                        <input type="text" id="addPlayerName" class="search-bar" data-i18n-placeholder="modals.playerNamePlaceholder" style="margin-bottom: 15px;" placeholder="Enter player name">
                         
-                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Rank:</label>
-                        <input type="number" id="addPlayerRank" class="search-bar" min="1" style="margin-bottom: 15px;" placeholder="Enter rank">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="modals.rank">Rank:</label>
+                        <input type="number" id="addPlayerRank" class="search-bar" data-i18n-placeholder="modals.rankPlaceholder" min="1" style="margin-bottom: 15px;" placeholder="Enter rank">
                         
-                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Points:</label>
-                        <input type="text" id="addPlayerPoints" class="search-bar" placeholder="Enter points (e.g., 254714950)">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="modals.points">Points:</label>
+                        <input type="text" id="addPlayerPoints" class="search-bar" data-i18n-placeholder="modals.pointsPlaceholder" placeholder="Enter points (e.g., 254714950)">
                     </div>
                     
-                    <button class="upload-btn" id="saveAddPlayerBtn" style="width: 100%; margin-bottom: 10px;">
+                    <button class="upload-btn" id="saveAddPlayerBtn" data-i18n="modals.add" style="width: 100%; margin-bottom: 10px;">
                         ➕ ADD PLAYER
                     </button>
                     
@@ -951,24 +1243,24 @@ body {
         <div id="authModal" class="modal">
             <div class="modal-content" style="max-width: 500px;">
                 <div class="modal-header">
-                    <h2>🔐 Sign In</h2>
+                    <h2 data-i18n="auth.title">🔐 Sign In</h2>
                     <span class="modal-close" id="closeAuthModal">&times;</span>
                 </div>
                 <div class="modal-body">
                     <div style="margin-bottom: 20px;">
-                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;">Email</label>
-                        <input type="email" id="authEmail" class="search-bar" placeholder="admin@example.com" autocomplete="username">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="auth.email">Email</label>
+                        <input type="email" id="authEmail" class="search-bar" data-i18n-placeholder="auth.emailPlaceholder" placeholder="admin@example.com" autocomplete="username">
                         
-                        <label style="color: #997755; display: block; margin: 15px 0 8px; font-weight: 600;">Password</label>
-                        <input type="password" id="authPassword" class="search-bar" placeholder="Enter password" autocomplete="current-password">
+                        <label style="color: #997755; display: block; margin: 15px 0 8px; font-weight: 600;" data-i18n="auth.password">Password</label>
+                        <input type="password" id="authPassword" class="search-bar" data-i18n-placeholder="auth.passwordPlaceholder" placeholder="Enter password" autocomplete="current-password">
                         
                         <label style="display: flex; align-items: center; gap: 8px; margin-top: 12px; color: #997755; font-weight: 600;">
                             <input type="checkbox" id="authRememberMe" checked style="width: 18px; height: 18px;">
-                            Remember me
+                            <span data-i18n="auth.remember">Remember me</span>
                         </label>
                     </div>
                     
-                    <button class="upload-btn" id="authSubmitBtn" style="width: 100%; margin-bottom: 10px;">
+                    <button class="upload-btn" id="authSubmitBtn" data-i18n="buttons.signIn" style="width: 100%; margin-bottom: 10px;">
                         🔐 Sign In
                     </button>
                     
@@ -987,20 +1279,20 @@ body {
                 <div class="modal-body">
                     <div class="profile-stats">
                         <div class="profile-stat">
-                            <div class="stat-label">Current Rank</div>
+                            <div class="stat-label" data-i18n="donation.modal.rank">Current Rank</div>
                             <div class="stat-value" id="donationModalRank">-</div>
                         </div>
                         <div class="profile-stat">
-                            <div class="stat-label">Total Points</div>
+                            <div class="stat-label" data-i18n="donation.modal.points">Total Points</div>
                             <div class="stat-value" id="donationModalPoints">-</div>
                         </div>
                         <div class="profile-stat">
-                            <div class="stat-label">Tier</div>
+                            <div class="stat-label" data-i18n="donation.modal.tier">Tier</div>
                             <div class="stat-value" id="donationModalTier">-</div>
                         </div>
                     </div>
                     <div>
-                        <h3 style="color: #8b45ff; margin-bottom: 15px;">Donation History</h3>
+                        <h3 style="color: #b9541d; margin-bottom: 15px;" data-i18n="donation.modal.history">Donation History</h3>
                         <canvas id="donationHistoryChart"></canvas>
                     </div>
                 </div>
@@ -1009,8 +1301,8 @@ body {
 
         <!-- Footer -->
         <div class="footer">
-            <p>Created by: <span class="creator-tag">#1918 [pWR] DeFOUR</span></p>
-            <p style="font-size: 0.9rem; color: #808080; margin-top: 5px;">Elite Alliance Dashboard System</p>
+            <p><span data-i18n="footer.createdBy">Created by:</span> <span class="creator-tag">#1918 [pWR] DeFOUR</span></p>
+            <p style="font-size: 0.9rem; color: #808080; margin-top: 5px;" data-i18n="footer.subtitle">Elite Alliance Dashboard System</p>
         </div>
             </div>
         </div>
@@ -1019,67 +1311,67 @@ body {
             <div class="dashboard-container">
                 <div class="header">
                     <div class="alliance-logo">pWR</div>
-                    <h1>🤝 ALLIANCE DONATION LEADERBOARD</h1>
-                    <p class="alliance-name">[pWR] POWEr Alliance</p>
-                    <p class="event-subtitle">Weekly Alliance Donations</p>
+                    <h1 data-i18n="donation.header.title">🤝 ALLIANCE DONATION LEADERBOARD</h1>
+                    <p class="alliance-name" data-i18n="header.alliance">[pWR] POWEr Alliance</p>
+                    <p class="event-subtitle" data-i18n="donation.header.subtitle">Weekly Alliance Donations</p>
                 </div>
 
                 <div class="week-controls">
                     <div class="week-selector" id="donationWeekSelector"></div>
                     <div class="control-buttons">
-                        <label for="donationUpload" class="upload-btn" id="donationUploadLabel" style="display: none;">
+                        <label for="donationUpload" class="upload-btn" id="donationUploadLabel" data-i18n="buttons.uploadDonation" style="display: none;">
                             📤 Upload Donation CSV
                             <input type="file" id="donationUpload" accept=".csv" style="display: none;">
                         </label>
-                        <button class="action-btn" id="donationExportPdfBtn">📄 Export PDF</button>
-                        <button class="action-btn" id="donationExportCsvBtn">💾 Export CSV</button>
-                        <button class="action-btn" id="donationExportPngBtn">📸 Screenshot</button>
-                        <button class="action-btn" id="resetDonationBtn" style="display: none;">♻️ Reset Donation Data</button>
+                        <button class="action-btn" id="donationExportPdfBtn" data-i18n="buttons.exportPdf">📄 Export PDF</button>
+                        <button class="action-btn" id="donationExportCsvBtn" data-i18n="buttons.exportCsv">💾 Export CSV</button>
+                        <button class="action-btn" id="donationExportPngBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
+                        <button class="action-btn" id="resetDonationBtn" data-i18n="buttons.resetDonation" style="display: none;">♻️ Reset Donation Data</button>
                     </div>
                 </div>
 
                 <div class="kpi-grid" id="donationKpiGrid">
                     <div class="kpi-card">
-                        <div class="kpi-label">Total Commanders</div>
+                        <div class="kpi-label" data-i18n="donation.kpi.totalCommanders">Total Commanders</div>
                         <div class="kpi-value" id="donationTotalPlayers">-</div>
-                        <div class="kpi-subtext">Entries in CSV</div>
+                        <div class="kpi-subtext" data-i18n="donation.kpi.entries">Entries loaded</div>
                     </div>
                     <div class="kpi-card">
-                        <div class="kpi-label">Top Commander</div>
+                        <div class="kpi-label" data-i18n="donation.kpi.topCommander">Top Commander</div>
                         <div class="kpi-value" id="donationTopCommander">-</div>
                         <div class="kpi-subtext" id="donationTopPoints">-</div>
                     </div>
                     <div class="kpi-card">
-                        <div class="kpi-label">Total Donations</div>
+                        <div class="kpi-label" data-i18n="donation.kpi.totalDonations">Total Donations</div>
                         <div class="kpi-value" id="donationTotalPoints">-</div>
-                        <div class="kpi-subtext">Sum of all points</div>
+                        <div class="kpi-subtext" data-i18n="donation.kpi.sum">Sum of all points</div>
                     </div>
                 </div>
 
                 <div class="movement-section" id="donationMovementSection" style="display: none;">
-                    <h2 class="section-title">📈 Donation Highlights</h2>
+                    <h2 class="section-title" data-i18n="donation.movement.title">📈 Donation Highlights</h2>
                     <div class="movement-grid">
                         <div class="movement-card">
                             <div class="movement-icon">🚀</div>
-                            <div class="movement-title">Biggest Climber</div>
+                            <div class="movement-title" data-i18n="donation.movement.climber">Biggest Climber</div>
                             <div class="movement-player" id="donationBiggestClimber">-</div>
                             <div class="movement-stats" id="donationClimberStats">-</div>
                         </div>
                         <div class="movement-card">
                             <div class="movement-icon">📉</div>
-                            <div class="movement-title">Biggest Drop</div>
+                            <div class="movement-title" data-i18n="donation.movement.faller">Biggest Drop</div>
                             <div class="movement-player" id="donationBiggestFaller">-</div>
                             <div class="movement-stats" id="donationFallerStats">-</div>
                         </div>
                         <div class="movement-card">
                             <div class="movement-icon">👑</div>
-                            <div class="movement-title">Weekly MVP</div>
+                            <div class="movement-title" data-i18n="donation.movement.mvp">Weekly MVP</div>
                             <div class="movement-player" id="donationWeeklyMvp">-</div>
                             <div class="movement-stats" id="donationMvpStats">-</div>
                         </div>
                         <div class="movement-card">
                             <div class="movement-icon">🔥</div>
-                            <div class="movement-title">Top Streak</div>
+                            <div class="movement-title" data-i18n="donation.movement.streak">Top Streak</div>
                             <div class="movement-player" id="donationTopStreak">-</div>
                             <div class="movement-stats" id="donationStreakStats">-</div>
                         </div>
@@ -1090,8 +1382,8 @@ body {
                     <div class="division-card elite">
                         <div class="division-header">
                             <div class="division-icon">💎</div>
-                            <div class="division-name">100k+ Donors</div>
-                            <div class="division-req">Elite Tier</div>
+                            <div class="division-name" data-i18n="donation.divisions.elite">100k+ Donors</div>
+                            <div class="division-req" data-i18n="donation.divisions.eliteSub">Elite Tier</div>
                         </div>
                         <div class="division-count" id="donationEliteCount">0 Commanders</div>
                         <div class="division-players" id="donationElitePlayers">-</div>
@@ -1099,8 +1391,8 @@ body {
                     <div class="division-card master">
                         <div class="division-header">
                             <div class="division-icon">⚔️</div>
-                            <div class="division-name">50k - 99k</div>
-                            <div class="division-req">Master Tier</div>
+                            <div class="division-name" data-i18n="donation.divisions.master">50k - 99k</div>
+                            <div class="division-req" data-i18n="donation.divisions.masterSub">Master Tier</div>
                         </div>
                         <div class="division-count" id="donationMasterCount">0 Commanders</div>
                         <div class="division-players" id="donationMasterPlayers">-</div>
@@ -1108,8 +1400,8 @@ body {
                     <div class="division-card warrior">
                         <div class="division-header">
                             <div class="division-icon">🛡️</div>
-                            <div class="division-name">Below 50k</div>
-                            <div class="division-req">Warrior Tier</div>
+                            <div class="division-name" data-i18n="donation.divisions.warrior">Below 50k</div>
+                            <div class="division-req" data-i18n="donation.divisions.warriorSub">Warrior Tier</div>
                         </div>
                         <div class="division-count" id="donationWarriorCount">0 Commanders</div>
                         <div class="division-players" id="donationWarriorPlayers">-</div>
@@ -1118,25 +1410,25 @@ body {
 
                 <div class="charts-grid">
                     <div class="chart-card">
-                        <div class="chart-title">Top 10 Donors</div>
+                        <div class="chart-title" data-i18n="donation.charts.topDonors">Top 10 Donors</div>
                         <canvas id="donationBarChart"></canvas>
                     </div>
                     <div class="chart-card">
-                        <div class="chart-title">Donation Distribution</div>
+                        <div class="chart-title" data-i18n="donation.charts.distribution">Donation Distribution</div>
                         <canvas id="donationPieChart"></canvas>
                     </div>
                 </div>
 
                 <div class="table-container">
-                    <h2 class="section-title" style="margin-top: 0;">Donation Leaderboard</h2>
-                    <div style="display: grid; grid-template-columns: 1fr 180px 180px; gap: 12px;">
-                    <input type="text" id="donationSearch" class="search-bar" placeholder="Search commander...">
-                        <input type="number" id="donationMinPoints" class="search-bar" placeholder="Min points">
+                    <h2 class="section-title" style="margin-top: 0;" data-i18n="donation.table.title">Donation Leaderboard</h2>
+                    <div class="donation-filters">
+                    <input type="text" id="donationSearch" class="search-bar" data-i18n-placeholder="donation.table.searchPlaceholder" placeholder="Search commander...">
+                        <input type="number" id="donationMinPoints" class="search-bar" data-i18n-placeholder="donation.table.minPointsPlaceholder" placeholder="Min points">
                         <select id="donationTierFilter" class="search-bar">
-                            <option value="">All tiers</option>
-                            <option value="elite">100k+</option>
-                            <option value="master">50k-99k</option>
-                            <option value="warrior">Below 50k</option>
+                            <option value="" data-i18n="donation.table.allTiers">All tiers</option>
+                            <option value="elite" data-i18n="donation.table.tierElite">100k+</option>
+                            <option value="master" data-i18n="donation.table.tierMaster">50k-99k</option>
+                            <option value="warrior" data-i18n="donation.table.tierWarrior">Below 50k</option>
                         </select>
                     </div>
                     <div class="table-wrapper">
@@ -1179,6 +1471,19 @@ body {
         
         const translations = {
             en: {
+                global: {
+                    title: "POWEr Alliance Command Center",
+                    subtitle: "Live Leaderboards & Admin Controls",
+                    pageTitle: "[pWR] Alliance Command Center"
+                },
+                footer: {
+                    createdBy: "Created by:",
+                    subtitle: "Elite Alliance Dashboard System"
+                },
+                tabs: {
+                    duel: "⚔️ Alliance Duel",
+                    donation: "🤝 Donation Leaderboard"
+                },
                 header: {
                     title: "⚔️ ALLIANCE DUEL LEADERBOARD ⚔️",
                     alliance: "[pWR] POWEr Alliance",
@@ -1186,17 +1491,20 @@ body {
                 },
                 buttons: {
                     upload: "📤 Upload Week Data",
+                    uploadDonation: "📤 Upload Donation CSV",
                     signIn: "🔐 Sign In",
                     signOut: "🔓 Sign Out",
                     refresh: "🔄 Refresh Data",
                     deleteWeek: "🗑️ Delete Week",
                     addPlayer: "➕ Add Player",
+                    resetDuel: "♻️ Reset Duel Data",
+                    resetDonation: "♻️ Reset Donation Data",
                     exportPdf: "📄 Export PDF",
                     exportCsv: "💾 Export CSV",
                     screenshot: "📸 Screenshot",
                     view: "View",
                     edit: "✏️ Edit",
-                    delete: "🗑️ Del"
+                    delete: "🗑️ Delete"
                 },
                 table: {
                     rank: "Rank",
@@ -1205,20 +1513,29 @@ body {
                     points: "Points",
                     achievements: "Achievements",
                     division: "Division",
-                    actions: "Actions"
+                    actions: "Actions",
+                    commander: "Commander",
+                    total: "Total"
                 },
                 kpi: {
-                    totalPlayers: "Total Survivors",
-                    avgPoints: "Average Points",
-                    topScore: "Top Score",
-                    totalPoints: "Total Points"
+                    totalPlayers: "Total Players",
+                    totalPlayersSub: "Active Warriors",
+                    avgScore: "Average Score",
+                    avgScoreSub: "Points per Player",
+                    champion: "Champion",
+                    lowestScore: "Lowest Score",
+                    lowestScoreSub: "Entry Level"
                 },
                 movement: {
                     title: "📈 Weekly Movement Highlights",
                     climber: "Biggest Climber",
                     faller: "Biggest Drop",
                     mvp: "Weekly MVP",
-                    streak: "Top Streak"
+                    streak: "Top Streak",
+                    climbStat: "↑ {count} positions",
+                    fallStat: "↓ {count} positions",
+                    mvpStat: "+{count} points",
+                    streakStat: "{count} weeks tracked"
                 },
                 charts: {
                     top10: "🏆 Top 10 Champions",
@@ -1231,33 +1548,200 @@ body {
                     elite: "Elite Division",
                     master: "Master Division",
                     warrior: "Warrior Division",
-                    players: "Players"
+                    eliteReq: ">100M",
+                    masterReq: "50M-100M",
+                    warriorReq: "<50M",
+                    players: "Players",
+                    playersCount: "{count} Players",
+                    eliteShort: "Elite",
+                    masterShort: "Master",
+                    warriorShort: "Warrior",
+                    eliteTier: "Elite (>100M)",
+                    masterTier: "Master (50M-100M)",
+                    warriorTier: "Warrior (<50M)"
                 },
                 leaderboard: {
-                    title: "📋 COMPLETE SURVIVOR RANKINGS",
-                    searchPlaceholder: "Search player name..."
+                    title: "📋 Complete Leaderboard",
+                    searchPlaceholder: "🔍 Search player name..."
                 },
                 modals: {
                     editPlayer: "✏️ EDIT PLAYER",
                     addPlayer: "➕ ADD NEW PLAYER",
+                    playerProfile: "Player Profile",
+                    currentRank: "Current Rank",
+                    totalPoints: "Total Points",
+                    division: "Division",
+                    performanceHistory: "Weekly Performance History",
                     playerName: "Player Name:",
                     rank: "Rank:",
                     points: "Points:",
+                    pointsPlaceholder: "Enter points (e.g., 254714950)",
+                    playerNamePlaceholder: "Enter player name",
+                    rankPlaceholder: "Enter rank",
                     save: "💾 SAVE CHANGES",
                     add: "➕ ADD PLAYER",
                     cancel: "✖ Cancel"
+                },
+                auth: {
+                    title: "🔐 Sign In",
+                    email: "Email",
+                    emailPlaceholder: "admin@example.com",
+                    password: "Password",
+                    passwordPlaceholder: "Enter password",
+                    remember: "Remember me",
+                    required: "⚠️ Email and password are required",
+                    signingIn: "⏳ Signing in...",
+                    signedIn: "✅ Signed in"
+                },
+                achievements: {
+                    champion: "👑 Champion",
+                    top3: "🥇 Top 3",
+                    top10: "⭐ Top 10",
+                    hundredM: "💎 100M Club",
+                    twoHundredM: "🏆 200M Club"
+                },
+                donation: {
+                    header: {
+                        title: "🤝 ALLIANCE DONATION LEADERBOARD",
+                        subtitle: "Weekly Alliance Donations"
+                    },
+                    kpi: {
+                        totalCommanders: "Total Commanders",
+                        topCommander: "Top Commander",
+                        totalDonations: "Total Donations",
+                        entries: "Entries loaded",
+                        sum: "Sum of all points",
+                        pointsSuffix: "{points} pts"
+                    },
+                    movement: {
+                        title: "📈 Donation Highlights",
+                        climber: "Biggest Climber",
+                        faller: "Biggest Drop",
+                        mvp: "Weekly MVP",
+                        streak: "Top Streak",
+                        climbStat: "↑ {count} positions",
+                        fallStat: "↓ {count} positions",
+                        mvpStat: "+{count} points",
+                        streakStat: "{count} consecutive weeks in Top 10"
+                    },
+                    divisions: {
+                        elite: "100k+ Donors",
+                        eliteSub: "Elite Tier",
+                        master: "50k - 99k",
+                        masterSub: "Master Tier",
+                        warrior: "Below 50k",
+                        warriorSub: "Warrior Tier",
+                        eliteShort: "100k+",
+                        masterShort: "50k-99k",
+                        warriorShort: "Below 50k",
+                        count: "{count} Commanders"
+                    },
+                    charts: {
+                        topDonors: "Top 10 Donors",
+                        distribution: "Donation Distribution"
+                    },
+                    table: {
+                        title: "Donation Leaderboard",
+                        searchPlaceholder: "Search commander...",
+                        minPointsPlaceholder: "Min points",
+                        allTiers: "All tiers",
+                        tierElite: "100k+",
+                        tierMaster: "50k-99k",
+                        tierWarrior: "Below 50k",
+                        allWeeks: "All Weeks"
+                    },
+                    modal: {
+                        title: "Donation Profile",
+                        rank: "Current Rank",
+                        points: "Total Points",
+                        tier: "Tier",
+                        history: "Donation History"
+                    },
+                    achievements: {
+                        topDonor: "👑 Top Donor",
+                        top3: "🥇 Top 3",
+                        top10: "⭐ Top 10",
+                        club100k: "💎 100k Club",
+                        club50k: "💰 50k+"
+                    },
+                    messages: {
+                        signInRequired: "❌ Please sign in to upload donations",
+                        loading: "⏳ Loading donations...",
+                        loadedAllWeeks: "Loaded All Weeks ({count} commanders)",
+                        loadedWeek: "Loaded Week {week} ({count} commanders)",
+                        uploadSuccess: "✅ Uploaded Week {week} ({count} commanders)",
+                        uploadError: "❌ Error uploading donations: {error}",
+                        noExport: "⚠️ No donation data to export",
+                        resetConfirm: "⚠️ This will permanently delete ALL Donation data in Firebase.\n\nType \"RESET\" to confirm:",
+                        resetSuccess: "✅ Donation data reset",
+                        resetCancelled: "Reset cancelled",
+                        resetError: "❌ Reset failed: {error}"
+                    }
                 },
                 messages: {
                     signInRequired: "❌ Please sign in to upload data",
                     deleteConfirm: "Are you sure you want to delete",
                     uploadSuccess: "✅ Week {week} uploaded successfully!",
                     deleteSuccess: "✅ Player deleted successfully",
-                    saveSuccess: "✅ Changes saved successfully!",
-                    error: "❌ Error"
+                    saveSuccess: "✅ Player updated successfully!",
+                    addSuccess: "✅ Player added successfully!",
+                    requiredFields: "⚠️ All fields are required",
+                    pointsPositive: "⚠️ Points must be greater than 0",
+                    saving: "⏳ Saving...",
+                    adding: "⏳ Adding player...",
+                    error: "❌ Error",
+                    errorDetail: "❌ {error}",
+                    signInEdit: "❌ Please sign in to edit players",
+                    signInDeletePlayer: "❌ Please sign in to delete players",
+                    signInAddPlayer: "❌ Please sign in to add players",
+                    signInDeleteWeek: "❌ Please sign in to delete weeks",
+                    playerNotFound: "❌ Player not found",
+                    deletePlayerConfirm: "Are you sure you want to delete \"{name}\" (Rank #{rank}) from Week {week}?\n\nThis action cannot be undone!",
+                    deletePlayerSuccess: "✅ \"{name}\" has been deleted from Week {week}",
+                    deletePlayerError: "❌ Error deleting player: {error}",
+                    cannotDeleteOnlyWeek: "❌ Cannot delete the only week! You must have at least one week of data.",
+                    deleteWeekConfirm: "⚠️ WARNING: You are about to delete Week {week} permanently!\n\nThis will remove all {count} players from Week {week}.\n\nType \"DELETE\" to confirm:",
+                    deleteCancelled: "Deletion cancelled",
+                    weekDeleted: "✅ Week {week} has been deleted",
+                    deleteWeekError: "❌ Error deleting week: {error}",
+                    refreshSuccess: "✅ Data refreshed! Loaded {count} weeks from Firebase.",
+                    refreshError: "❌ Error refreshing data: {error}",
+                    uploadSuccessDetail: "✅ Week {week} uploaded successfully to Firebase!\n{count} players uploaded.",
+                    uploadError: "❌ Error uploading CSV: {error}\n\nCheck browser console (F12) for details.",
+                    invalidCsv: "❌ No valid data found in CSV. Please check the file format.\n\nExpected format:\nRank,Player Name,Points\n1,Name,\"1,000,000\"",
+                    fileReadError: "❌ Error reading file. Please try again.",
+                    pdfExportPlaceholder: "📄 PDF export feature - Would use jsPDF library to generate PDF report of current week data",
+                    signOutConfirm: "Sign out from {email}?",
+                    signOutSuccess: "✅ Signed out successfully",
+                    signedInAs: "Signed in as {email}",
+                    uploadHint: "Signed in as {email} - Click to upload",
+                    signInHint: "Sign in to manage data",
+                    noData: "NO DATA UPLOADED YET",
+                    uploadFirst: "Please sign in and upload Week 1 data to get started",
+                    loadingFirebaseTitle: "LOADING FROM FIREBASE...",
+                    loadingFirebaseSub: "Fetching alliance data...",
+                    refreshing: "⏳ Refreshing...",
+                    resetConfirm: "⚠️ This will permanently delete ALL Alliance Duel data in Firebase.\n\nType \"RESET\" to confirm:",
+                    resetSuccess: "✅ Alliance Duel data reset",
+                    resetCancelled: "Reset cancelled",
+                    resetError: "❌ Reset failed: {error}"
                 },
                 week: "Week"
             },
             ar: {
+                global: {
+                    title: "مركز قيادة تحالف POWEr",
+                    subtitle: "لوحات صدارة مباشرة وأدوات الإدارة",
+                    pageTitle: "[pWR] مركز قيادة التحالف"
+                },
+                footer: {
+                    createdBy: "تم الإنشاء بواسطة:",
+                    subtitle: "نظام لوحة قيادة تحالف النخبة"
+                },
+                tabs: {
+                    duel: "⚔️ مبارزة التحالف",
+                    donation: "🤝 لوحة تبرعات التحالف"
+                },
                 header: {
                     title: "⚔️ لوحة صدارة مبارزة التحالف ⚔️",
                     alliance: "تحالف [pWR] POWEr",
@@ -1265,11 +1749,14 @@ body {
                 },
                 buttons: {
                     upload: "📤 رفع بيانات الأسبوع",
+                    uploadDonation: "📤 رفع تبرعات الأسبوع",
                     signIn: "🔐 تسجيل الدخول",
                     signOut: "🔓 تسجيل الخروج",
                     refresh: "🔄 تحديث البيانات",
                     deleteWeek: "🗑️ حذف الأسبوع",
                     addPlayer: "➕ إضافة لاعب",
+                    resetDuel: "♻️ إعادة ضبط بيانات المبارزة",
+                    resetDonation: "♻️ إعادة ضبط بيانات التبرعات",
                     exportPdf: "📄 تصدير PDF",
                     exportCsv: "💾 تصدير CSV",
                     screenshot: "📸 لقطة شاشة",
@@ -1284,20 +1771,29 @@ body {
                     points: "النقاط",
                     achievements: "الإنجازات",
                     division: "الفئة",
-                    actions: "الإجراءات"
+                    actions: "الإجراءات",
+                    commander: "القائد",
+                    total: "الإجمالي"
                 },
                 kpi: {
-                    totalPlayers: "إجمالي الناجين",
-                    avgPoints: "متوسط النقاط",
-                    topScore: "أعلى نتيجة",
-                    totalPoints: "إجمالي النقاط"
+                    totalPlayers: "إجمالي اللاعبين",
+                    totalPlayersSub: "المقاتلون النشطون",
+                    avgScore: "متوسط النقاط",
+                    avgScoreSub: "نقاط لكل لاعب",
+                    champion: "البطل",
+                    lowestScore: "أقل نتيجة",
+                    lowestScoreSub: "المستوى الأدنى"
                 },
                 movement: {
                     title: "📈 أبرز التحركات الأسبوعية",
                     climber: "أكبر صعود",
                     faller: "أكبر هبوط",
                     mvp: "أفضل لاعب",
-                    streak: "أطول سلسلة"
+                    streak: "أطول سلسلة",
+                    climbStat: "↑ {count} مراكز",
+                    fallStat: "↓ {count} مراكز",
+                    mvpStat: "+{count} نقطة",
+                    streakStat: "{count} أسابيع مسجلة"
                 },
                 charts: {
                     top10: "🏆 أفضل 10 أبطال",
@@ -1310,29 +1806,183 @@ body {
                     elite: "فئة النخبة",
                     master: "فئة الماسترز",
                     warrior: "فئة المحاربين",
-                    players: "لاعبين"
+                    eliteReq: "أكثر من 100م",
+                    masterReq: "50م - 100م",
+                    warriorReq: "أقل من 50م",
+                    players: "لاعبين",
+                    playersCount: "{count} لاعبين",
+                    eliteShort: "النخبة",
+                    masterShort: "الماستر",
+                    warriorShort: "المحارب",
+                    eliteTier: "النخبة (أكثر من 100م)",
+                    masterTier: "الماستر (50م - 100م)",
+                    warriorTier: "المحارب (<50م)"
                 },
                 leaderboard: {
-                    title: "📋 ترتيب الناجين الكامل",
-                    searchPlaceholder: "ابحث عن اسم اللاعب..."
+                    title: "📋 لوحة الترتيب الكاملة",
+                    searchPlaceholder: "🔍 ابحث عن اسم اللاعب..."
                 },
                 modals: {
                     editPlayer: "✏️ تعديل اللاعب",
                     addPlayer: "➕ إضافة لاعب جديد",
+                    playerProfile: "ملف اللاعب",
+                    currentRank: "الترتيب الحالي",
+                    totalPoints: "إجمالي النقاط",
+                    division: "الفئة",
+                    performanceHistory: "سجل الأداء الأسبوعي",
                     playerName: "اسم اللاعب:",
                     rank: "الترتيب:",
                     points: "النقاط:",
+                    pointsPlaceholder: "أدخل النقاط (مثال: 254714950)",
+                    playerNamePlaceholder: "أدخل اسم اللاعب",
+                    rankPlaceholder: "أدخل الترتيب",
                     save: "💾 حفظ التغييرات",
                     add: "➕ إضافة لاعب",
                     cancel: "✖ إلغاء"
+                },
+                auth: {
+                    title: "🔐 تسجيل الدخول",
+                    email: "البريد الإلكتروني",
+                    emailPlaceholder: "admin@example.com",
+                    password: "كلمة المرور",
+                    passwordPlaceholder: "أدخل كلمة المرور",
+                    remember: "تذكرني",
+                    required: "⚠️ البريد الإلكتروني وكلمة المرور مطلوبة",
+                    signingIn: "⏳ جارٍ تسجيل الدخول...",
+                    signedIn: "✅ تم تسجيل الدخول"
+                },
+                achievements: {
+                    champion: "👑 البطل",
+                    top3: "🥇 أفضل 3",
+                    top10: "⭐ أفضل 10",
+                    hundredM: "💎 نادي 100M",
+                    twoHundredM: "🏆 نادي 200M"
+                },
+                donation: {
+                    header: {
+                        title: "🤝 لوحة صدارة تبرعات التحالف",
+                        subtitle: "تبرعات التحالف الأسبوعية"
+                    },
+                    kpi: {
+                        totalCommanders: "إجمالي القادة",
+                        topCommander: "أفضل قائد",
+                        totalDonations: "إجمالي التبرعات",
+                        entries: "إجمالي الإدخالات",
+                        sum: "مجموع النقاط",
+                        pointsSuffix: "{points} نقطة"
+                    },
+                    movement: {
+                        title: "📈 أبرز تحركات التبرعات",
+                        climber: "أكبر صعود",
+                        faller: "أكبر هبوط",
+                        mvp: "أفضل متبرع",
+                        streak: "أطول سلسلة",
+                        climbStat: "↑ {count} مراكز",
+                        fallStat: "↓ {count} مراكز",
+                        mvpStat: "+{count} نقطة",
+                        streakStat: "{count} أسابيع متتالية ضمن أفضل 10"
+                    },
+                    divisions: {
+                        elite: "متبرعو +100ألف",
+                        eliteSub: "فئة النخبة",
+                        master: "50ألف - 99ألف",
+                        masterSub: "فئة الماسترز",
+                        warrior: "أقل من 50ألف",
+                        warriorSub: "فئة المحاربين",
+                        eliteShort: "100ألف+",
+                        masterShort: "50ألف-99ألف",
+                        warriorShort: "أقل من 50ألف",
+                        count: "{count} قائد"
+                    },
+                    charts: {
+                        topDonors: "أفضل 10 متبرعين",
+                        distribution: "توزيع التبرعات"
+                    },
+                    table: {
+                        title: "لوحة صدارة التبرعات",
+                        searchPlaceholder: "ابحث عن القائد...",
+                        minPointsPlaceholder: "أقل نقاط",
+                        allTiers: "كل الفئات",
+                        tierElite: "100ألف+",
+                        tierMaster: "50ألف-99ألف",
+                        tierWarrior: "أقل من 50ألف",
+                        allWeeks: "كل الأسابيع"
+                    },
+                    modal: {
+                        title: "ملف التبرعات",
+                        rank: "الترتيب الحالي",
+                        points: "إجمالي النقاط",
+                        tier: "الفئة",
+                        history: "سجل التبرعات"
+                    },
+                    achievements: {
+                        topDonor: "👑 أفضل متبرع",
+                        top3: "🥇 أفضل 3",
+                        top10: "⭐ أفضل 10",
+                        club100k: "💎 نادي 100ألف",
+                        club50k: "💰 50ألف+"
+                    },
+                    messages: {
+                        signInRequired: "❌ يرجى تسجيل الدخول لرفع التبرعات",
+                        loading: "⏳ جارٍ تحميل التبرعات...",
+                        loadedAllWeeks: "تم تحميل كل الأسابيع ({count} قائد)",
+                        loadedWeek: "تم تحميل الأسبوع {week} ({count} قائد)",
+                        uploadSuccess: "✅ تم رفع الأسبوع {week} ({count} قائد)",
+                        uploadError: "❌ خطأ في رفع التبرعات: {error}",
+                        noExport: "⚠️ لا توجد بيانات تبرعات للتصدير",
+                        resetConfirm: "⚠️ سيتم حذف جميع بيانات التبرعات نهائياً من Firebase.\n\nاكتب \"RESET\" للتأكيد:",
+                        resetSuccess: "✅ تم إعادة ضبط بيانات التبرعات",
+                        resetCancelled: "تم إلغاء إعادة الضبط",
+                        resetError: "❌ فشل إعادة الضبط: {error}"
+                    }
                 },
                 messages: {
                     signInRequired: "❌ يرجى تسجيل الدخول لرفع البيانات",
                     deleteConfirm: "هل أنت متأكد من حذف",
                     uploadSuccess: "✅ تم رفع الأسبوع {week} بنجاح!",
                     deleteSuccess: "✅ تم حذف اللاعب بنجاح",
-                    saveSuccess: "✅ تم حفظ التغييرات بنجاح!",
-                    error: "❌ خطأ"
+                    saveSuccess: "✅ تم تحديث اللاعب بنجاح!",
+                    addSuccess: "✅ تمت إضافة اللاعب بنجاح!",
+                    requiredFields: "⚠️ جميع الحقول مطلوبة",
+                    pointsPositive: "⚠️ يجب أن تكون النقاط أكبر من 0",
+                    saving: "⏳ جارٍ الحفظ...",
+                    adding: "⏳ جارٍ إضافة اللاعب...",
+                    error: "❌ خطأ",
+                    errorDetail: "❌ {error}",
+                    signInEdit: "❌ يرجى تسجيل الدخول لتعديل اللاعبين",
+                    signInDeletePlayer: "❌ يرجى تسجيل الدخول لحذف اللاعبين",
+                    signInAddPlayer: "❌ يرجى تسجيل الدخول لإضافة اللاعبين",
+                    signInDeleteWeek: "❌ يرجى تسجيل الدخول لحذف الأسابيع",
+                    playerNotFound: "❌ اللاعب غير موجود",
+                    deletePlayerConfirm: "هل أنت متأكد من حذف \"{name}\" (الترتيب #{rank}) من الأسبوع {week}؟\n\nلا يمكن التراجع عن هذا الإجراء!",
+                    deletePlayerSuccess: "✅ تم حذف \"{name}\" من الأسبوع {week}",
+                    deletePlayerError: "❌ خطأ في حذف اللاعب: {error}",
+                    cannotDeleteOnlyWeek: "❌ لا يمكن حذف الأسبوع الوحيد! يجب أن يكون لديك أسبوع واحد على الأقل.",
+                    deleteWeekConfirm: "⚠️ تحذير: أنت على وشك حذف الأسبوع {week} نهائياً!\n\nسيؤدي ذلك إلى حذف {count} لاعباً من الأسبوع {week}.\n\nاكتب \"DELETE\" للتأكيد:",
+                    deleteCancelled: "تم إلغاء الحذف",
+                    weekDeleted: "✅ تم حذف الأسبوع {week}",
+                    deleteWeekError: "❌ خطأ في حذف الأسبوع: {error}",
+                    refreshSuccess: "✅ تم تحديث البيانات! تم تحميل {count} أسابيع من Firebase.",
+                    refreshError: "❌ خطأ في تحديث البيانات: {error}",
+                    uploadSuccessDetail: "✅ تم رفع الأسبوع {week} بنجاح إلى Firebase!\nتم رفع {count} لاعباً.",
+                    uploadError: "❌ خطأ في رفع CSV: {error}\n\nتحقق من وحدة التحكم (F12) لمزيد من التفاصيل.",
+                    invalidCsv: "❌ لم يتم العثور على بيانات صالحة في CSV. يرجى التحقق من التنسيق.\n\nالتنسيق المتوقع:\nRank,Player Name,Points\n1,Name,\"1,000,000\"",
+                    fileReadError: "❌ خطأ في قراءة الملف. يرجى المحاولة مرة أخرى.",
+                    pdfExportPlaceholder: "📄 ميزة تصدير PDF - سيتم استخدام jsPDF لإنشاء تقرير PDF لبيانات الأسبوع الحالي",
+                    signOutConfirm: "تسجيل الخروج من {email}؟",
+                    signOutSuccess: "✅ تم تسجيل الخروج بنجاح",
+                    signedInAs: "تم تسجيل الدخول باسم {email}",
+                    uploadHint: "تم تسجيل الدخول باسم {email} - اضغط للرفع",
+                    signInHint: "سجّل الدخول لإدارة البيانات",
+                    noData: "لم يتم رفع أي بيانات بعد",
+                    uploadFirst: "يرجى تسجيل الدخول ورفع بيانات الأسبوع 1 للبدء",
+                    loadingFirebaseTitle: "جارٍ التحميل من Firebase...",
+                    loadingFirebaseSub: "جارٍ جلب بيانات التحالف...",
+                    refreshing: "⏳ جارٍ التحديث...",
+                    resetConfirm: "⚠️ سيتم حذف جميع بيانات المبارزة نهائياً من Firebase.\n\nاكتب \"RESET\" للتأكيد:",
+                    resetSuccess: "✅ تم إعادة ضبط بيانات المبارزة",
+                    resetCancelled: "تم إلغاء إعادة الضبط",
+                    resetError: "❌ فشل إعادة الضبط: {error}"
                 },
                 week: "الأسبوع"
             }
@@ -1347,6 +1997,7 @@ body {
             // Update HTML direction
             document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
             document.documentElement.lang = lang;
+            document.title = t('global.pageTitle');
             
             // Update language toggle button
             const toggleBtn = document.getElementById('languageToggle');
@@ -1378,6 +2029,22 @@ body {
                     }
                 }
             });
+
+            // Translate placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                const keys = key.split('.');
+                let translation = translations[lang];
+
+                for (const k of keys) {
+                    translation = translation[k];
+                    if (!translation) break;
+                }
+
+                if (translation) {
+                    element.placeholder = translation;
+                }
+            });
             
             // Re-apply auth-specific labels/visibility after translations
             updateAuthUI();
@@ -1387,12 +2054,17 @@ body {
                 updateDashboard();
             }
 
+            if (donationData.length > 0 || Object.keys(donationWeeksData).length > 0) {
+                updateDonationWeekButtons();
+                renderDonationTable(getCurrentDonationRows());
+            }
+
             // Update donation label when language changes (text only)
             const donationLabel = document.getElementById('donationUploadLabel');
             if (donationLabel) {
                 const textNode = Array.from(donationLabel.childNodes).find(node => node.nodeType === 3);
                 if (textNode) {
-                    textNode.textContent = '📤 Upload Donation CSV';
+                    textNode.textContent = t('buttons.uploadDonation');
                 }
             }
         }
@@ -1653,12 +2325,12 @@ body {
             const remember = document.getElementById('authRememberMe')?.checked;
 
             if (!email || !password) {
-                statusDiv.textContent = '⚠️ Email and password are required';
+                statusDiv.textContent = t('auth.required');
                 return;
             }
 
             try {
-                statusDiv.textContent = '⏳ Signing in...';
+                statusDiv.textContent = t('auth.signingIn');
                 submitBtn.disabled = true;
                 await signInToFirebase(email, password);
                 if (remember) {
@@ -1666,11 +2338,11 @@ body {
                 } else {
                     localStorage.removeItem('authRememberEmail');
                 }
-                statusDiv.textContent = '✅ Signed in';
+                statusDiv.textContent = t('auth.signedIn');
                 setTimeout(() => closeAuthModal(), 500);
             } catch (error) {
                 console.error('Auth modal sign-in error:', error);
-                statusDiv.textContent = `❌ ${error.message}`;
+                statusDiv.textContent = t('messages.errorDetail', { error: error.message });
             } finally {
                 submitBtn.disabled = false;
             }
@@ -1682,9 +2354,9 @@ body {
             if (kpiGrid) {
                 kpiGrid.innerHTML = `
                     <div class="kpi-card" style="grid-column: 1 / -1;">
-                        <div class="kpi-label">🔥 LOADING FROM FIREBASE...</div>
+                        <div class="kpi-label">🔥 ${t('messages.loadingFirebaseTitle')}</div>
                         <div class="kpi-value">⏳</div>
-                        <div class="kpi-subtext">Fetching alliance data...</div>
+                        <div class="kpi-subtext">${t('messages.loadingFirebaseSub')}</div>
                     </div>
                 `;
             }
@@ -1872,9 +2544,9 @@ body {
         }
 
         function getDivision(points) {
-            if (points > 100000000) return 'Elite';
-            if (points >= 50000000) return 'Master';
-            return 'Warrior';
+            if (points > 100000000) return t('divisions.eliteShort');
+            if (points >= 50000000) return t('divisions.masterShort');
+            return t('divisions.warriorShort');
         }
 
         function getAchievements(player, week) {
@@ -1882,11 +2554,11 @@ body {
             const rank = player.Rank;
             const points = player.Points;
             
-            if (rank === 1) achievements.push('👑 Champion');
-            if (rank <= 3) achievements.push('🥇 Top 3');
-            if (rank <= 10) achievements.push('⭐ Top 10');
-            if (points > 100000000) achievements.push('💎 100M Club');
-            if (points > 200000000) achievements.push('🏆 200M Club');
+            if (rank === 1) achievements.push(t('achievements.champion'));
+            if (rank <= 3) achievements.push(t('achievements.top3'));
+            if (rank <= 10) achievements.push(t('achievements.top10'));
+            if (points > 100000000) achievements.push(t('achievements.hundredM'));
+            if (points > 200000000) achievements.push(t('achievements.twoHundredM'));
             
             return achievements;
         }
@@ -1924,24 +2596,24 @@ body {
             
             document.getElementById('kpiGrid').innerHTML = `
                 <div class="kpi-card">
-                    <div class="kpi-label">Total Players</div>
+                    <div class="kpi-label">${t('kpi.totalPlayers')}</div>
                     <div class="kpi-value">${totalPlayers}</div>
-                    <div class="kpi-subtext">Active Warriors</div>
+                    <div class="kpi-subtext">${t('kpi.totalPlayersSub')}</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-label">Average Score</div>
+                    <div class="kpi-label">${t('kpi.avgScore')}</div>
                     <div class="kpi-value">${avgScore.toLocaleString()}</div>
-                    <div class="kpi-subtext">Points per Player</div>
+                    <div class="kpi-subtext">${t('kpi.avgScoreSub')}</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-label">Champion</div>
+                    <div class="kpi-label">${t('kpi.champion')}</div>
                     <div class="kpi-value">${highestScore.toLocaleString()}</div>
                     <div class="kpi-subtext">${champion['Player Name']}</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-label">Lowest Score</div>
+                    <div class="kpi-label">${t('kpi.lowestScore')}</div>
                     <div class="kpi-value">${lowestScore.toLocaleString()}</div>
-                    <div class="kpi-subtext">Entry Level</div>
+                    <div class="kpi-subtext">${t('kpi.lowestScoreSub')}</div>
                 </div>
             `;
         }
@@ -1976,17 +2648,17 @@ body {
             const mvp = movements.reduce((max, m) => m.pointsGain > max.pointsGain ? m : max, movements[0]);
             
             document.getElementById('biggestClimber').textContent = biggestClimber?.name || '-';
-            document.getElementById('climberStats').textContent = `↑ ${biggestClimber?.rankChange || 0} positions`;
+            document.getElementById('climberStats').textContent = t('movement.climbStat', { count: biggestClimber?.rankChange || 0 });
             
             document.getElementById('biggestFaller').textContent = biggestFaller?.name || '-';
-            document.getElementById('fallerStats').textContent = `↓ ${Math.abs(biggestFaller?.rankChange || 0)} positions`;
+            document.getElementById('fallerStats').textContent = t('movement.fallStat', { count: Math.abs(biggestFaller?.rankChange || 0) });
             
             document.getElementById('weeklyMvp').textContent = mvp?.name || '-';
-            document.getElementById('mvpStats').textContent = `+${(mvp?.pointsGain || 0).toLocaleString()} points`;
+            document.getElementById('mvpStats').textContent = t('movement.mvpStat', { count: (mvp?.pointsGain || 0).toLocaleString() });
             
             // Top streak (simplified - player in top 10 for longest)
             document.getElementById('topStreak').textContent = currentData[0]['Player Name'];
-            document.getElementById('streakStats').textContent = `${weeks.length} weeks tracked`;
+            document.getElementById('streakStats').textContent = t('movement.streakStat', { count: weeks.length });
         }
 
         function renderCharts() {
@@ -2002,10 +2674,10 @@ body {
                 data: {
                     labels: top10.map(p => p['Player Name']),
                     datasets: [{
-                        label: 'Points',
+                        label: t('table.points'),
                         data: top10.map(p => p.Points),
-                        backgroundColor: 'rgba(139, 69, 255, 0.8)',
-                        borderColor: 'rgba(139, 69, 255, 1)',
+                        backgroundColor: 'rgba(212, 106, 45, 0.8)',
+                        borderColor: 'rgba(212, 106, 45, 1)',
                         borderWidth: 2,
                         borderRadius: 8
                     }]
@@ -2016,15 +2688,15 @@ body {
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: 'rgba(139, 69, 255, 0.1)' },
+                                grid: { color: 'rgba(212, 106, 45, 0.12)' },
                             ticks: {
-                                color: '#b0b0b0',
+                                color: '#6b625a',
                                 callback: v => (v / 1000000).toFixed(0) + 'M'
                             }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#b0b0b0', maxRotation: 45 }
+                            ticks: { color: '#6b625a', maxRotation: 45 }
                         }
                     }
                 }
@@ -2032,9 +2704,9 @@ body {
             
             // Pie Chart
             const tiers = {
-                'Elite (>100M)': players.filter(p => p.Points > 100000000).length,
-                'Master (50M-100M)': players.filter(p => p.Points >= 50000000 && p.Points <= 100000000).length,
-                'Warrior (<50M)': players.filter(p => p.Points < 50000000).length
+                [t('divisions.eliteTier')]: players.filter(p => p.Points > 100000000).length,
+                [t('divisions.masterTier')]: players.filter(p => p.Points >= 50000000 && p.Points <= 100000000).length,
+                [t('divisions.warriorTier')]: players.filter(p => p.Points < 50000000).length
             };
             const pieCtx = document.getElementById('pieChart').getContext('2d');
             destroyChart('pieChart');
@@ -2044,8 +2716,8 @@ body {
                     labels: Object.keys(tiers),
                     datasets: [{
                         data: Object.values(tiers),
-                        backgroundColor: ['rgba(255, 215, 0, 0.8)', 'rgba(139, 69, 255, 0.8)', 'rgba(255, 0, 128, 0.8)'],
-                        borderColor: ['rgba(255, 215, 0, 1)', 'rgba(139, 69, 255, 1)', 'rgba(255, 0, 128, 1)'],
+                        backgroundColor: ['rgba(242, 192, 83, 0.85)', 'rgba(31, 138, 131, 0.8)', 'rgba(227, 154, 107, 0.8)'],
+                        borderColor: ['rgba(242, 192, 83, 1)', 'rgba(31, 138, 131, 1)', 'rgba(227, 154, 107, 1)'],
                         borderWidth: 2
                     }]
                 },
@@ -2054,7 +2726,7 @@ body {
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: { color: '#b0b0b0', font: { size: 14 }, padding: 20 }
+                            labels: { color: '#6b625a', font: { size: 14 }, padding: 20 }
                         }
                     }
                 }
@@ -2069,10 +2741,10 @@ body {
                 data: {
                     labels: top20.map(p => p['Player Name']),
                     datasets: [{
-                        label: 'Points',
+                        label: t('table.points'),
                         data: top20.map(p => p.Points),
-                        borderColor: 'rgba(139, 69, 255, 1)',
-                        backgroundColor: 'rgba(139, 69, 255, 0.2)',
+                        borderColor: 'rgba(31, 138, 131, 1)',
+                        backgroundColor: 'rgba(31, 138, 131, 0.2)',
                         borderWidth: 3,
                         fill: true,
                         tension: 0.4
@@ -2083,15 +2755,15 @@ body {
                     plugins: { legend: { display: false } },
                     scales: {
                         y: {
-                            grid: { color: 'rgba(139, 69, 255, 0.1)' },
+                                grid: { color: 'rgba(31, 138, 131, 0.12)' },
                             ticks: {
-                                color: '#b0b0b0',
+                                color: '#6b625a',
                                 callback: v => (v / 1000000).toFixed(0) + 'M'
                             }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#b0b0b0', maxRotation: 45 }
+                            ticks: { color: '#6b625a', maxRotation: 45 }
                         }
                     }
                 }
@@ -2106,10 +2778,10 @@ body {
                 data: {
                     labels: bottom20.map(p => p['Player Name']),
                     datasets: [{
-                        label: 'Points',
+                        label: t('table.points'),
                         data: bottom20.map(p => p.Points),
-                        borderColor: 'rgba(255, 0, 128, 1)',
-                        backgroundColor: 'rgba(255, 0, 128, 0.2)',
+                        borderColor: 'rgba(224, 108, 95, 1)',
+                        backgroundColor: 'rgba(224, 108, 95, 0.2)',
                         borderWidth: 3,
                         fill: true,
                         tension: 0.4
@@ -2121,15 +2793,15 @@ body {
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: 'rgba(255, 0, 128, 0.1)' },
+                                grid: { color: 'rgba(224, 108, 95, 0.12)' },
                             ticks: {
-                                color: '#b0b0b0',
+                                color: '#6b625a',
                                 callback: v => (v / 1000000).toFixed(0) + 'M'
                             }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#b0b0b0', maxRotation: 45 }
+                            ticks: { color: '#6b625a', maxRotation: 45 }
                         }
                     }
                 }
@@ -2142,13 +2814,13 @@ body {
             const master = players.filter(p => p.Points >= 50000000 && p.Points <= 100000000);
             const warrior = players.filter(p => p.Points < 50000000);
             
-            document.getElementById('eliteDivisionCount').textContent = `${elite.length} Players`;
+            document.getElementById('eliteDivisionCount').textContent = t('divisions.playersCount', { count: elite.length });
             document.getElementById('eliteDivisionPlayers').innerHTML = elite.slice(0, 5).map(p => p['Player Name']).join(', ') + (elite.length > 5 ? '...' : '');
             
-            document.getElementById('masterDivisionCount').textContent = `${master.length} Players`;
+            document.getElementById('masterDivisionCount').textContent = t('divisions.playersCount', { count: master.length });
             document.getElementById('masterDivisionPlayers').innerHTML = master.slice(0, 5).map(p => p['Player Name']).join(', ') + (master.length > 5 ? '...' : '');
             
-            document.getElementById('warriorDivisionCount').textContent = `${warrior.length} Players`;
+            document.getElementById('warriorDivisionCount').textContent = t('divisions.playersCount', { count: warrior.length });
             document.getElementById('warriorDivisionPlayers').innerHTML = warrior.slice(0, 5).map(p => p['Player Name']).join(', ') + (warrior.length > 5 ? '...' : '');
         }
 
@@ -2226,7 +2898,7 @@ body {
 
             totalPlayersEl.textContent = rows.length || '-';
             topCommanderEl.textContent = top ? top.Commander : '-';
-            topPointsEl.textContent = top ? `${top.Points.toLocaleString()} pts` : '-';
+            topPointsEl.textContent = top ? t('donation.kpi.pointsSuffix', { points: top.Points.toLocaleString() }) : '-';
             totalPointsEl.textContent = totalPoints ? totalPoints.toLocaleString() : '-';
         }
 
@@ -2242,22 +2914,22 @@ body {
             if (isCumulative) {
                 thead.innerHTML = `
                     <tr>
-                        <th>Rank</th>
-                        <th>Commander</th>
-                        ${weeks.map(w => `<th>Week ${w}</th>`).join('')}
-                        <th>Total</th>
-                        <th>Achievements</th>
-                        <th>Actions</th>
+                        <th>${t('table.rank')}</th>
+                        <th>${t('table.commander')}</th>
+                        ${weeks.map(w => `<th>${t('week')} ${w}</th>`).join('')}
+                        <th>${t('table.total')}</th>
+                        <th>${t('table.achievements')}</th>
+                        <th>${t('table.actions')}</th>
                     </tr>
                 `;
             } else {
                 thead.innerHTML = `
                     <tr>
-                        <th>Rank</th>
-                        <th>Commander</th>
-                        <th>Points</th>
-                        <th>Achievements</th>
-                        <th>Actions</th>
+                        <th>${t('table.rank')}</th>
+                        <th>${t('table.commander')}</th>
+                        <th>${t('table.points')}</th>
+                        <th>${t('table.achievements')}</th>
+                        <th>${t('table.actions')}</th>
                     </tr>
                 `;
             }
@@ -2266,7 +2938,7 @@ body {
                 const rankClass = player.Rank === 1 ? 'rank-1' : player.Rank === 2 ? 'rank-2' : player.Rank === 3 ? 'rank-3' : player.Rank <= 10 ? 'rank-top10' : 'rank-default';
                 const achievements = getDonationAchievements(player);
                 const points = (player.Points || 0);
-                const actions = `<button class="view-profile-btn" onclick="openDonationProfile('${player.Commander.replace(/'/g, "\\'")}')">View</button>`;
+                const actions = `<button class="view-profile-btn" onclick="openDonationProfile('${player.Commander.replace(/'/g, "\\'")}')">${t('buttons.view')}</button>`;
 
                 if (isCumulative) {
                     const weekCells = weeks.map(w => `<td>${(player.WeekPoints?.[w] || 0).toLocaleString()}</td>`).join('');
@@ -2309,11 +2981,11 @@ body {
             const badges = [];
             const points = player.Points || 0;
             const rank = player.Rank || 0;
-            if (rank === 1) badges.push('👑 Top Donor');
-            if (rank <= 3) badges.push('🥇 Top 3');
-            if (rank <= 10) badges.push('⭐ Top 10');
-            if (points >= 100000) badges.push('💎 100k Club');
-            if (points >= 50000) badges.push('💰 50k+');
+            if (rank === 1) badges.push(t('donation.achievements.topDonor'));
+            if (rank <= 3) badges.push(t('donation.achievements.top3'));
+            if (rank <= 10) badges.push(t('donation.achievements.top10'));
+            if (points >= 100000) badges.push(t('donation.achievements.club100k'));
+            if (points >= 50000) badges.push(t('donation.achievements.club50k'));
             return badges;
         }
 
@@ -2326,11 +2998,11 @@ body {
             const masterNames = master.slice(0, 5).map(p => p.Commander).join(', ') || '-';
             const warriorNames = warrior.slice(0, 5).map(p => p.Commander).join(', ') || '-';
 
-            document.getElementById('donationEliteCount').textContent = `${elite.length} Commanders`;
+            document.getElementById('donationEliteCount').textContent = t('donation.divisions.count', { count: elite.length });
             document.getElementById('donationElitePlayers').textContent = eliteNames + (elite.length > 5 ? '...' : '');
-            document.getElementById('donationMasterCount').textContent = `${master.length} Commanders`;
+            document.getElementById('donationMasterCount').textContent = t('donation.divisions.count', { count: master.length });
             document.getElementById('donationMasterPlayers').textContent = masterNames + (master.length > 5 ? '...' : '');
-            document.getElementById('donationWarriorCount').textContent = `${warrior.length} Commanders`;
+            document.getElementById('donationWarriorCount').textContent = t('donation.divisions.count', { count: warrior.length });
             document.getElementById('donationWarriorPlayers').textContent = warriorNames + (warrior.length > 5 ? '...' : '');
         }
 
@@ -2344,7 +3016,12 @@ body {
             document.getElementById('donationMovementSection').style.display = 'block';
             const currentIndex = weeks.indexOf(Number(currentDonationWeek));
             const currentWeek = currentIndex >= 0 ? weeks[currentIndex] : weeks[weeks.length - 1];
-            const prevWeek = weeks[weeks.indexOf(currentWeek) - 1];
+            const prevIndex = weeks.indexOf(currentWeek) - 1;
+            if (prevIndex < 0) {
+                document.getElementById('donationMovementSection').style.display = 'none';
+                return;
+            }
+            const prevWeek = weeks[prevIndex];
             const currentData = donationWeeksData[currentWeek] || [];
             const prevData = donationWeeksData[prevWeek] || [];
 
@@ -2368,15 +3045,15 @@ body {
             const mvp = movements.reduce((max, m) => m.pointsGain > max.pointsGain ? m : max, movements[0]);
 
             document.getElementById('donationBiggestClimber').textContent = biggestClimber?.name || '-';
-            document.getElementById('donationClimberStats').textContent = `↑ ${biggestClimber?.rankChange || 0} positions`;
+            document.getElementById('donationClimberStats').textContent = t('donation.movement.climbStat', { count: biggestClimber?.rankChange || 0 });
             document.getElementById('donationBiggestFaller').textContent = biggestFaller?.name || '-';
-            document.getElementById('donationFallerStats').textContent = `↓ ${Math.abs(biggestFaller?.rankChange || 0)} positions`;
+            document.getElementById('donationFallerStats').textContent = t('donation.movement.fallStat', { count: Math.abs(biggestFaller?.rankChange || 0) });
             document.getElementById('donationWeeklyMvp').textContent = mvp?.name || '-';
-            document.getElementById('donationMvpStats').textContent = `+${(mvp?.pointsGain || 0).toLocaleString()} points`;
+            document.getElementById('donationMvpStats').textContent = t('donation.movement.mvpStat', { count: (mvp?.pointsGain || 0).toLocaleString() });
 
             const streakResult = getDonationTopStreak(weeks);
             document.getElementById('donationTopStreak').textContent = streakResult.name || '-';
-            document.getElementById('donationStreakStats').textContent = streakResult.count ? `${streakResult.count} consecutive weeks in Top 10` : '-';
+            document.getElementById('donationStreakStats').textContent = streakResult.count ? t('donation.movement.streakStat', { count: streakResult.count }) : '-';
         }
 
         function getDonationTopStreak(weeks) {
@@ -2409,10 +3086,16 @@ body {
             const playerData = currentRows.find(p => p.Commander === commanderName);
             const points = playerData?.Points || 0;
 
-            document.getElementById('donationModalName').textContent = commanderName;
+            document.getElementById('donationModalName').textContent = `${t('donation.modal.title')} — ${commanderName}`;
             document.getElementById('donationModalRank').textContent = playerData?.Rank ? `#${playerData.Rank}` : '-';
             document.getElementById('donationModalPoints').textContent = points.toLocaleString();
-            document.getElementById('donationModalTier').textContent = getDonationTier(points).toUpperCase();
+            const tier = getDonationTier(points);
+            const tierLabel = tier === 'elite'
+                ? t('donation.divisions.eliteShort')
+                : tier === 'master'
+                    ? t('donation.divisions.masterShort')
+                    : t('donation.divisions.warriorShort');
+            document.getElementById('donationModalTier').textContent = tierLabel;
 
             if (!weeks.length) {
                 destroyChart('donationHistoryChart');
@@ -2431,12 +3114,12 @@ body {
                 chartInstances['donationHistoryChart'] = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: weeks.map(w => `Week ${w}`),
+                        labels: weeks.map(w => `${t('week')} ${w}`),
                         datasets: [{
-                            label: 'Points',
+                            label: t('table.points'),
                             data: history,
-                            borderColor: 'rgba(255, 153, 51, 1)',
-                            backgroundColor: 'rgba(255, 153, 51, 0.2)',
+                            borderColor: 'rgba(212, 106, 45, 1)',
+                            backgroundColor: 'rgba(212, 106, 45, 0.2)',
                             borderWidth: 3,
                             fill: true,
                             tension: 0.4
@@ -2446,8 +3129,8 @@ body {
                         responsive: true,
                         plugins: { legend: { display: false } },
                         scales: {
-                            y: { beginAtZero: true, ticks: { color: '#b0b0b0' }, grid: { color: 'rgba(255, 153, 51, 0.1)' } },
-                            x: { ticks: { color: '#b0b0b0' }, grid: { display: false } }
+                            y: { beginAtZero: true, ticks: { color: '#6b625a' }, grid: { color: 'rgba(212, 106, 45, 0.12)' } },
+                            x: { ticks: { color: '#6b625a' }, grid: { display: false } }
                         }
                     }
                 });
@@ -2467,11 +3150,11 @@ body {
                     type: 'bar',
                     data: {
                         labels: top10.map(p => p.Commander),
-                        datasets: [{
-                            label: 'Points',
-                            data: top10.map(p => p.Points),
-                            backgroundColor: 'rgba(255, 140, 0, 0.8)',
-                            borderColor: 'rgba(255, 140, 0, 1)',
+                    datasets: [{
+                        label: t('table.points'),
+                        data: top10.map(p => p.Points),
+                        backgroundColor: 'rgba(212, 106, 45, 0.8)',
+                        borderColor: 'rgba(212, 106, 45, 1)',
                             borderWidth: 2,
                             borderRadius: 8
                         }]
@@ -2482,12 +3165,12 @@ body {
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                grid: { color: 'rgba(255, 140, 0, 0.1)' },
-                                ticks: { color: '#b0b0b0' }
+                                grid: { color: 'rgba(212, 106, 45, 0.12)' },
+                                ticks: { color: '#6b625a' }
                             },
                             x: {
                                 grid: { display: false },
-                                ticks: { color: '#b0b0b0', maxRotation: 45 }
+                                ticks: { color: '#6b625a', maxRotation: 45 }
                             }
                         }
                     }
@@ -2495,9 +3178,9 @@ body {
             }
 
             const tiers = {
-                '100k+': rows.filter(p => p.Points >= 100000).length,
-                '50k-99k': rows.filter(p => p.Points >= 50000 && p.Points < 100000).length,
-                'Below 50k': rows.filter(p => p.Points < 50000).length
+                [t('donation.table.tierElite')]: rows.filter(p => p.Points >= 100000).length,
+                [t('donation.table.tierMaster')]: rows.filter(p => p.Points >= 50000 && p.Points < 100000).length,
+                [t('donation.table.tierWarrior')]: rows.filter(p => p.Points < 50000).length
             };
             const pieCtx = document.getElementById('donationPieChart')?.getContext('2d');
             if (pieCtx) {
@@ -2508,8 +3191,8 @@ body {
                         labels: Object.keys(tiers),
                         datasets: [{
                             data: Object.values(tiers),
-                            backgroundColor: ['rgba(255, 204, 102, 0.8)', 'rgba(255, 140, 0, 0.8)', 'rgba(255, 80, 0, 0.8)'],
-                            borderColor: ['rgba(255, 204, 102, 1)', 'rgba(255, 140, 0, 1)', 'rgba(255, 80, 0, 1)'],
+                            backgroundColor: ['rgba(242, 192, 83, 0.85)', 'rgba(212, 106, 45, 0.8)', 'rgba(227, 154, 107, 0.8)'],
+                            borderColor: ['rgba(242, 192, 83, 1)', 'rgba(212, 106, 45, 1)', 'rgba(227, 154, 107, 1)'],
                             borderWidth: 2
                         }]
                     },
@@ -2518,7 +3201,7 @@ body {
                         plugins: {
                             legend: {
                                 position: 'bottom',
-                                labels: { color: '#b0b0b0', font: { size: 14 }, padding: 20 }
+                                labels: { color: '#6b625a', font: { size: 14 }, padding: 20 }
                             }
                         }
                     }
@@ -2538,9 +3221,9 @@ body {
 
             const allActive = currentDonationView === 'all';
             selector.innerHTML = `
-                <button class="week-btn ${allActive ? 'active' : ''}" onclick="selectDonationView('all')">All Weeks</button>
+                <button class="week-btn ${allActive ? 'active' : ''}" onclick="selectDonationView('all')">${t('donation.table.allWeeks')}</button>
                 ${weeks.map(week =>
-                    `<button class="week-btn ${!allActive && week == currentDonationWeek ? 'active' : ''}" onclick="selectDonationWeek(${week})">Week ${week}</button>`
+                    `<button class="week-btn ${!allActive && week == currentDonationWeek ? 'active' : ''}" onclick="selectDonationWeek(${week})">${t('week')} ${week}</button>`
                 ).join('')}
             `;
         }
@@ -2561,14 +3244,14 @@ body {
         async function loadDonationLeaderboard() {
             const statusEl = document.getElementById('donationStatus');
             try {
-                if (statusEl) statusEl.textContent = '⏳ Loading donations...';
+                if (statusEl) statusEl.textContent = t('donation.messages.loading');
                 const totalWeeks = await loadAllDonationWeeksFromFirebase();
                 if (totalWeeks > 0) {
                     currentDonationView = 'all';
                     const rows = getCurrentDonationRows();
                     updateDonationWeekButtons();
                     renderDonationTable(rows);
-                    if (statusEl) statusEl.textContent = `Loaded All Weeks (${rows.length} commanders)`;
+                    if (statusEl) statusEl.textContent = t('donation.messages.loadedAllWeeks', { count: rows.length });
                     return rows;
                 }
 
@@ -2600,7 +3283,7 @@ body {
             currentDonationWeek = 1;
             renderDonationTable(donationData);
             updateDonationWeekButtons();
-            if (statusEl) statusEl.textContent = `Loaded default CSV (${donationData.length} commanders)`;
+            if (statusEl) statusEl.textContent = t('donation.messages.loadedWeek', { week: currentDonationWeek, count: donationData.length });
             return donationData;
         }
 
@@ -2620,16 +3303,13 @@ body {
 
         async function resetAllianceDuelData() {
             if (!auth.currentUser) {
-                alert('❌ Please sign in to reset data');
+                alert(t('messages.signInRequired'));
                 return;
             }
 
-            const confirmText = prompt(
-                `⚠️ This will permanently delete ALL Alliance Duel data in Firebase.\n\n` +
-                `Type "RESET" to confirm:`
-            );
+            const confirmText = prompt(t('messages.resetConfirm'));
             if (confirmText !== 'RESET') {
-                alert('Reset cancelled');
+                alert(t('messages.resetCancelled'));
                 return;
             }
 
@@ -2645,32 +3325,29 @@ body {
                 if (kpiGrid) {
                     kpiGrid.innerHTML = `
                         <div class="kpi-card" style="grid-column: 1 / -1;">
-                            <div class="kpi-label">📤 ${t('messages.noData') || 'NO DATA UPLOADED YET'}</div>
+                            <div class="kpi-label">📤 ${t('messages.noData')}</div>
                             <div class="kpi-value">⚠️</div>
-                            <div class="kpi-subtext">${t('messages.uploadFirst') || 'Please sign in and upload Week 1 data to get started'}</div>
+                            <div class="kpi-subtext">${t('messages.uploadFirst')}</div>
                         </div>
                     `;
                 }
 
-                alert('✅ Alliance Duel data reset');
+                alert(t('messages.resetSuccess'));
             } catch (error) {
                 console.error('Reset duel error:', error);
-                alert(`❌ Reset failed: ${error.message}`);
+                alert(t('messages.resetError', { error: error.message }));
             }
         }
 
         async function resetDonationData() {
             if (!auth.currentUser) {
-                alert('❌ Please sign in to reset data');
+                alert(t('donation.messages.signInRequired'));
                 return;
             }
 
-            const confirmText = prompt(
-                `⚠️ This will permanently delete ALL Donation data in Firebase.\n\n` +
-                `Type "RESET" to confirm:`
-            );
+            const confirmText = prompt(t('donation.messages.resetConfirm'));
             if (confirmText !== 'RESET') {
-                alert('Reset cancelled');
+                alert(t('donation.messages.resetCancelled'));
                 return;
             }
 
@@ -2682,11 +3359,11 @@ body {
                 currentDonationView = 'week';
                 updateDonationWeekButtons();
                 renderDonationTable([]);
-                setDonationStatus('Donation data reset');
-                alert('✅ Donation data reset');
+                setDonationStatus(t('donation.messages.resetSuccess'));
+                alert(t('donation.messages.resetSuccess'));
             } catch (error) {
                 console.error('Reset donation error:', error);
-                alert(`❌ Reset failed: ${error.message}`);
+                alert(t('donation.messages.resetError', { error: error.message }));
             }
         }
 
@@ -2717,7 +3394,7 @@ body {
             
             if (!playerData) return;
             
-            document.getElementById('modalPlayerName').textContent = playerName;
+            document.getElementById('modalPlayerName').textContent = `${t('modals.playerProfile')} — ${playerName}`;
             document.getElementById('modalRank').textContent = `#${playerData.Rank}`;
             document.getElementById('modalPoints').textContent = playerData.Points.toLocaleString();
             document.getElementById('modalDivision').textContent = getDivision(playerData.Points);
@@ -2735,12 +3412,12 @@ body {
             chartInstances['playerHistoryChart'] = new Chart(histCtx, {
                 type: 'line',
                 data: {
-                    labels: weeks.map(w => `Week ${w}`),
+                    labels: weeks.map(w => `${t('week')} ${w}`),
                     datasets: [{
-                        label: 'Points',
+                        label: t('table.points'),
                         data: historyData,
-                        borderColor: 'rgba(139, 69, 255, 1)',
-                        backgroundColor: 'rgba(139, 69, 255, 0.2)',
+                        borderColor: 'rgba(31, 138, 131, 1)',
+                        backgroundColor: 'rgba(31, 138, 131, 0.2)',
                         borderWidth: 3,
                         fill: true,
                         tension: 0.4
@@ -2751,12 +3428,12 @@ body {
                     plugins: { legend: { display: false } },
                     scales: {
                         y: {
-                            grid: { color: 'rgba(139, 69, 255, 0.1)' },
-                            ticks: { color: '#b0b0b0' }
+                            grid: { color: 'rgba(31, 138, 131, 0.12)' },
+                            ticks: { color: '#6b625a' }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#b0b0b0' }
+                            ticks: { color: '#6b625a' }
                         }
                     }
                 }
@@ -2778,7 +3455,7 @@ body {
             
             // Check authentication first
             if (!auth.currentUser) {
-                alert('❌ Please sign in first to upload data');
+                alert(t('messages.signInRequired'));
                 e.target.value = '';
                 return;
             }
@@ -2795,7 +3472,7 @@ body {
                     console.log('Parsed players:', newPlayers.length, newPlayers.slice(0, 3));
                     
                     if (!newPlayers || newPlayers.length === 0) {
-                        alert('❌ No valid data found in CSV. Please check the file format.\n\nExpected format:\nRank,Player Name,Points\n1,Name,"1,000,000"');
+                        alert(t('messages.invalidCsv'));
                         e.target.value = '';
                         return;
                     }
@@ -2814,16 +3491,16 @@ body {
                     updateWeekButtons();
                     updateDashboard();
                     
-                    alert(`✅ Week ${nextWeek} uploaded successfully to Firebase!\n${newPlayers.length} players uploaded.`);
+                    alert(t('messages.uploadSuccessDetail', { week: nextWeek, count: newPlayers.length }));
                     
                 } catch (error) {
                     console.error('Upload error:', error);
-                    alert(`❌ Error uploading CSV: ${error.message}\n\nCheck browser console (F12) for details.`);
+                    alert(t('messages.uploadError', { error: error.message }));
                 }
             };
             
             reader.onerror = function() {
-                alert('❌ Error reading file. Please try again.');
+                alert(t('messages.fileReadError'));
             };
             
             console.log('Starting to read file...');
@@ -2840,7 +3517,7 @@ body {
 
         // Export Functions
         document.getElementById('exportPdfBtn').addEventListener('click', () => {
-            alert('📄 PDF export feature - Would use jsPDF library to generate PDF report of current week data');
+            alert(t('messages.pdfExportPlaceholder'));
         });
 
         document.getElementById('exportCsvBtn').addEventListener('click', () => {
@@ -2895,7 +3572,7 @@ body {
         // Edit Player
         function editPlayer(playerName, rank) {
             if (!auth.currentUser) {
-                alert('❌ Please sign in to edit players');
+                alert(t('messages.signInEdit'));
                 return;
             }
             
@@ -2903,7 +3580,7 @@ body {
             const player = players.find(p => p['Player Name'] === playerName && p.Rank === rank);
             
             if (!player) {
-                alert('❌ Player not found');
+                alert(t('messages.playerNotFound'));
                 return;
             }
             
@@ -2931,16 +3608,16 @@ body {
                 const newPoints = parseInt(document.getElementById('editPlayerPoints').value.replace(/,/g, ''));
                 
                 if (!newName || !newRank || !newPoints) {
-                    statusDiv.textContent = '⚠️ All fields are required';
+                    statusDiv.textContent = t('messages.requiredFields');
                     return;
                 }
                 
                 if (newPoints <= 0) {
-                    statusDiv.textContent = '⚠️ Points must be greater than 0';
+                    statusDiv.textContent = t('messages.pointsPositive');
                     return;
                 }
                 
-                statusDiv.textContent = '⏳ Saving...';
+                statusDiv.textContent = t('messages.saving');
                 
                 // Get current week data
                 const players = getCurrentPlayers();
@@ -2977,7 +3654,7 @@ body {
                 // Refresh UI
                 updateDashboard();
                 
-                statusDiv.textContent = '✅ Player updated successfully!';
+                statusDiv.textContent = t('messages.saveSuccess');
                 
                 setTimeout(() => {
                     document.getElementById('editPlayerModal').style.display = 'none';
@@ -2985,18 +3662,18 @@ body {
                 
             } catch (error) {
                 console.error('Error saving player:', error);
-                statusDiv.textContent = `❌ ${error.message}`;
+                statusDiv.textContent = t('messages.errorDetail', { error: error.message });
             }
         }
         
         // Delete Player
         async function deletePlayer(playerName, rank) {
             if (!auth.currentUser) {
-                alert('❌ Please sign in to delete players');
+                alert(t('messages.signInDeletePlayer'));
                 return;
             }
             
-            if (!confirm(`Are you sure you want to delete "${playerName}" (Rank #${rank}) from Week ${currentWeek}?\n\nThis action cannot be undone!`)) {
+            if (!confirm(t('messages.deletePlayerConfirm', { name: playerName, rank, week: currentWeek }))) {
                 return;
             }
             
@@ -3010,7 +3687,7 @@ body {
                 );
                 
                 if (filteredPlayers.length === players.length) {
-                    alert('❌ Player not found');
+                    alert(t('messages.playerNotFound'));
                     return;
                 }
                 
@@ -3032,18 +3709,18 @@ body {
                 // Refresh UI
                 updateDashboard();
                 
-                alert(`✅ "${playerName}" has been deleted from Week ${currentWeek}`);
+                alert(t('messages.deletePlayerSuccess', { name: playerName, week: currentWeek }));
                 
             } catch (error) {
                 console.error('Error deleting player:', error);
-                alert(`❌ Error deleting player: ${error.message}`);
+                alert(t('messages.deletePlayerError', { error: error.message }));
             }
         }
         
         // Show Add Player Modal
         function showAddPlayerModal() {
             if (!auth.currentUser) {
-                alert('❌ Please sign in to add players');
+                alert(t('messages.signInAddPlayer'));
                 return;
             }
             
@@ -3065,16 +3742,16 @@ body {
                 const newPoints = parseInt(document.getElementById('addPlayerPoints').value.replace(/,/g, ''));
                 
                 if (!newName || !newRank || !newPoints) {
-                    statusDiv.textContent = '⚠️ All fields are required';
+                    statusDiv.textContent = t('messages.requiredFields');
                     return;
                 }
                 
                 if (newPoints <= 0) {
-                    statusDiv.textContent = '⚠️ Points must be greater than 0';
+                    statusDiv.textContent = t('messages.pointsPositive');
                     return;
                 }
                 
-                statusDiv.textContent = '⏳ Adding player...';
+                statusDiv.textContent = t('messages.adding');
                 
                 // Get current week data
                 const players = getCurrentPlayers();
@@ -3107,7 +3784,7 @@ body {
                 // Refresh UI
                 updateDashboard();
                 
-                statusDiv.textContent = '✅ Player added successfully!';
+                statusDiv.textContent = t('messages.addSuccess');
                 
                 setTimeout(() => {
                     document.getElementById('addPlayerModal').style.display = 'none';
@@ -3115,30 +3792,31 @@ body {
                 
             } catch (error) {
                 console.error('Error adding player:', error);
-                statusDiv.textContent = `❌ ${error.message}`;
+                statusDiv.textContent = t('messages.errorDetail', { error: error.message });
             }
         }
         
         // Delete Week
         async function deleteCurrentWeek() {
             if (!auth.currentUser) {
-                alert('❌ Please sign in to delete weeks');
+                alert(t('messages.signInDeleteWeek'));
                 return;
             }
             
             if (Object.keys(weeklyData).length === 1) {
-                alert('❌ Cannot delete the only week! You must have at least one week of data.');
+                alert(t('messages.cannotDeleteOnlyWeek'));
                 return;
             }
             
             const confirmText = prompt(
-                `⚠️ WARNING: You are about to delete Week ${currentWeek} permanently!\n\n` +
-                `This will remove all ${getCurrentPlayers().length} players from Week ${currentWeek}.\n\n` +
-                `Type "DELETE" to confirm:`
+                t('messages.deleteWeekConfirm', {
+                    week: currentWeek,
+                    count: getCurrentPlayers().length
+                })
             );
             
             if (confirmText !== 'DELETE') {
-                alert('Deletion cancelled');
+                alert(t('messages.deleteCancelled'));
                 return;
             }
             
@@ -3166,11 +3844,11 @@ body {
                 updateWeekButtons();
                 updateDashboard();
                 
-                alert(`✅ Week ${currentWeek} has been deleted`);
+                alert(t('messages.weekDeleted', { week: currentWeek }));
                 
             } catch (error) {
                 console.error('Error deleting week:', error);
-                alert(`❌ Error deleting week: ${error.message}`);
+                alert(t('messages.deleteWeekError', { error: error.message }));
             }
         }
         
@@ -3179,7 +3857,7 @@ body {
             try {
                 const refreshBtn = document.getElementById('refreshDataBtn');
                 if (refreshBtn) {
-                    refreshBtn.textContent = '⏳ Refreshing...';
+                    refreshBtn.textContent = t('messages.refreshing');
                     refreshBtn.disabled = true;
                 }
                 
@@ -3199,15 +3877,15 @@ body {
                 updateWeekButtons();
                 updateDashboard();
                 
-                alert(`✅ Data refreshed! Loaded ${totalWeeks} weeks from Firebase.`);
+                alert(t('messages.refreshSuccess', { count: totalWeeks }));
                 
             } catch (error) {
                 console.error('Error refreshing data:', error);
-                alert(`❌ Error refreshing data: ${error.message}`);
+                alert(t('messages.refreshError', { error: error.message }));
             } finally {
                 const refreshBtn = document.getElementById('refreshDataBtn');
                 if (refreshBtn) {
-                    refreshBtn.textContent = '🔄 Refresh Data';
+                    refreshBtn.textContent = t('buttons.refresh');
                     refreshBtn.disabled = false;
                 }
             }
@@ -3287,7 +3965,7 @@ body {
         // Donation upload
         document.getElementById('donationUpload')?.addEventListener('change', (e) => {
             if (!auth.currentUser) {
-                alert('❌ Please sign in to upload donations');
+                alert(t('donation.messages.signInRequired'));
                 e.target.value = '';
                 return;
             }
@@ -3306,16 +3984,16 @@ body {
                     const rows = getCurrentDonationRows();
                     updateDonationWeekButtons();
                     renderDonationTable(rows);
-                    setDonationStatus(`✅ Uploaded Week ${nextWeek} (${rows.length} commanders)`);
+                    setDonationStatus(t('donation.messages.uploadSuccess', { week: nextWeek, count: rows.length }));
                 } catch (error) {
                     console.error('Donation upload error:', error);
-                    alert(`❌ Error uploading donations: ${error.message}`);
+                    alert(t('donation.messages.uploadError', { error: error.message }));
                 } finally {
                     e.target.value = '';
                 }
             };
             reader.onerror = function() {
-                alert('❌ Error reading file. Please try again.');
+                alert(t('messages.fileReadError'));
                 e.target.value = '';
             };
             reader.readAsText(file);
@@ -3324,7 +4002,7 @@ body {
         document.getElementById('donationExportCsvBtn')?.addEventListener('click', () => {
             const rows = getCurrentDonationRows();
             if (!rows.length) {
-                alert('⚠️ No donation data to export');
+                alert(t('donation.messages.noExport'));
                 return;
             }
             const weeks = getDonationWeeksList();
@@ -3393,9 +4071,9 @@ body {
                 if (kpiGrid) {
                     kpiGrid.innerHTML = `
                         <div class="kpi-card" style="grid-column: 1 / -1;">
-                            <div class="kpi-label">📤 ${t('messages.noData') || 'NO DATA UPLOADED YET'}</div>
+                            <div class="kpi-label">📤 ${t('messages.noData')}</div>
                             <div class="kpi-value">⚠️</div>
-                            <div class="kpi-subtext">${t('messages.uploadFirst') || 'Please sign in and upload Week 1 data to get started'}</div>
+                            <div class="kpi-subtext">${t('messages.uploadFirst')}</div>
                         </div>
                     `;
                 }
@@ -3434,7 +4112,7 @@ body {
                 // User is signed in - SHOW admin buttons
                 if (signInBtn) {
                     signInBtn.textContent = t('buttons.signOut');
-                    signInBtn.title = `Signed in as ${user.email}`;
+                    signInBtn.title = t('messages.signedInAs', { email: user.email });
                     console.log('✅ Sign out button set');
                 }
                 if (uploadLabel) {
@@ -3444,9 +4122,9 @@ body {
                     if (textNode) {
                         textNode.textContent = t('buttons.upload');
                     }
-                    uploadLabel.style.background = 'linear-gradient(135deg, #99cc33, #669900)';
-                    uploadLabel.style.boxShadow = '0 0 20px rgba(153, 204, 51, 0.4)';
-                    uploadLabel.title = `Signed in as ${user.email} - Click to upload`;
+                    uploadLabel.style.background = 'linear-gradient(135deg, #1f8a83, #176a64)';
+                    uploadLabel.style.boxShadow = '0 0 18px rgba(31, 138, 131, 0.35)';
+                    uploadLabel.title = t('messages.uploadHint', { email: user.email });
                     console.log('✅ Upload button shown');
                 }
                 if (deleteWeekBtn) {
@@ -3472,7 +4150,7 @@ body {
                 // User is signed out - HIDE admin buttons
                 if (signInBtn) {
                     signInBtn.textContent = t('buttons.signIn');
-                    signInBtn.title = 'Sign in to manage data';
+                    signInBtn.title = t('messages.signInHint');
                     console.log('✅ Sign in button set');
                 }
                 if (uploadLabel) {
@@ -3511,9 +4189,9 @@ body {
             
             if (user) {
                 // User is signed in - sign out
-                if (confirm(`Sign out from ${user.email}?`)) {
+                if (confirm(t('messages.signOutConfirm', { email: user.email }))) {
                     signOutFromFirebase();
-                    alert('✅ Signed out successfully');
+                    alert(t('messages.signOutSuccess'));
                 }
             } else {
                 // User is signed out - show inline auth modal
