@@ -819,11 +819,24 @@ body {
     text-shadow: none;
     animation: none;
     letter-spacing: 3px;
+    width: 130px;
+    height: 130px;
+    padding: 16px;
 }
 
 .alliance-logo.mini {
     background: var(--surface);
     border: 1px solid var(--border);
+    width: 60px;
+    height: 60px;
+    padding: 8px;
+}
+
+.alliance-logo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .header h1,
@@ -927,6 +940,12 @@ body {
     box-shadow: 0 0 0 3px rgba(212, 106, 45, 0.2);
 }
 
+.duel-filters {
+    display: grid;
+    grid-template-columns: 1fr 180px 180px;
+    gap: 12px;
+}
+
 .donation-filters {
     display: grid;
     grid-template-columns: 1fr 180px 180px;
@@ -1016,14 +1035,17 @@ body {
 }
 
 @media (max-width: 768px) {
+    .duel-filters { grid-template-columns: 1fr; }
     .donation-filters { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
-    <div class="global-bar">
+        <div class="global-bar">
         <div class="brand">
-            <div class="alliance-logo mini">pWR</div>
+            <div class="alliance-logo mini">
+                <img src="https://raw.githubusercontent.com/pWRDeFOUR/pwr-alliance-leaderboard/refs/heads/main/logo.png" alt="pWR logo">
+            </div>
             <div class="brand-text">
                 <div class="brand-title" data-i18n="global.title">POWEr Alliance Command Center</div>
                 <div class="brand-sub" data-i18n="global.subtitle">Live Leaderboards & Admin Controls</div>
@@ -1046,10 +1068,11 @@ body {
         <div id="duelTab" class="tab-panel active">
             <div class="dashboard-container">
         <!-- Header -->
-        <div class="header">
-            <div class="alliance-logo">pWR</div>
+            <div class="header">
+            <div class="alliance-logo">
+                <img src="https://raw.githubusercontent.com/pWRDeFOUR/pwr-alliance-leaderboard/refs/heads/main/logo.png" alt="pWR logo">
+            </div>
             <h1 data-i18n="header.title">⚔️ ALLIANCE DUEL LEADERBOARD ⚔️</h1>
-            <p class="alliance-name" data-i18n="header.alliance">[pWR] POWEr Alliance</p>
             <p class="event-subtitle" data-i18n="header.event">Weekly Alliance Duel Event</p>
         </div>
 
@@ -1067,6 +1090,7 @@ body {
                 <button class="action-btn" id="resetDuelBtn" data-i18n="buttons.resetDuel" style="display: none;">♻️ Reset Duel Data</button>
                 <button class="action-btn" id="exportPdfBtn" data-i18n="buttons.exportPdf">📄 Export PDF</button>
                 <button class="action-btn" id="exportCsvBtn" data-i18n="buttons.exportCsv">💾 Export CSV</button>
+                <button class="action-btn" id="exportPngBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
             </div>
         </div>
 
@@ -1168,20 +1192,19 @@ body {
         <!-- Data Table -->
         <div class="table-container">
             <h3 class="chart-title" data-i18n="leaderboard.title">📋 Complete Leaderboard</h3>
-            <input type="text" id="searchBar" class="search-bar" data-i18n-placeholder="leaderboard.searchPlaceholder" placeholder="🔍 Search player name...">
+            <div class="duel-filters">
+                <input type="text" id="searchBar" class="search-bar" data-i18n-placeholder="leaderboard.searchPlaceholder" placeholder="🔍 Search player name...">
+                <input type="number" id="duelMinPoints" class="search-bar" data-i18n-placeholder="leaderboard.minPointsPlaceholder" placeholder="Min points">
+                <select id="duelDivisionFilter" class="search-bar">
+                    <option value="" data-i18n="leaderboard.allDivisions">All divisions</option>
+                    <option value="elite" data-i18n="divisions.eliteShort">Elite</option>
+                    <option value="master" data-i18n="divisions.masterShort">Master</option>
+                    <option value="warrior" data-i18n="divisions.warriorShort">Warrior</option>
+                </select>
+            </div>
             <div class="table-wrapper">
                 <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th data-i18n="table.rank">Rank</th>
-                            <th data-i18n="table.movement">Movement</th>
-                            <th data-i18n="table.playerName">Player Name</th>
-                            <th data-i18n="table.points">Points</th>
-                            <th data-i18n="table.achievements">Achievements</th>
-                            <th data-i18n="table.division">Division</th>
-                            <th data-i18n="table.actions">Actions</th>
-                        </tr>
-                    </thead>
+                    <thead id="duelTableHead"></thead>
                     <tbody id="tableBody"></tbody>
                 </table>
             </div>
@@ -1276,6 +1299,65 @@ body {
             </div>
         </div>
 
+        <!-- Edit Donation Modal -->
+        <div id="editDonationModal" class="modal">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 data-i18n="donation.form.editTitle">✏️ EDIT COMMANDER</h2>
+                    <span class="modal-close" id="closeEditDonationModal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editDonationOriginalName">
+                    <input type="hidden" id="editDonationOriginalRank">
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="donation.form.commanderName">Commander Name:</label>
+                        <input type="text" id="donationEditName" class="search-bar" data-i18n-placeholder="donation.form.commanderNamePlaceholder" style="margin-bottom: 15px;" placeholder="Enter commander name">
+
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="donation.form.rank">Rank:</label>
+                        <input type="number" id="donationEditRank" class="search-bar" data-i18n-placeholder="donation.form.rankPlaceholder" min="1" style="margin-bottom: 15px;" placeholder="Enter rank">
+
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="donation.form.points">Points:</label>
+                        <input type="text" id="donationEditPoints" class="search-bar" data-i18n-placeholder="donation.form.pointsPlaceholder" placeholder="Enter points (e.g., 50000)">
+                    </div>
+
+                    <button class="upload-btn" id="saveEditDonationBtn" data-i18n="donation.form.save" style="width: 100%; margin-bottom: 10px;">
+                        💾 SAVE CHANGES
+                    </button>
+
+                    <div id="donationEditStatus" style="text-align: center; color: #ffaa33; margin-top: 10px; font-weight: 600;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Donation Modal -->
+        <div id="addDonationModal" class="modal">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 data-i18n="donation.form.addTitle">➕ ADD COMMANDER</h2>
+                    <span class="modal-close" id="closeAddDonationModal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: 20px;">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="donation.form.commanderName">Commander Name:</label>
+                        <input type="text" id="donationAddName" class="search-bar" data-i18n-placeholder="donation.form.commanderNamePlaceholder" style="margin-bottom: 15px;" placeholder="Enter commander name">
+
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="donation.form.rank">Rank:</label>
+                        <input type="number" id="donationAddRank" class="search-bar" data-i18n-placeholder="donation.form.rankPlaceholder" min="1" style="margin-bottom: 15px;" placeholder="Enter rank">
+
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="donation.form.points">Points:</label>
+                        <input type="text" id="donationAddPoints" class="search-bar" data-i18n-placeholder="donation.form.pointsPlaceholder" placeholder="Enter points (e.g., 50000)">
+                    </div>
+
+                    <button class="upload-btn" id="saveAddDonationBtn" data-i18n="donation.form.add" style="width: 100%; margin-bottom: 10px;">
+                        ➕ ADD COMMANDER
+                    </button>
+
+                    <div id="donationAddStatus" style="text-align: center; color: #ffaa33; margin-top: 10px; font-weight: 600;"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Auth Modal -->
         <div id="authModal" class="modal">
             <div class="modal-content" style="max-width: 500px;">
@@ -1347,9 +1429,10 @@ body {
         <div id="donationTab" class="tab-panel">
             <div class="dashboard-container">
                 <div class="header">
-                    <div class="alliance-logo">pWR</div>
+                    <div class="alliance-logo">
+                        <img src="https://raw.githubusercontent.com/pWRDeFOUR/pwr-alliance-leaderboard/refs/heads/main/logo.png" alt="pWR logo">
+                    </div>
                     <h1 data-i18n="donation.header.title">🤝 ALLIANCE DONATION LEADERBOARD</h1>
-                    <p class="alliance-name" data-i18n="header.alliance">[pWR] POWEr Alliance</p>
                     <p class="event-subtitle" data-i18n="donation.header.subtitle">Weekly Alliance Donations</p>
                 </div>
 
@@ -1360,6 +1443,9 @@ body {
                             📤 Upload Donation CSV
                             <input type="file" id="donationUpload" accept=".csv" style="display: none;">
                         </label>
+                        <button class="action-btn" id="donationRefreshBtn" data-i18n="buttons.refresh">🔄 Refresh Data</button>
+                        <button class="action-btn" id="donationDeleteWeekBtn" data-i18n="buttons.deleteWeek" style="display: none;">🗑️ Delete Week</button>
+                        <button class="action-btn" id="donationAddCommanderBtn" data-i18n="donation.buttons.addCommander" style="display: none;">➕ Add Commander</button>
                         <button class="action-btn" id="donationExportPdfBtn" data-i18n="buttons.exportPdf">📄 Export PDF</button>
                         <button class="action-btn" id="donationExportCsvBtn" data-i18n="buttons.exportCsv">💾 Export CSV</button>
                         <button class="action-btn" id="donationExportPngBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
@@ -1456,6 +1542,20 @@ body {
                     </div>
                 </div>
 
+                <div class="performance-section">
+                    <h2 class="section-title" data-i18n="donation.charts.performanceTitle">📈 Donation Performance</h2>
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3 class="chart-title" data-i18n="donation.charts.topPerformance">🔥 Top 20 Performance</h3>
+                            <canvas id="donationTopPerformanceChart"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3 class="chart-title" data-i18n="donation.charts.bottomPerformance">📉 Bottom 20 Performance</h3>
+                            <canvas id="donationBottomPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="table-container">
                     <h2 class="section-title" style="margin-top: 0;" data-i18n="donation.table.title">Donation Leaderboard</h2>
                     <div class="donation-filters">
@@ -1527,7 +1627,6 @@ body {
                 },
                 header: {
                     title: "⚔️ ALLIANCE DUEL LEADERBOARD ⚔️",
-                    alliance: "[pWR] POWEr Alliance",
                     event: "Weekly Alliance Duel Event"
                 },
                 buttons: {
@@ -1603,7 +1702,10 @@ body {
                 },
                 leaderboard: {
                     title: "📋 Complete Leaderboard",
-                    searchPlaceholder: "🔍 Search player name..."
+                    searchPlaceholder: "🔍 Search player name...",
+                    minPointsPlaceholder: "Min points",
+                    allDivisions: "All divisions",
+                    allWeeks: "All Weeks"
                 },
                 modals: {
                     editPlayer: "✏️ EDIT PLAYER",
@@ -1642,6 +1744,21 @@ body {
                     twoHundredM: "🏆 200M Club"
                 },
                 donation: {
+                    buttons: {
+                        addCommander: "➕ Add Commander"
+                    },
+                    form: {
+                        editTitle: "✏️ EDIT COMMANDER",
+                        addTitle: "➕ ADD COMMANDER",
+                        commanderName: "Commander Name:",
+                        rank: "Rank:",
+                        points: "Points:",
+                        commanderNamePlaceholder: "Enter commander name",
+                        rankPlaceholder: "Enter rank",
+                        pointsPlaceholder: "Enter points (e.g., 50000)",
+                        save: "💾 SAVE CHANGES",
+                        add: "➕ ADD COMMANDER"
+                    },
                     header: {
                         title: "🤝 ALLIANCE DONATION LEADERBOARD",
                         subtitle: "Weekly Alliance Donations"
@@ -1679,7 +1796,10 @@ body {
                     },
                     charts: {
                         topDonors: "Top 10 Donors",
-                        distribution: "Donation Distribution"
+                        distribution: "Donation Distribution",
+                        performanceTitle: "📈 Donation Performance",
+                        topPerformance: "🔥 Top 20 Performance",
+                        bottomPerformance: "📉 Bottom 20 Performance"
                     },
                     table: {
                         title: "Donation Leaderboard",
@@ -1713,6 +1833,20 @@ body {
                         uploadSuccess: "✅ Uploaded Week {week} ({count} commanders)",
                         uploadError: "❌ Error uploading donations: {error}",
                         noExport: "⚠️ No donation data to export",
+                        deleteConfirm: "Are you sure you want to delete \"{name}\" (Rank #{rank}) from Week {week}?\n\nThis action cannot be undone!",
+                        deleteWeekConfirm: "⚠️ WARNING: You are about to delete Week {week} permanently!\n\nThis will remove all {count} commanders from Week {week}.\n\nType \"DELETE\" to confirm:",
+                        deleteWeekOnlyWeek: "❌ Cannot delete the only week! You must have at least one week of data.",
+                        deleteWeekCancelled: "Deletion cancelled",
+                        deleteWeekSuccess: "✅ Week {week} has been deleted",
+                        deleteWeekError: "❌ Error deleting week: {error}",
+                        refreshSuccess: "✅ Donations refreshed! Loaded {count} weeks from Firebase.",
+                        refreshError: "❌ Error refreshing donations: {error}",
+                        addSuccess: "✅ Commander added successfully!",
+                        editSuccess: "✅ Commander updated successfully!",
+                        deleteSuccess: "✅ Commander deleted successfully",
+                        addError: "❌ Error adding commander: {error}",
+                        editError: "❌ Error updating commander: {error}",
+                        deleteError: "❌ Error deleting commander: {error}",
                         resetConfirm: "⚠️ This will permanently delete ALL Donation data in Firebase.\n\nType \"RESET\" to confirm:",
                         resetSuccess: "✅ Donation data reset",
                         resetCancelled: "Reset cancelled",
@@ -1789,7 +1923,6 @@ body {
                 },
                 header: {
                     title: "⚔️ لوحة صدارة مبارزة التحالف ⚔️",
-                    alliance: "تحالف [pWR] POWEr",
                     event: "حدث المبارزة الأسبوعية للتحالف"
                 },
                 buttons: {
@@ -1865,7 +1998,10 @@ body {
                 },
                 leaderboard: {
                     title: "📋 لوحة الترتيب الكاملة",
-                    searchPlaceholder: "🔍 ابحث عن اسم اللاعب..."
+                    searchPlaceholder: "🔍 ابحث عن اسم اللاعب...",
+                    minPointsPlaceholder: "أقل نقاط",
+                    allDivisions: "كل الفئات",
+                    allWeeks: "كل الأسابيع"
                 },
                 modals: {
                     editPlayer: "✏️ تعديل اللاعب",
@@ -1904,6 +2040,21 @@ body {
                     twoHundredM: "🏆 نادي 200M"
                 },
                 donation: {
+                    buttons: {
+                        addCommander: "➕ إضافة قائد"
+                    },
+                    form: {
+                        editTitle: "✏️ تعديل القائد",
+                        addTitle: "➕ إضافة قائد",
+                        commanderName: "اسم القائد:",
+                        rank: "الترتيب:",
+                        points: "النقاط:",
+                        commanderNamePlaceholder: "أدخل اسم القائد",
+                        rankPlaceholder: "أدخل الترتيب",
+                        pointsPlaceholder: "أدخل النقاط (مثال: 50000)",
+                        save: "💾 حفظ التغييرات",
+                        add: "➕ إضافة قائد"
+                    },
                     header: {
                         title: "🤝 لوحة صدارة تبرعات التحالف",
                         subtitle: "تبرعات التحالف الأسبوعية"
@@ -1941,7 +2092,10 @@ body {
                     },
                     charts: {
                         topDonors: "أفضل 10 متبرعين",
-                        distribution: "توزيع التبرعات"
+                        distribution: "توزيع التبرعات",
+                        performanceTitle: "📈 أداء التبرعات",
+                        topPerformance: "🔥 أداء أفضل 20",
+                        bottomPerformance: "📉 أداء أسفل 20"
                     },
                     table: {
                         title: "لوحة صدارة التبرعات",
@@ -1975,6 +2129,20 @@ body {
                         uploadSuccess: "✅ تم رفع الأسبوع {week} ({count} قائد)",
                         uploadError: "❌ خطأ في رفع التبرعات: {error}",
                         noExport: "⚠️ لا توجد بيانات تبرعات للتصدير",
+                        deleteConfirm: "هل أنت متأكد من حذف \"{name}\" (الترتيب #{rank}) من الأسبوع {week}؟\n\nلا يمكن التراجع عن هذا الإجراء!",
+                        deleteWeekConfirm: "⚠️ تحذير: أنت على وشك حذف الأسبوع {week} نهائياً!\n\nسيؤدي ذلك إلى حذف {count} قائد من الأسبوع {week}.\n\nاكتب \"DELETE\" للتأكيد:",
+                        deleteWeekOnlyWeek: "❌ لا يمكن حذف الأسبوع الوحيد! يجب أن يكون لديك أسبوع واحد على الأقل.",
+                        deleteWeekCancelled: "تم إلغاء الحذف",
+                        deleteWeekSuccess: "✅ تم حذف الأسبوع {week}",
+                        deleteWeekError: "❌ خطأ في حذف الأسبوع: {error}",
+                        refreshSuccess: "✅ تم تحديث بيانات التبرعات! تم تحميل {count} أسابيع من Firebase.",
+                        refreshError: "❌ خطأ في تحديث التبرعات: {error}",
+                        addSuccess: "✅ تمت إضافة القائد بنجاح!",
+                        editSuccess: "✅ تم تحديث القائد بنجاح!",
+                        deleteSuccess: "✅ تم حذف القائد بنجاح",
+                        addError: "❌ خطأ في إضافة القائد: {error}",
+                        editError: "❌ خطأ في تحديث القائد: {error}",
+                        deleteError: "❌ خطأ في حذف القائد: {error}",
                         resetConfirm: "⚠️ سيتم حذف جميع بيانات التبرعات نهائياً من Firebase.\n\nاكتب \"RESET\" للتأكيد:",
                         resetSuccess: "✅ تم إعادة ضبط بيانات التبرعات",
                         resetCancelled: "تم إلغاء إعادة الضبط",
@@ -2100,6 +2268,7 @@ body {
             
             // Update dynamic content only if data is loaded
             if (Object.keys(weeklyData).length > 0) {
+                updateWeekButtons();
                 updateDashboard();
             }
 
@@ -2469,6 +2638,7 @@ body {
         // === DATA MANAGEMENT ===
         let weeklyData = {};
         let currentWeek = 1;
+        let currentDuelView = 'week';
         let chartInstances = {};
         let currentProfilePlayer = null;
         let currentDonationProfile = null;
@@ -2602,6 +2772,39 @@ body {
             return weeklyData[currentWeek] || [];
         }
 
+        function getCurrentDuelRows() {
+            if (currentDuelView === 'all') {
+                return buildDuelCumulativeRows();
+            }
+            return getCurrentPlayers();
+        }
+
+        function buildDuelCumulativeRows() {
+            const weeks = Object.keys(weeklyData).map(Number).sort((a, b) => a - b);
+            if (!weeks.length) return [];
+
+            const map = {};
+            weeks.forEach(week => {
+                const rows = weeklyData[week] || [];
+                rows.forEach(row => {
+                    const key = row['Player Name'];
+                    if (!map[key]) {
+                        map[key] = { 'Player Name': key, TotalPoints: 0, WeekPoints: {} };
+                    }
+                    map[key].WeekPoints[week] = row.Points || 0;
+                    map[key].TotalPoints += row.Points || 0;
+                });
+            });
+
+            const combined = Object.values(map).sort((a, b) => b.TotalPoints - a.TotalPoints);
+            return combined.map((row, index) => ({
+                Rank: index + 1,
+                'Player Name': row['Player Name'],
+                Points: row.TotalPoints,
+                WeekPoints: row.WeekPoints
+            }));
+        }
+
         function getDonationWeeksList() {
             return Object.keys(donationWeeksData).map(Number).sort((a, b) => a - b);
         }
@@ -2689,7 +2892,7 @@ body {
 
         // === RENDERING FUNCTIONS ===
         function renderKPIs() {
-            const players = getCurrentPlayers();
+            const players = getCurrentDuelRows();
             if (!players.length) return;
             
             const totalPlayers = players.length;
@@ -2767,7 +2970,7 @@ body {
         }
 
         function renderCharts() {
-            const players = getCurrentPlayers();
+            const players = getCurrentDuelRows();
             if (!players.length) return;
 
             const chartTheme = getChartTheme();
@@ -2916,7 +3119,7 @@ body {
         }
 
         function renderDivisions() {
-            const players = getCurrentPlayers();
+            const players = getCurrentDuelRows();
             const elite = players.filter(p => p.Points > 100000000);
             const master = players.filter(p => p.Points >= 50000000 && p.Points <= 100000000);
             const warrior = players.filter(p => p.Points < 50000000);
@@ -2932,10 +3135,41 @@ body {
         }
 
         function renderTable(data = null) {
-            const players = data || getCurrentPlayers();
+            const players = data || getCurrentDuelRows();
             const tbody = document.getElementById('tableBody');
+            const thead = document.getElementById('duelTableHead');
             const isAdmin = auth.currentUser !== null;
-            
+            const weeks = Object.keys(weeklyData).map(Number).sort((a, b) => a - b);
+            const isCumulative = currentDuelView === 'all' && weeks.length > 0;
+
+            if (thead) {
+                if (isCumulative) {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>${t('table.rank')}</th>
+                            <th>${t('table.playerName')}</th>
+                            ${weeks.map(w => `<th>${t('week')} ${w}</th>`).join('')}
+                            <th>${t('table.total')}</th>
+                            <th>${t('table.achievements')}</th>
+                            <th>${t('table.division')}</th>
+                            <th>${t('table.actions')}</th>
+                        </tr>
+                    `;
+                } else {
+                    thead.innerHTML = `
+                        <tr>
+                            <th>${t('table.rank')}</th>
+                            <th>${t('table.movement')}</th>
+                            <th>${t('table.playerName')}</th>
+                            <th>${t('table.points')}</th>
+                            <th>${t('table.achievements')}</th>
+                            <th>${t('table.division')}</th>
+                            <th>${t('table.actions')}</th>
+                        </tr>
+                    `;
+                }
+            }
+
             tbody.innerHTML = players.map(player => {
                 let rankClass = 'rank-default';
                 if (player.Rank === 1) rankClass = 'rank-1';
@@ -2946,16 +3180,36 @@ body {
                 const movement = calculateMovement(player['Player Name']);
                 const movementIcon = movement.type === 'up' ? '↑' : movement.type === 'down' ? '↓' : '─';
                 const movementText = movement.change > 0 ? `${movementIcon} ${movement.change}` : movementIcon;
-                
+
                 const achievements = getAchievements(player, currentWeek);
                 const division = getDivision(player.Points);
                 
-                // Admin buttons (only show if signed in)
-                const adminButtons = isAdmin ? `
+                // Admin buttons (only show if signed in + weekly view)
+                const adminButtons = isAdmin && !isCumulative ? `
                     <button class="view-profile-btn" onclick="editPlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(153, 204, 51, 0.4); border-color: #99cc33;">${t('buttons.edit')}</button>
                     <button class="view-profile-btn" onclick="deletePlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(204, 51, 0, 0.4); border-color: #cc3300;">${t('buttons.delete')}</button>
                 ` : '';
-                
+
+                const actionCell = `
+                    <button class="view-profile-btn" onclick="openPlayerProfile('${player['Player Name'].replace(/'/g, "\\'")}')">  ${t('buttons.view')}</button>
+                    ${adminButtons}
+                `;
+
+                if (isCumulative) {
+                    const weekCells = weeks.map(w => `<td>${(player.WeekPoints?.[w] || 0).toLocaleString()}</td>`).join('');
+                    return `
+                        <tr>
+                            <td><span class="rank-badge ${rankClass}">#${player.Rank}</span></td>
+                            <td>${player['Player Name']}</td>
+                            ${weekCells}
+                            <td>${player.Points.toLocaleString()}</td>
+                            <td>${achievements.map(a => `<span class="achievement-badge">${a}</span>`).join('')}</td>
+                            <td>${division}</td>
+                            <td>${actionCell}</td>
+                        </tr>
+                    `;
+                }
+
                 return `
                     <tr>
                         <td><span class="rank-badge ${rankClass}">#${player.Rank}</span></td>
@@ -2964,10 +3218,7 @@ body {
                         <td>${player.Points.toLocaleString()}</td>
                         <td>${achievements.map(a => `<span class="achievement-badge">${a}</span>`).join('')}</td>
                         <td>${division}</td>
-                        <td>
-                            <button class="view-profile-btn" onclick="openPlayerProfile('${player['Player Name'].replace(/'/g, "\\'")}')">  ${t('buttons.view')}</button>
-                            ${adminButtons}
-                        </td>
+                        <td>${actionCell}</td>
                     </tr>
                 `;
             }).join('');
@@ -2976,10 +3227,20 @@ body {
         function updateWeekButtons() {
             const weeks = Object.keys(weeklyData).sort((a, b) => a - b);
             const weekSelector = document.getElementById('weekSelector');
-            
-            weekSelector.innerHTML = weeks.map(week => 
-                `<button class="week-btn ${week == currentWeek ? 'active' : ''}" onclick="selectWeek(${week})">${t('week')} ${week}</button>`
-            ).join('');
+            if (!weekSelector) return;
+
+            if (!weeks.length) {
+                weekSelector.innerHTML = '';
+                return;
+            }
+
+            const allActive = currentDuelView === 'all';
+            weekSelector.innerHTML = `
+                <button class="week-btn ${allActive ? 'active' : ''}" onclick="selectDuelView('all')">${t('leaderboard.allWeeks')}</button>
+                ${weeks.map(week =>
+                    `<button class="week-btn ${!allActive && week == currentWeek ? 'active' : ''}" onclick="selectWeek(${week})">${t('week')} ${week}</button>`
+                ).join('')}
+            `;
         }
 
         function updateDashboard() {
@@ -2988,7 +3249,12 @@ body {
             renderCharts();
             renderDivisions();
             renderTable();
-            document.getElementById('searchBar').value = '';
+            const searchInput = document.getElementById('searchBar');
+            if (searchInput) searchInput.value = '';
+            const minPointsInput = document.getElementById('duelMinPoints');
+            if (minPointsInput) minPointsInput.value = '';
+            const divisionFilter = document.getElementById('duelDivisionFilter');
+            if (divisionFilter) divisionFilter.value = '';
         }
 
         // === DONATION LEADERBOARD ===
@@ -3017,6 +3283,7 @@ body {
             const safeRows = rows || [];
             const weeks = getDonationWeeksList();
             const isCumulative = currentDonationView === 'all' && weeks.length > 0;
+            const isAdmin = auth.currentUser !== null;
 
             if (isCumulative) {
                 thead.innerHTML = `
@@ -3045,7 +3312,14 @@ body {
                 const rankClass = player.Rank === 1 ? 'rank-1' : player.Rank === 2 ? 'rank-2' : player.Rank === 3 ? 'rank-3' : player.Rank <= 10 ? 'rank-top10' : 'rank-default';
                 const achievements = getDonationAchievements(player);
                 const points = (player.Points || 0);
-                const actions = `<button class="view-profile-btn" onclick="openDonationProfile('${player.Commander.replace(/'/g, "\\'")}')">${t('buttons.view')}</button>`;
+                const adminButtons = isAdmin && !isCumulative ? `
+                    <button class="view-profile-btn" onclick="editDonationEntry('${player.Commander.replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(153, 204, 51, 0.4); border-color: #99cc33;">${t('buttons.edit')}</button>
+                    <button class="view-profile-btn" onclick="deleteDonationEntry('${player.Commander.replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(204, 51, 0, 0.4); border-color: #cc3300;">${t('buttons.delete')}</button>
+                ` : '';
+                const actions = `
+                    <button class="view-profile-btn" onclick="openDonationProfile('${player.Commander.replace(/'/g, "\\'")}')">${t('buttons.view')}</button>
+                    ${adminButtons}
+                `;
 
                 if (isCumulative) {
                     const weekCells = weeks.map(w => `<td>${(player.WeekPoints?.[w] || 0).toLocaleString()}</td>`).join('');
@@ -3318,6 +3592,76 @@ body {
                     }
                 });
             }
+
+            const top20 = rows.slice(0, 20);
+            const topPerfCtx = document.getElementById('donationTopPerformanceChart')?.getContext('2d');
+            if (topPerfCtx) {
+                destroyChart('donationTopPerformanceChart');
+                chartInstances['donationTopPerformanceChart'] = new Chart(topPerfCtx, {
+                    type: 'line',
+                    data: {
+                        labels: top20.map(p => p.Commander),
+                        datasets: [{
+                            label: t('table.points'),
+                            data: top20.map(p => p.Points),
+                            borderColor: 'rgba(31, 138, 131, 1)',
+                            backgroundColor: 'rgba(31, 138, 131, 0.2)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                grid: { color: chartTheme.grid },
+                                ticks: { color: chartTheme.text }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: chartTheme.text, maxRotation: 45 }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const bottom20 = rows.slice(-20).reverse();
+            const bottomPerfCtx = document.getElementById('donationBottomPerformanceChart')?.getContext('2d');
+            if (bottomPerfCtx) {
+                destroyChart('donationBottomPerformanceChart');
+                chartInstances['donationBottomPerformanceChart'] = new Chart(bottomPerfCtx, {
+                    type: 'line',
+                    data: {
+                        labels: bottom20.map(p => p.Commander),
+                        datasets: [{
+                            label: t('table.points'),
+                            data: bottom20.map(p => p.Points),
+                            borderColor: 'rgba(224, 108, 95, 1)',
+                            backgroundColor: 'rgba(224, 108, 95, 0.2)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                grid: { color: chartTheme.grid },
+                                ticks: { color: chartTheme.text }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: chartTheme.text, maxRotation: 45 }
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         function updateDonationWeekButtons() {
@@ -3495,8 +3839,18 @@ body {
 
         function selectWeek(week) {
             currentWeek = week;
+            currentDuelView = 'week';
             updateWeekButtons();
             updateDashboard();
+        }
+
+        function selectDuelView(view) {
+            currentDuelView = view;
+            updateWeekButtons();
+            renderKPIs();
+            renderCharts();
+            renderDivisions();
+            renderTable();
         }
 
         function openPlayerProfile(playerName) {
@@ -3602,6 +3956,7 @@ body {
                     
                     // Update UI
                     currentWeek = nextWeek;
+                    currentDuelView = 'week';
                     updateWeekButtons();
                     updateDashboard();
                     
@@ -3631,21 +3986,50 @@ body {
 
         // Export Functions
         document.getElementById('exportPdfBtn').addEventListener('click', () => {
-            alert(t('messages.pdfExportPlaceholder'));
+            const panel = document.getElementById('duelTab');
+            html2canvas(panel).then(canvas => {
+                const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
+                const imgData = canvas.toDataURL('image/png');
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+                const imgWidth = canvas.width * ratio;
+                const imgHeight = canvas.height * ratio;
+                pdf.addImage(imgData, 'PNG', (pageWidth - imgWidth) / 2, 20, imgWidth, imgHeight);
+                pdf.save(`pwr_alliance_week${currentWeek}.pdf`);
+            });
         });
 
         document.getElementById('exportCsvBtn').addEventListener('click', () => {
-            const players = getCurrentPlayers();
-            const csv = 'Rank,Player Name,Points\n' + players.map(p => 
-                `${p.Rank},"${p['Player Name']}","${p.Points.toLocaleString()}"`
-            ).join('\n');
+            const players = getCurrentDuelRows();
+            const weeks = Object.keys(weeklyData).map(Number).sort((a, b) => a - b);
+            const isCumulative = currentDuelView === 'all' && weeks.length > 0;
+            let csv = '';
+            if (isCumulative) {
+                csv = 'Rank,Player Name,' + weeks.map(w => `Week ${w}`).join(',') + ',Total\n' +
+                    players.map(p => `${p.Rank},"${p['Player Name']}",${weeks.map(w => p.WeekPoints?.[w] || 0).join(',')},${p.Points}`).join('\n');
+            } else {
+                csv = 'Rank,Player Name,Points\n' + players.map(p =>
+                    `${p.Rank},"${p['Player Name']}","${p.Points.toLocaleString()}"`
+                ).join('\n');
+            }
             
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `pwr_alliance_week${currentWeek}.csv`;
+            a.download = isCumulative ? 'pwr_alliance_all_weeks.csv' : `pwr_alliance_week${currentWeek}.csv`;
             a.click();
+        });
+
+        document.getElementById('exportPngBtn').addEventListener('click', () => {
+            const panel = document.getElementById('duelTab');
+            html2canvas(panel).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `pwr_alliance_week${currentWeek}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
         });
 
         document.getElementById('shareBtn').addEventListener('click', () => {
@@ -3658,15 +4042,29 @@ body {
             });
         });
 
-        // Search
-        document.getElementById('searchBar').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const players = getCurrentPlayers();
-            const filtered = players.filter(p => 
-                p['Player Name'].toLowerCase().includes(searchTerm)
-            );
+        function applyDuelFilters() {
+            const term = document.getElementById('searchBar')?.value.toLowerCase() || '';
+            const minPoints = parseInt(document.getElementById('duelMinPoints')?.value || '0', 10) || 0;
+            const divisionFilter = document.getElementById('duelDivisionFilter')?.value || '';
+            const baseRows = getCurrentDuelRows();
+            const filtered = baseRows.filter(p => {
+                const matchesName = p['Player Name'].toLowerCase().includes(term);
+                const matchesPoints = (p.Points || 0) >= minPoints;
+                const points = p.Points || 0;
+                const matchesDivision = divisionFilter
+                    ? (divisionFilter === 'elite' && points > 100000000) ||
+                      (divisionFilter === 'master' && points >= 50000000 && points <= 100000000) ||
+                      (divisionFilter === 'warrior' && points < 50000000)
+                    : true;
+                return matchesName && matchesPoints && matchesDivision;
+            });
             renderTable(filtered);
-        });
+        }
+
+        // Search and filters
+        document.getElementById('searchBar')?.addEventListener('input', applyDuelFilters);
+        document.getElementById('duelMinPoints')?.addEventListener('input', applyDuelFilters);
+        document.getElementById('duelDivisionFilter')?.addEventListener('change', applyDuelFilters);
 
         // Modal Close
         document.getElementById('closeModal').addEventListener('click', () => {
@@ -3955,6 +4353,7 @@ body {
                 
                 // Switch to another week
                 currentWeek = newLatestWeek;
+                currentDuelView = 'week';
                 
                 // Refresh UI
                 updateWeekButtons();
@@ -3987,6 +4386,7 @@ body {
                 
                 if (totalWeeks > 0) {
                     currentWeek = totalWeeks;
+                    currentDuelView = 'week';
                 }
                 
                 // Refresh UI
@@ -4006,6 +4406,251 @@ body {
                 }
             }
         }
+
+        function buildDonationCsv(rows) {
+            return 'Rank,Commander Name,Points\n' +
+                rows.map(p => `${p.Rank},"${p.Commander}","${p.Points}"`).join('\n');
+        }
+
+        function editDonationEntry(commanderName, rank) {
+            if (!auth.currentUser) {
+                alert(t('donation.messages.signInRequired'));
+                return;
+            }
+
+            if (currentDonationView === 'all') {
+                currentDonationView = 'week';
+            }
+
+            const rows = donationWeeksData[currentDonationWeek] || [];
+            const entry = rows.find(p => p.Commander === commanderName && p.Rank === rank);
+            if (!entry) {
+                alert(t('donation.messages.deleteError', { error: t('messages.playerNotFound') }));
+                return;
+            }
+
+            document.getElementById('editDonationOriginalName').value = commanderName;
+            document.getElementById('editDonationOriginalRank').value = rank;
+            document.getElementById('donationEditName').value = commanderName;
+            document.getElementById('donationEditRank').value = rank;
+            document.getElementById('donationEditPoints').value = entry.Points;
+            document.getElementById('donationEditStatus').textContent = '';
+            document.getElementById('editDonationModal').style.display = 'block';
+        }
+
+        async function saveEditedDonation() {
+            const statusDiv = document.getElementById('donationEditStatus');
+            try {
+                const originalName = document.getElementById('editDonationOriginalName').value;
+                const originalRank = parseInt(document.getElementById('editDonationOriginalRank').value, 10);
+                const newName = document.getElementById('donationEditName').value.trim();
+                const newRank = parseInt(document.getElementById('donationEditRank').value, 10);
+                const newPoints = parseInt(document.getElementById('donationEditPoints').value.replace(/,/g, ''), 10);
+
+                if (!newName || !newRank || !newPoints) {
+                    statusDiv.textContent = t('messages.requiredFields');
+                    return;
+                }
+
+                if (newPoints <= 0) {
+                    statusDiv.textContent = t('messages.pointsPositive');
+                    return;
+                }
+
+                statusDiv.textContent = t('messages.saving');
+
+                const rows = donationWeeksData[currentDonationWeek] || [];
+                const entryIndex = rows.findIndex(p => p.Commander === originalName && p.Rank === originalRank);
+                if (entryIndex === -1) {
+                    throw new Error('Commander not found');
+                }
+
+                rows[entryIndex] = { Rank: newRank, Commander: newName, Points: newPoints };
+                rows.sort((a, b) => a.Rank - b.Rank);
+                rows.forEach((p, index) => { p.Rank = index + 1; });
+
+                const csvContent = buildDonationCsv(rows);
+                await saveDonationWeekToFirebase(currentDonationWeek, csvContent);
+                donationWeeksData[currentDonationWeek] = rows;
+
+                renderDonationTable(getCurrentDonationRows());
+                statusDiv.textContent = t('donation.messages.editSuccess');
+                setTimeout(() => {
+                    document.getElementById('editDonationModal').style.display = 'none';
+                }, 1500);
+            } catch (error) {
+                console.error('Error updating donation entry:', error);
+                statusDiv.textContent = t('donation.messages.editError', { error: error.message });
+            }
+        }
+
+        async function deleteDonationEntry(commanderName, rank) {
+            if (!auth.currentUser) {
+                alert(t('donation.messages.signInRequired'));
+                return;
+            }
+
+            if (!confirm(t('donation.messages.deleteConfirm', { name: commanderName, rank, week: currentDonationWeek }))) {
+                return;
+            }
+
+            try {
+                const rows = donationWeeksData[currentDonationWeek] || [];
+                const filteredRows = rows.filter(p => !(p.Commander === commanderName && p.Rank === rank));
+                if (filteredRows.length === rows.length) {
+                    alert(t('donation.messages.deleteError', { error: t('messages.playerNotFound') }));
+                    return;
+                }
+
+                filteredRows.forEach((p, index) => { p.Rank = index + 1; });
+                const csvContent = buildDonationCsv(filteredRows);
+                await saveDonationWeekToFirebase(currentDonationWeek, csvContent);
+                donationWeeksData[currentDonationWeek] = filteredRows;
+
+                renderDonationTable(getCurrentDonationRows());
+                alert(t('donation.messages.deleteSuccess'));
+            } catch (error) {
+                console.error('Error deleting donation entry:', error);
+                alert(t('donation.messages.deleteError', { error: error.message }));
+            }
+        }
+
+        function showAddDonationModal() {
+            if (!auth.currentUser) {
+                alert(t('donation.messages.signInRequired'));
+                return;
+            }
+
+            if (!Object.keys(donationWeeksData).length) {
+                currentDonationWeek = 1;
+            }
+
+            if (currentDonationView === 'all') {
+                currentDonationView = 'week';
+                updateDonationWeekButtons();
+            }
+
+            document.getElementById('donationAddName').value = '';
+            document.getElementById('donationAddRank').value = '';
+            document.getElementById('donationAddPoints').value = '';
+            document.getElementById('donationAddStatus').textContent = '';
+            document.getElementById('addDonationModal').style.display = 'block';
+        }
+
+        async function saveNewDonation() {
+            const statusDiv = document.getElementById('donationAddStatus');
+            try {
+                const newName = document.getElementById('donationAddName').value.trim();
+                const newRank = parseInt(document.getElementById('donationAddRank').value, 10);
+                const newPoints = parseInt(document.getElementById('donationAddPoints').value.replace(/,/g, ''), 10);
+
+                if (!newName || !newRank || !newPoints) {
+                    statusDiv.textContent = t('messages.requiredFields');
+                    return;
+                }
+
+                if (newPoints <= 0) {
+                    statusDiv.textContent = t('messages.pointsPositive');
+                    return;
+                }
+
+                statusDiv.textContent = t('messages.adding');
+
+                const rows = donationWeeksData[currentDonationWeek] || [];
+                rows.push({ Rank: newRank, Commander: newName, Points: newPoints });
+                rows.sort((a, b) => a.Rank - b.Rank);
+                rows.forEach((p, index) => { p.Rank = index + 1; });
+
+                const csvContent = buildDonationCsv(rows);
+                await saveDonationWeekToFirebase(currentDonationWeek, csvContent);
+                donationWeeksData[currentDonationWeek] = rows;
+
+                renderDonationTable(getCurrentDonationRows());
+                statusDiv.textContent = t('donation.messages.addSuccess');
+                setTimeout(() => {
+                    document.getElementById('addDonationModal').style.display = 'none';
+                }, 1500);
+            } catch (error) {
+                console.error('Error adding donation entry:', error);
+                statusDiv.textContent = t('donation.messages.addError', { error: error.message });
+            }
+        }
+
+        async function deleteDonationWeek() {
+            if (!auth.currentUser) {
+                alert(t('donation.messages.signInRequired'));
+                return;
+            }
+
+            const weeks = getDonationWeeksList();
+            if (weeks.length <= 1) {
+                alert(t('donation.messages.deleteWeekOnlyWeek'));
+                return;
+            }
+
+            const confirmText = prompt(t('donation.messages.deleteWeekConfirm', { week: currentDonationWeek, count: (donationWeeksData[currentDonationWeek] || []).length }));
+            if (confirmText !== 'DELETE') {
+                alert(t('donation.messages.deleteWeekCancelled'));
+                return;
+            }
+
+            try {
+                await database.ref(`donations/weeks/${currentDonationWeek}`).remove();
+                delete donationWeeksData[currentDonationWeek];
+
+                const remainingWeeks = getDonationWeeksList();
+                const latestWeek = Math.max(...remainingWeeks);
+                await database.ref('donations/metadata').set({
+                    totalWeeks: remainingWeeks.length,
+                    latestWeek,
+                    lastUpdated: new Date().toISOString(),
+                    uploadedBy: auth.currentUser.email
+                });
+
+                currentDonationWeek = latestWeek;
+                currentDonationView = 'week';
+                updateDonationWeekButtons();
+                renderDonationTable(getCurrentDonationRows());
+                alert(t('donation.messages.deleteWeekSuccess', { week: currentDonationWeek }));
+            } catch (error) {
+                console.error('Error deleting donation week:', error);
+                alert(t('donation.messages.deleteWeekError', { error: error.message }));
+            }
+        }
+
+        async function refreshDonationDataFromFirebase() {
+            try {
+                const refreshBtn = document.getElementById('donationRefreshBtn');
+                if (refreshBtn) {
+                    refreshBtn.textContent = t('messages.refreshing');
+                    refreshBtn.disabled = true;
+                }
+
+                setDonationStatus(t('donation.messages.loading'));
+                donationWeeksData = {};
+                donationData = [];
+
+                const totalWeeks = await loadAllDonationWeeksFromFirebase();
+                if (totalWeeks > 0) {
+                    currentDonationView = 'all';
+                    const rows = getCurrentDonationRows();
+                    updateDonationWeekButtons();
+                    renderDonationTable(rows);
+                    setDonationStatus(t('donation.messages.refreshSuccess', { count: totalWeeks }));
+                } else {
+                    setDonationStatus(t('donation.messages.refreshSuccess', { count: 0 }));
+                }
+            } catch (error) {
+                console.error('Error refreshing donations:', error);
+                setDonationStatus(t('donation.messages.refreshError', { error: error.message }));
+            } finally {
+                const refreshBtn = document.getElementById('donationRefreshBtn');
+                if (refreshBtn) {
+                    refreshBtn.textContent = t('buttons.refresh');
+                    refreshBtn.disabled = false;
+                }
+            }
+        }
         
         // Modal Close Handlers
         document.getElementById('closeEditModal')?.addEventListener('click', () => {
@@ -4014,6 +4659,14 @@ body {
         
         document.getElementById('closeAddModal')?.addEventListener('click', () => {
             document.getElementById('addPlayerModal').style.display = 'none';
+        });
+
+        document.getElementById('closeEditDonationModal')?.addEventListener('click', () => {
+            document.getElementById('editDonationModal').style.display = 'none';
+        });
+
+        document.getElementById('closeAddDonationModal')?.addEventListener('click', () => {
+            document.getElementById('addDonationModal').style.display = 'none';
         });
 
         document.getElementById('closeAuthModal')?.addEventListener('click', () => {
@@ -4032,6 +4685,12 @@ body {
             if (e.target.id === 'addPlayerModal') {
                 document.getElementById('addPlayerModal').style.display = 'none';
             }
+            if (e.target.id === 'editDonationModal') {
+                document.getElementById('editDonationModal').style.display = 'none';
+            }
+            if (e.target.id === 'addDonationModal') {
+                document.getElementById('addDonationModal').style.display = 'none';
+            }
             if (e.target.id === 'authModal') {
                 closeAuthModal();
             }
@@ -4044,6 +4703,8 @@ body {
         // Save buttons
         document.getElementById('saveEditPlayerBtn')?.addEventListener('click', saveEditedPlayer);
         document.getElementById('saveAddPlayerBtn')?.addEventListener('click', saveNewPlayer);
+        document.getElementById('saveEditDonationBtn')?.addEventListener('click', saveEditedDonation);
+        document.getElementById('saveAddDonationBtn')?.addEventListener('click', saveNewDonation);
         document.getElementById('authSubmitBtn')?.addEventListener('click', handleAuthSubmit);
         document.getElementById('authPassword')?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -4055,6 +4716,9 @@ body {
         document.getElementById('deleteWeekBtn')?.addEventListener('click', deleteCurrentWeek);
         document.getElementById('addPlayerBtn')?.addEventListener('click', showAddPlayerModal);
         document.getElementById('refreshDataBtn')?.addEventListener('click', refreshDataFromFirebase);
+        document.getElementById('donationRefreshBtn')?.addEventListener('click', refreshDonationDataFromFirebase);
+        document.getElementById('donationDeleteWeekBtn')?.addEventListener('click', deleteDonationWeek);
+        document.getElementById('donationAddCommanderBtn')?.addEventListener('click', showAddDonationModal);
 
         // Tabs
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -4197,9 +4861,11 @@ body {
                 }
                 
                 currentWeek = 1;
+                currentDuelView = 'week';
             } else {
                 // Set current week to latest available
                 currentWeek = totalWeeks;
+                currentDuelView = 'week';
                 
                 // Update UI
                 updateWeekButtons();
@@ -4223,6 +4889,8 @@ body {
             const deleteWeekBtn = document.getElementById('deleteWeekBtn');
             const addPlayerBtn = document.getElementById('addPlayerBtn');
             const refreshDataBtn = document.getElementById('refreshDataBtn');
+            const donationDeleteWeekBtn = document.getElementById('donationDeleteWeekBtn');
+            const donationAddCommanderBtn = document.getElementById('donationAddCommanderBtn');
             
             console.log('🔄 Updating Auth UI, user:', user ? user.email : 'None');
             
@@ -4261,6 +4929,14 @@ body {
                 if (resetDonationBtn) {
                     resetDonationBtn.style.display = 'inline-block';
                 }
+                if (donationDeleteWeekBtn) {
+                    donationDeleteWeekBtn.style.display = 'inline-block';
+                    donationDeleteWeekBtn.textContent = t('buttons.deleteWeek');
+                }
+                if (donationAddCommanderBtn) {
+                    donationAddCommanderBtn.style.display = 'inline-block';
+                    donationAddCommanderBtn.textContent = t('donation.buttons.addCommander');
+                }
                 if (refreshDataBtn) {
                     refreshDataBtn.textContent = t('buttons.refresh');
                 }
@@ -4287,6 +4963,12 @@ body {
                 const resetDonationBtn = document.getElementById('resetDonationBtn');
                 if (resetDonationBtn) {
                     resetDonationBtn.style.display = 'none';
+                }
+                if (donationDeleteWeekBtn) {
+                    donationDeleteWeekBtn.style.display = 'none';
+                }
+                if (donationAddCommanderBtn) {
+                    donationAddCommanderBtn.style.display = 'none';
                 }
                 if (refreshDataBtn) {
                     refreshDataBtn.textContent = t('buttons.refresh');
