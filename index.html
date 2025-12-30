@@ -114,9 +114,41 @@ body {
     flex-wrap: wrap;
     justify-content: flex-end;
 }
+.global-actions .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    line-height: 1;
+}
+.lootbar-cta {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface-muted);
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+}
+.lootbar-cta:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-sm);
+}
+.lootbar-icon {
+    width: 32px !important;
+    height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
+    object-fit: contain;
+}
 .action-btn.compact {
     padding: 10px 14px;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 .tab-buttons {
     display: flex;
@@ -759,15 +791,7 @@ body {
 [dir="rtl"] body {
     font-family: 'Cairo', sans-serif;
 }
-[dir="rtl"] .global-bar {
-    flex-direction: row-reverse;
-}
-[dir="rtl"] .brand {
-    flex-direction: row-reverse;
-}
-[dir="rtl"] .global-actions {
-    justify-content: flex-start;
-}
+
 
 .global-bar {
     background: linear-gradient(135deg, var(--surface), var(--surface-muted));
@@ -791,6 +815,8 @@ body {
     font-family: var(--font-display);
     text-transform: none;
     box-shadow: none;
+    font-size: 1.05rem;
+    line-height: 1.1;
 }
 .tab-btn:hover {
     border-color: var(--accent);
@@ -876,6 +902,8 @@ body {
     text-transform: none;
     text-shadow: none;
     box-shadow: none;
+    font-size: 0.95rem;
+    line-height: 1.1;
 }
 
 .action-btn:hover,
@@ -899,6 +927,8 @@ body {
     color: #ffffff;
     font-family: var(--font-display);
     box-shadow: var(--shadow-sm);
+    font-size: 0.95rem;
+    line-height: 1.1;
 }
 .upload-btn:hover { box-shadow: var(--shadow-sm); }
 
@@ -1052,7 +1082,7 @@ body {
             </div>
         </div>
         <div class="global-actions">
-            <button class="action-btn compact" id="languageToggle" style="font-size: 0.9rem;">🌐 العربية</button>
+            <button class="action-btn compact" id="languageToggle">🌐 العربية</button>
             <button class="action-btn compact" id="themeToggle">🌙 Dark</button>
             <button class="action-btn compact" id="signInOutBtn" data-i18n="buttons.signIn">🔐 Sign In</button>
             <button class="action-btn compact" id="shareBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
@@ -1074,6 +1104,10 @@ body {
             </div>
             <h1 data-i18n="header.title">⚔️ ALLIANCE DUEL LEADERBOARD ⚔️</h1>
             <p class="event-subtitle" data-i18n="header.event">Weekly Alliance Duel Event</p>
+            <a class="lootbar-cta" href="https://lootbar.gg/top-up/last-z-survival-shooter?aff_short=DeFOUR" target="_blank" rel="noopener">
+                <img class="lootbar-icon" src="https://raw.githubusercontent.com/pWRDeFOUR/pwr-alliance-leaderboard/refs/heads/main/LBGG.png" alt="Lootbar icon">
+                <span data-i18n="global.lootbarCta">Buy Last War: Survival Game Packages Cheaper from LootBar.gg</span>
+            </a>
         </div>
 
         <!-- Week Controls -->
@@ -1434,6 +1468,10 @@ body {
                     </div>
                     <h1 data-i18n="donation.header.title">🤝 ALLIANCE DONATION LEADERBOARD</h1>
                     <p class="event-subtitle" data-i18n="donation.header.subtitle">Weekly Alliance Donations</p>
+                    <a class="lootbar-cta" href="https://lootbar.gg/top-up/last-z-survival-shooter?aff_short=DeFOUR" target="_blank" rel="noopener">
+                        <img class="lootbar-icon" src="https://raw.githubusercontent.com/pWRDeFOUR/pwr-alliance-leaderboard/refs/heads/main/LBGG.png" alt="Lootbar icon">
+                        <span data-i18n="global.lootbarCta">Buy Last War: Survival Game Packages Cheaper</span>
+                    </a>
                 </div>
 
                 <div class="week-controls">
@@ -1611,7 +1649,8 @@ body {
                 global: {
                     title: "POWEr Alliance Command Center",
                     subtitle: "Live Leaderboards & Admin Controls",
-                    pageTitle: "[pWR] Alliance Command Center"
+                    pageTitle: "[pWR] Alliance Command Center",
+                    lootbarCta: "Buy Last War: Survival Game Packages Cheaper from LootBar.gg"
                 },
                 theme: {
                     dark: "🌙 Dark",
@@ -1907,7 +1946,8 @@ body {
                 global: {
                     title: "مركز قيادة تحالف POWEr",
                     subtitle: "لوحات صدارة مباشرة وأدوات الإدارة",
-                    pageTitle: "[pWR] مركز قيادة التحالف"
+                    pageTitle: "[pWR] مركز قيادة التحالف",
+                    lootbarCta: "اشتر باقات لعبة الحرب الأخيرة بشكل أرخص من LootBar.gg"
                 },
                 theme: {
                     dark: "🌙 داكن",
@@ -3987,7 +4027,8 @@ body {
         // Export Functions
         document.getElementById('exportPdfBtn').addEventListener('click', () => {
             const panel = document.getElementById('duelTab');
-            html2canvas(panel).then(canvas => {
+            const bgColor = getComputedStyle(document.body).backgroundColor || '#ffffff';
+            html2canvas(panel, { backgroundColor: bgColor, scale: 2, useCORS: true }).then(canvas => {
                 const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
                 const imgData = canvas.toDataURL('image/png');
                 const pageWidth = pdf.internal.pageSize.getWidth();
@@ -3995,6 +4036,8 @@ body {
                 const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
                 const imgWidth = canvas.width * ratio;
                 const imgHeight = canvas.height * ratio;
+                pdf.setFillColor(255, 255, 255);
+                pdf.rect(0, 0, pageWidth, pageHeight, 'F');
                 pdf.addImage(imgData, 'PNG', (pageWidth - imgWidth) / 2, 20, imgWidth, imgHeight);
                 pdf.save(`pwr_alliance_week${currentWeek}.pdf`);
             });
@@ -4806,7 +4849,8 @@ body {
 
         document.getElementById('donationExportPdfBtn')?.addEventListener('click', () => {
             const panel = document.getElementById('donationTab');
-            html2canvas(panel).then(canvas => {
+            const bgColor = getComputedStyle(document.body).backgroundColor || '#ffffff';
+            html2canvas(panel, { backgroundColor: bgColor, scale: 2, useCORS: true }).then(canvas => {
                 const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
                 const imgData = canvas.toDataURL('image/png');
                 const pageWidth = pdf.internal.pageSize.getWidth();
@@ -4814,6 +4858,8 @@ body {
                 const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
                 const imgWidth = canvas.width * ratio;
                 const imgHeight = canvas.height * ratio;
+                pdf.setFillColor(255, 255, 255);
+                pdf.rect(0, 0, pageWidth, pageHeight, 'F');
                 pdf.addImage(imgData, 'PNG', (pageWidth - imgWidth) / 2, 20, imgWidth, imgHeight);
                 pdf.save('pwr_alliance_donations.pdf');
             });
