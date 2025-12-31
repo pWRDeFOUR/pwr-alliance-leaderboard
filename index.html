@@ -4129,6 +4129,11 @@ body {
                 panel.classList.toggle('active', panel.id === tabId);
             });
 
+            localStorage.setItem('activeTab', tabId);
+            if (tabId) {
+                window.location.hash = tabId;
+            }
+
             if (tabId === 'donationTab') {
                 loadDonationLeaderboard();
             }
@@ -5041,6 +5046,13 @@ body {
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => setActiveTab(btn.getAttribute('data-tab')));
         });
+
+        const initialTab = window.location.hash.replace('#', '') ||
+            localStorage.getItem('activeTab') ||
+            'duelTab';
+        if (initialTab && document.getElementById(initialTab)) {
+            setActiveTab(initialTab);
+        }
 
         function applyDonationFilters() {
             const term = document.getElementById('donationSearch')?.value.toLowerCase() || '';
