@@ -146,6 +146,13 @@ body {
     max-height: 32px !important;
     object-fit: contain;
 }
+.guides-header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+}
 .action-btn.compact {
     padding: 10px 14px;
     font-size: 0.9rem;
@@ -696,6 +703,10 @@ body {
 }
 
 .modal-body { padding: 25px; }
+.modal-body.scrollable {
+    max-height: 70vh;
+    overflow: auto;
+}
 
 .profile-stats {
     display: grid;
@@ -981,6 +992,40 @@ body {
     grid-template-columns: 1fr 180px 180px;
     gap: 12px;
 }
+.guides-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+.guide-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: var(--shadow-sm);
+    cursor: zoom-in;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.guide-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+.guide-card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+.guide-card-title {
+    margin-top: 8px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+[data-theme="dark"] .guide-card-title {
+    color: #ffffff;
+}
 
 .data-table thead {
     background: var(--table-head);
@@ -1062,11 +1107,13 @@ body {
     .global-actions { width: 100%; justify-content: flex-start; }
     .tab-buttons { justify-content: flex-start; }
     .charts-grid { grid-template-columns: 1fr; }
+    .guides-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 768px) {
     .duel-filters { grid-template-columns: 1fr; }
     .donation-filters { grid-template-columns: 1fr; }
+    .guides-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -1093,6 +1140,7 @@ body {
         <div class="tab-buttons">
             <button class="tab-btn active" data-tab="duelTab" data-i18n="tabs.duel">⚔️ Alliance Duel</button>
             <button class="tab-btn" data-tab="donationTab" data-i18n="tabs.donation">🤝 Donation Leaderboard</button>
+            <button class="tab-btn" data-tab="guidesTab" data-i18n="tabs.guides">📘 Guides</button>
         </div>
 
         <div id="duelTab" class="tab-panel active">
@@ -1104,7 +1152,7 @@ body {
             </div>
             <h1 data-i18n="header.title">⚔️ ALLIANCE DUEL LEADERBOARD ⚔️</h1>
             <p class="event-subtitle" data-i18n="header.event">Weekly Alliance Duel Event</p>
-            <a class="lootbar-cta" href="https://lootbar.gg/top-up/last-war-survival?aff_short=DeFOUR" target="_blank" rel="noopener">
+            <a class="lootbar-cta" href="https://lootbar.gg/top-up/last-z-survival-shooter?aff_short=DeFOUR" target="_blank" rel="noopener">
                 <img class="lootbar-icon" src="https://raw.githubusercontent.com/pWRDeFOUR/pwr-alliance-leaderboard/refs/heads/main/LBGG.png" alt="Lootbar icon">
                 <span data-i18n="global.lootbarCta">Buy Last War: Survival Game Packages Cheaper from LootBar.gg</span>
             </a>
@@ -1468,7 +1516,7 @@ body {
                     </div>
                     <h1 data-i18n="donation.header.title">🤝 ALLIANCE DONATION LEADERBOARD</h1>
                     <p class="event-subtitle" data-i18n="donation.header.subtitle">Weekly Alliance Donations</p>
-                    <a class="lootbar-cta" href="https://lootbar.gg/top-up/last-war-survival?aff_short=DeFOUR" target="_blank" rel="noopener">
+                    <a class="lootbar-cta" href="https://lootbar.gg/top-up/last-z-survival-shooter?aff_short=DeFOUR" target="_blank" rel="noopener">
                         <img class="lootbar-icon" src="https://raw.githubusercontent.com/pWRDeFOUR/pwr-alliance-leaderboard/refs/heads/main/LBGG.png" alt="Lootbar icon">
                         <span data-i18n="global.lootbarCta">Buy Last War: Survival Game Packages Cheaper</span>
                     </a>
@@ -1616,6 +1664,65 @@ body {
                 </div>
             </div>
         </div>
+
+        <div id="guidesTab" class="tab-panel">
+            <div class="dashboard-container">
+                <div class="header">
+                    <div class="alliance-logo">
+                        <img src="https://raw.githubusercontent.com/pWRDeFOUR/pwr-alliance-leaderboard/refs/heads/main/logo.png" alt="pWR logo">
+                    </div>
+                    <h1 data-i18n="guides.title">📘 Guides</h1>
+                    <div class="guides-header-actions">
+                        <a class="lootbar-cta" href="https://lootbar.gg/top-up/last-z-survival-shooter?aff_short=DeFOUR" target="_blank" rel="noopener">
+                            <img class="lootbar-icon" src="https://raw.githubusercontent.com/pWRDeFOUR/pwr-alliance-leaderboard/refs/heads/main/LBGG.png" alt="Lootbar icon">
+                            <span data-i18n="global.lootbarCta">Buy Last War: Survival Game Packages Cheaper</span>
+                        </a>
+                        <button class="action-btn" id="addGuideBtn" data-i18n="guides.addButton" style="display: none;">➕ Add Guide</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h3 class="chart-title" data-i18n="guides.purchasesTitle">📘 Guides</h3>
+                    <div class="guides-grid" id="guidesGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="guidePreviewModal" class="modal">
+            <div class="modal-content" style="max-width: 960px;">
+                <div class="modal-header">
+                    <h2 data-i18n="guides.previewTitle">🖼️ Guide Preview</h2>
+                    <span class="modal-close" id="closeGuidePreview">&times;</span>
+                </div>
+                <div class="modal-body scrollable" style="text-align: center;">
+                    <img id="guidePreviewImage" src="" alt="Guide preview" style="max-width: 100%; max-height: 70vh; width: auto; height: auto; border-radius: 12px; border: 1px solid var(--border);">
+                </div>
+            </div>
+        </div>
+
+        <div id="addGuideModal" class="modal">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 data-i18n="guides.addTitle">➕ Add Guide</h2>
+                    <span class="modal-close" id="closeAddGuideModal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: 20px;">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.title">Title:</label>
+                        <input type="text" id="guideTitleInput" class="search-bar" data-i18n-placeholder="guides.form.titlePlaceholder" placeholder="Enter guide title" style="margin-bottom: 15px;">
+
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.image">Image URL:</label>
+                        <input type="text" id="guideImageInput" class="search-bar" data-i18n-placeholder="guides.form.imagePlaceholder" placeholder="Paste image URL">
+                    </div>
+
+                    <button class="upload-btn" id="saveGuideBtn" data-i18n="guides.form.save" style="width: 100%; margin-bottom: 10px;">
+                        💾 Save Guide
+                    </button>
+
+                    <div id="guideFormStatus" style="text-align: center; color: #ffaa33; margin-top: 10px; font-weight: 600;"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1662,7 +1769,8 @@ body {
                 },
                 tabs: {
                     duel: "⚔️ Alliance Duel",
-                    donation: "🤝 Donation Leaderboard"
+                    donation: "🤝 Donation Leaderboard",
+                    guides: "📘 Guides"
                 },
                 header: {
                     title: "⚔️ ALLIANCE DUEL LEADERBOARD ⚔️",
@@ -1745,6 +1853,30 @@ body {
                     minPointsPlaceholder: "Min points",
                     allDivisions: "All divisions",
                     allWeeks: "All Weeks"
+                },
+                guides: {
+                    title: "📘 Guides",
+                    purchasesTitle: "📘 Guides",
+                    previewTitle: "🖼️ Guide Preview",
+                    addButton: "➕ Add Guide",
+                    addTitle: "➕ Add Guide",
+                    form: {
+                        title: "Title:",
+                        image: "Image URL:",
+                        titlePlaceholder: "Enter guide title",
+                        imagePlaceholder: "Paste image URL",
+                        save: "💾 Save Guide"
+                    },
+                    messages: {
+                        signInRequired: "❌ Please sign in to add guides",
+                        required: "⚠️ Title and image URL are required",
+                        loading: "⏳ Loading guides...",
+                        saving: "⏳ Saving guide...",
+                        saved: "✅ Guide added",
+                        error: "❌ Error adding guide: {error}",
+                        loadError: "❌ Error loading guides: {error}",
+                        empty: "No guides yet"
+                    }
                 },
                 modals: {
                     editPlayer: "✏️ EDIT PLAYER",
@@ -1959,7 +2091,8 @@ body {
                 },
                 tabs: {
                     duel: "⚔️ مبارزة التحالف",
-                    donation: "🤝 لوحة تبرعات التحالف"
+                    donation: "🤝 لوحة تبرعات التحالف",
+                    guides: "📘 الشروحات"
                 },
                 header: {
                     title: "⚔️ لوحة صدارة مبارزة التحالف ⚔️",
@@ -2042,6 +2175,31 @@ body {
                     minPointsPlaceholder: "أقل نقاط",
                     allDivisions: "كل الفئات",
                     allWeeks: "كل الأسابيع"
+                },
+                guides: {
+                    title: "📘 الشروحات",
+                    
+                    purchasesTitle: "📘 شروحات",
+                    previewTitle: "🖼️ معاينة الدليل",
+                    addButton: "➕ إضافة دليل",
+                    addTitle: "➕ إضافة دليل",
+                    form: {
+                        title: "العنوان:",
+                        image: "رابط الصورة:",
+                        titlePlaceholder: "أدخل عنوان الدليل",
+                        imagePlaceholder: "ألصق رابط الصورة",
+                        save: "💾 حفظ الدليل"
+                    },
+                    messages: {
+                        signInRequired: "❌ يرجى تسجيل الدخول لإضافة الأدلة",
+                        required: "⚠️ العنوان ورابط الصورة مطلوبان",
+                        loading: "⏳ جارٍ تحميل الأدلة...",
+                        saving: "⏳ جارٍ حفظ الدليل...",
+                        saved: "✅ تم إضافة الدليل",
+                        error: "❌ خطأ في إضافة الدليل: {error}",
+                        loadError: "❌ خطأ في تحميل الأدلة: {error}",
+                        empty: "لا توجد أدلة بعد"
+                    }
                 },
                 modals: {
                     editPlayer: "✏️ تعديل اللاعب",
@@ -2687,6 +2845,7 @@ body {
         let donationWeeksData = {};
         let currentDonationWeek = 1;
         let currentDonationView = 'all';
+        let guidesData = [];
 
         // === UTILITY FUNCTIONS ===
         function parseCSV(csv) {
@@ -2847,6 +3006,104 @@ body {
 
         function getDonationWeeksList() {
             return Object.keys(donationWeeksData).map(Number).sort((a, b) => a - b);
+        }
+
+        async function loadGuidesFromFirebase() {
+            const grid = document.getElementById('guidesGrid');
+            if (grid) {
+                grid.innerHTML = `<div class="kpi-subtext" style="grid-column: 1 / -1; text-align: center;">${t('guides.messages.loading')}</div>`;
+            }
+            try {
+                const snapshot = await database.ref('guides').once('value');
+                const data = snapshot.val() || {};
+                const entries = Object.values(data);
+                guidesData = entries
+                    .map(entry => ({
+                        title: entry.title || '',
+                        imageUrl: entry.imageUrl || '',
+                        createdAt: entry.createdAt || ''
+                    }))
+                    .filter(entry => entry.title && entry.imageUrl);
+
+            guidesData.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+                renderGuides();
+            } catch (error) {
+                console.error('Error loading guides:', error);
+                if (grid) {
+                    grid.innerHTML = `<div class="kpi-subtext" style="grid-column: 1 / -1; text-align: center;">${t('guides.messages.loadError', { error: error.message })}</div>`;
+                }
+            }
+        }
+
+        function renderGuides() {
+            const grid = document.getElementById('guidesGrid');
+            if (!grid) return;
+
+            if (!guidesData.length) {
+                grid.innerHTML = `<div class="kpi-subtext" style="grid-column: 1 / -1; text-align: center;">${t('guides.messages.empty')}</div>`;
+                return;
+            }
+
+            grid.innerHTML = guidesData.map(entry => `
+                <button class="guide-card" data-full="${entry.imageUrl}" data-title="${entry.title}">
+                    <img src="${entry.imageUrl}" alt="${entry.title}">
+                    <div class="guide-card-title">${entry.title}</div>
+                </button>
+            `).join('');
+
+            grid.querySelectorAll('.guide-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const fullSrc = card.getAttribute('data-full');
+                    const title = card.getAttribute('data-title');
+                    const preview = document.getElementById('guidePreviewImage');
+                    if (preview && fullSrc) {
+                        preview.src = fullSrc;
+                        preview.alt = title || 'Guide preview';
+                        document.getElementById('guidePreviewModal').style.display = 'block';
+                    }
+                });
+            });
+        }
+
+        function showAddGuideModal() {
+            if (!auth.currentUser) {
+                alert(t('guides.messages.signInRequired'));
+                return;
+            }
+            document.getElementById('guideTitleInput').value = '';
+            document.getElementById('guideImageInput').value = '';
+            document.getElementById('guideFormStatus').textContent = '';
+            document.getElementById('addGuideModal').style.display = 'block';
+        }
+
+        async function saveGuide() {
+            const statusDiv = document.getElementById('guideFormStatus');
+            try {
+                const title = document.getElementById('guideTitleInput').value.trim();
+                const imageUrl = document.getElementById('guideImageInput').value.trim();
+                if (!title || !imageUrl) {
+                    statusDiv.textContent = t('guides.messages.required');
+                    return;
+                }
+
+                statusDiv.textContent = t('guides.messages.saving');
+                const newRef = database.ref('guides').push();
+                await newRef.set({
+                    title,
+                    imageUrl,
+                    createdAt: new Date().toISOString(),
+                    createdBy: auth.currentUser?.email || ''
+                });
+
+                statusDiv.textContent = t('guides.messages.saved');
+                await loadGuidesFromFirebase();
+                setTimeout(() => {
+                    document.getElementById('addGuideModal').style.display = 'none';
+                }, 1200);
+            } catch (error) {
+                console.error('Error saving guide:', error);
+                statusDiv.textContent = t('guides.messages.error', { error: error.message });
+            }
         }
 
         function getCurrentDonationRows() {
@@ -3875,6 +4132,9 @@ body {
             if (tabId === 'donationTab') {
                 loadDonationLeaderboard();
             }
+            if (tabId === 'guidesTab') {
+                loadGuidesFromFirebase();
+            }
         }
 
         function selectWeek(week) {
@@ -4720,6 +4980,14 @@ body {
             document.getElementById('donationProfileModal').style.display = 'none';
             currentDonationProfile = null;
         });
+
+        document.getElementById('closeGuidePreview')?.addEventListener('click', () => {
+            document.getElementById('guidePreviewModal').style.display = 'none';
+        });
+
+        document.getElementById('closeAddGuideModal')?.addEventListener('click', () => {
+            document.getElementById('addGuideModal').style.display = 'none';
+        });
         
         window.addEventListener('click', (e) => {
             if (e.target.id === 'editPlayerModal') {
@@ -4740,6 +5008,12 @@ body {
             if (e.target.id === 'donationProfileModal') {
                 document.getElementById('donationProfileModal').style.display = 'none';
                 currentDonationProfile = null;
+            }
+            if (e.target.id === 'guidePreviewModal') {
+                document.getElementById('guidePreviewModal').style.display = 'none';
+            }
+            if (e.target.id === 'addGuideModal') {
+                document.getElementById('addGuideModal').style.display = 'none';
             }
         });
         
@@ -4786,6 +5060,8 @@ body {
         document.getElementById('donationSearch')?.addEventListener('input', applyDonationFilters);
         document.getElementById('donationMinPoints')?.addEventListener('input', applyDonationFilters);
         document.getElementById('donationTierFilter')?.addEventListener('change', applyDonationFilters);
+        document.getElementById('addGuideBtn')?.addEventListener('click', showAddGuideModal);
+        document.getElementById('saveGuideBtn')?.addEventListener('click', saveGuide);
 
         // Donation upload
         document.getElementById('donationUpload')?.addEventListener('change', (e) => {
@@ -4937,6 +5213,7 @@ body {
             const refreshDataBtn = document.getElementById('refreshDataBtn');
             const donationDeleteWeekBtn = document.getElementById('donationDeleteWeekBtn');
             const donationAddCommanderBtn = document.getElementById('donationAddCommanderBtn');
+            const addGuideBtn = document.getElementById('addGuideBtn');
             
             console.log('🔄 Updating Auth UI, user:', user ? user.email : 'None');
             
@@ -4983,6 +5260,10 @@ body {
                     donationAddCommanderBtn.style.display = 'inline-block';
                     donationAddCommanderBtn.textContent = t('donation.buttons.addCommander');
                 }
+                if (addGuideBtn) {
+                    addGuideBtn.style.display = 'inline-block';
+                    addGuideBtn.textContent = t('guides.addButton');
+                }
                 if (refreshDataBtn) {
                     refreshDataBtn.textContent = t('buttons.refresh');
                 }
@@ -5015,6 +5296,9 @@ body {
                 }
                 if (donationAddCommanderBtn) {
                     donationAddCommanderBtn.style.display = 'none';
+                }
+                if (addGuideBtn) {
+                    addGuideBtn.style.display = 'none';
                 }
                 if (refreshDataBtn) {
                     refreshDataBtn.textContent = t('buttons.refresh');
