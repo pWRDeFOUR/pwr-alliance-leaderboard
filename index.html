@@ -4131,7 +4131,7 @@ body {
 
             localStorage.setItem('activeTab', tabId);
             if (tabId) {
-                window.location.hash = tabId;
+                history.replaceState(null, '', `#${tabId}`);
             }
 
             if (tabId === 'donationTab') {
@@ -5051,7 +5051,9 @@ body {
             localStorage.getItem('activeTab') ||
             'duelTab';
         if (initialTab && document.getElementById(initialTab)) {
+            const restoreY = window.scrollY;
             setActiveTab(initialTab);
+            window.scrollTo({ top: restoreY, left: 0, behavior: 'auto' });
         }
 
         function applyDonationFilters() {
