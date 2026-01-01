@@ -1036,6 +1036,54 @@ body {
 [data-theme="dark"] .guide-card-title {
     color: #ffffff;
 }
+.guide-card-meta {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.guide-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.guide-tag {
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface-muted);
+    color: var(--text);
+    font-weight: 600;
+    cursor: pointer;
+}
+.guide-tag.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+.guide-card-meta {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.guide-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.guide-tag {
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface-muted);
+    color: var(--text);
+    font-weight: 600;
+    cursor: pointer;
+}
+.guide-tag.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
 
 .data-table thead {
     background: var(--table-head);
@@ -1450,35 +1498,6 @@ body {
             </div>
         </div>
 
-        <!-- Auth Modal -->
-        <div id="authModal" class="modal">
-            <div class="modal-content" style="max-width: 500px;">
-                <div class="modal-header">
-                    <h2 data-i18n="auth.title">🔐 Sign In</h2>
-                    <span class="modal-close" id="closeAuthModal">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <div style="margin-bottom: 20px;">
-                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="auth.email">Email</label>
-                        <input type="email" id="authEmail" class="search-bar" data-i18n-placeholder="auth.emailPlaceholder" placeholder="admin@example.com" autocomplete="username">
-                        
-                        <label style="color: #997755; display: block; margin: 15px 0 8px; font-weight: 600;" data-i18n="auth.password">Password</label>
-                        <input type="password" id="authPassword" class="search-bar" data-i18n-placeholder="auth.passwordPlaceholder" placeholder="Enter password" autocomplete="current-password">
-                        
-                        <label style="display: flex; align-items: center; gap: 8px; margin-top: 12px; color: #997755; font-weight: 600;">
-                            <input type="checkbox" id="authRememberMe" checked style="width: 18px; height: 18px;">
-                            <span data-i18n="auth.remember">Remember me</span>
-                        </label>
-                    </div>
-                    
-                    <button class="upload-btn" id="authSubmitBtn" data-i18n="buttons.signIn" style="width: 100%; margin-bottom: 10px;">
-                        🔐 Sign In
-                    </button>
-                    
-                    <div id="authStatus" style="text-align: center; color: #ffaa33; margin-top: 10px; font-weight: 600;"></div>
-                </div>
-            </div>
-        </div>
 
         <!-- Donation Profile Modal -->
         <div id="donationProfileModal" class="modal">
@@ -1693,6 +1712,7 @@ body {
 
                 <div class="table-container">
                     <h3 class="chart-title" data-i18n="guides.purchasesTitle">📘 Guides</h3>
+                    <div class="guide-tags" id="guideTags"></div>
                     <div class="guides-grid" id="guidesGrid"></div>
                 </div>
             </div>
@@ -1706,6 +1726,7 @@ body {
                 </div>
                 <div class="modal-body scrollable" style="text-align: center;">
                     <img id="guidePreviewImage" class="guide-preview" src="" alt="Guide preview" style="max-width: 100%; max-height: 70vh; width: auto; height: auto; border-radius: 12px; border: 1px solid var(--border);">
+                    <p id="guidePreviewDescription" style="margin-top: 16px; color: var(--text-muted);"></p>
                 </div>
             </div>
         </div>
@@ -1722,7 +1743,13 @@ body {
                         <input type="text" id="guideTitleInput" class="search-bar" data-i18n-placeholder="guides.form.titlePlaceholder" placeholder="Enter guide title" style="margin-bottom: 15px;">
 
                         <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.image">Image URL:</label>
-                        <input type="text" id="guideImageInput" class="search-bar" data-i18n-placeholder="guides.form.imagePlaceholder" placeholder="Paste image URL">
+                        <input type="text" id="guideImageInput" class="search-bar" data-i18n-placeholder="guides.form.imagePlaceholder" placeholder="Paste image URL" style="margin-bottom: 15px;">
+
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.tags">Tags (comma separated):</label>
+                        <input type="text" id="guideTagsInput" class="search-bar" data-i18n-placeholder="guides.form.tagsPlaceholder" placeholder="e.g., Event, Purchases" style="margin-bottom: 15px;">
+
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.description">Description:</label>
+                        <textarea id="guideDescriptionInput" class="search-bar" data-i18n-placeholder="guides.form.descriptionPlaceholder" placeholder="Add a short description" rows="3"></textarea>
                     </div>
 
                     <button class="upload-btn" id="saveGuideBtn" data-i18n="guides.form.save" style="width: 100%; margin-bottom: 10px;">
@@ -1730,6 +1757,83 @@ body {
                     </button>
 
                     <div id="guideFormStatus" style="text-align: center; color: #ffaa33; margin-top: 10px; font-weight: 600;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="editGuideModal" class="modal">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 data-i18n="guides.editTitle">✏️ Edit Guide</h2>
+                    <span class="modal-close" id="closeEditGuideModal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editGuideId">
+                    <div style="margin-bottom: 20px;">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.title">Title:</label>
+                        <input type="text" id="editGuideTitleInput" class="search-bar" data-i18n-placeholder="guides.form.titlePlaceholder" placeholder="Enter guide title" style="margin-bottom: 15px;">
+
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.image">Image URL:</label>
+                        <input type="text" id="editGuideImageInput" class="search-bar" data-i18n-placeholder="guides.form.imagePlaceholder" placeholder="Paste image URL" style="margin-bottom: 15px;">
+
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.tags">Tags (comma separated):</label>
+                        <input type="text" id="editGuideTagsInput" class="search-bar" data-i18n-placeholder="guides.form.tagsPlaceholder" placeholder="e.g., Event, Purchases" style="margin-bottom: 15px;">
+
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.description">Description:</label>
+                        <textarea id="editGuideDescriptionInput" class="search-bar" data-i18n-placeholder="guides.form.descriptionPlaceholder" placeholder="Add a short description" rows="3"></textarea>
+                    </div>
+
+                    <button class="upload-btn" id="updateGuideBtn" data-i18n="guides.form.update" style="width: 100%; margin-bottom: 10px;">
+                        💾 Update Guide
+                    </button>
+
+                    <div id="editGuideStatus" style="text-align: center; color: #ffaa33; margin-top: 10px; font-weight: 600;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 data-i18n="auth.title">🔐 Sign In</h2>
+                <span class="modal-close" id="closeAuthModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px;">
+                    <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="auth.email">Email</label>
+                    <input type="email" id="authEmail" class="search-bar" data-i18n-placeholder="auth.emailPlaceholder" placeholder="admin@example.com" autocomplete="username">
+                    
+                    <label style="color: #997755; display: block; margin: 15px 0 8px; font-weight: 600;" data-i18n="auth.password">Password</label>
+                    <input type="password" id="authPassword" class="search-bar" data-i18n-placeholder="auth.passwordPlaceholder" placeholder="Enter password" autocomplete="current-password">
+                    
+                    <label style="display: flex; align-items: center; gap: 8px; margin-top: 12px; color: #997755; font-weight: 600;">
+                        <input type="checkbox" id="authRememberMe" checked style="width: 18px; height: 18px;">
+                        <span data-i18n="auth.remember">Remember me</span>
+                    </label>
+                </div>
+                
+                <button class="upload-btn" id="authSubmitBtn" data-i18n="buttons.signIn" style="width: 100%; margin-bottom: 10px;">
+                    🔐 Sign In
+                </button>
+                
+                <div id="authStatus" style="text-align: center; color: #ffaa33; margin-top: 10px; font-weight: 600;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="signOutModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 data-i18n="messages.signOutTitle">🔓 Sign Out</h2>
+                <span class="modal-close" id="closeSignOutModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="signOutMessage" style="margin-bottom: 20px; color: var(--text-muted);"></p>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="action-btn" id="cancelSignOutBtn" data-i18n="messages.signOutCancel">Cancel</button>
+                    <button class="upload-btn" id="confirmSignOutBtn" data-i18n="messages.signOutConfirmBtn">Sign Out</button>
                 </div>
             </div>
         </div>
@@ -1866,16 +1970,24 @@ body {
                 },
                 guides: {
                     title: "📘 Guides",
+                    subtitle: "Guides",
                     purchasesTitle: "📘 Guides",
                     previewTitle: "🖼️ Guide Preview",
                     addButton: "➕ Add Guide",
                     addTitle: "➕ Add Guide",
+                    editTitle: "✏️ Edit Guide",
+                    tagsAll: "All",
                     form: {
                         title: "Title:",
                         image: "Image URL:",
+                        tags: "Tags (comma separated):",
+                        description: "Description:",
                         titlePlaceholder: "Enter guide title",
                         imagePlaceholder: "Paste image URL",
-                        save: "💾 Save Guide"
+                        tagsPlaceholder: "e.g., Event, Purchases",
+                        descriptionPlaceholder: "Add a short description",
+                        save: "💾 Save Guide",
+                        update: "💾 Update Guide"
                     },
                     messages: {
                         signInRequired: "❌ Please sign in to add guides",
@@ -1884,6 +1996,8 @@ body {
                         saving: "⏳ Saving guide...",
                         saved: "✅ Guide added",
                         error: "❌ Error adding guide: {error}",
+                        updateSuccess: "✅ Guide updated",
+                        updateError: "❌ Error updating guide: {error}",
                         loadError: "❌ Error loading guides: {error}",
                         empty: "No guides yet"
                     }
@@ -2069,6 +2183,10 @@ body {
                     pdfExportPlaceholder: "📄 PDF export feature - Would use jsPDF library to generate PDF report of current week data",
                     signOutConfirm: "Sign out from {email}?",
                     signOutSuccess: "✅ Signed out successfully",
+                    signOutTitle: "🔓 Sign Out",
+                    signOutPrompt: "You are signed in as {email}. Do you want to sign out?",
+                    signOutCancel: "Cancel",
+                    signOutConfirmBtn: "Sign Out",
                     signedInAs: "Signed in as {email}",
                     uploadHint: "Signed in as {email} - Click to upload",
                     signInHint: "Sign in to manage data",
@@ -2188,17 +2306,24 @@ body {
                 },
                 guides: {
                     title: "📘 الشروحات",
-                    
+                    subtitle: "شروحات",
                     purchasesTitle: "📘 شروحات",
                     previewTitle: "🖼️ معاينة الدليل",
                     addButton: "➕ إضافة دليل",
                     addTitle: "➕ إضافة دليل",
+                    editTitle: "✏️ تعديل الدليل",
+                    tagsAll: "الكل",
                     form: {
                         title: "العنوان:",
                         image: "رابط الصورة:",
+                        tags: "الوسوم (مفصولة بفواصل):",
+                        description: "الوصف:",
                         titlePlaceholder: "أدخل عنوان الدليل",
                         imagePlaceholder: "ألصق رابط الصورة",
-                        save: "💾 حفظ الدليل"
+                        tagsPlaceholder: "مثال: حدث, مشتريات",
+                        descriptionPlaceholder: "أضف وصفاً مختصراً",
+                        save: "💾 حفظ الدليل",
+                        update: "💾 تحديث الدليل"
                     },
                     messages: {
                         signInRequired: "❌ يرجى تسجيل الدخول لإضافة الأدلة",
@@ -2207,6 +2332,8 @@ body {
                         saving: "⏳ جارٍ حفظ الدليل...",
                         saved: "✅ تم إضافة الدليل",
                         error: "❌ خطأ في إضافة الدليل: {error}",
+                        updateSuccess: "✅ تم تحديث الدليل",
+                        updateError: "❌ خطأ في تحديث الدليل: {error}",
                         loadError: "❌ خطأ في تحميل الأدلة: {error}",
                         empty: "لا توجد أدلة بعد"
                     }
@@ -2392,6 +2519,10 @@ body {
                     pdfExportPlaceholder: "📄 ميزة تصدير PDF - سيتم استخدام jsPDF لإنشاء تقرير PDF لبيانات الأسبوع الحالي",
                     signOutConfirm: "تسجيل الخروج من {email}؟",
                     signOutSuccess: "✅ تم تسجيل الخروج بنجاح",
+                    signOutTitle: "🔓 تسجيل الخروج",
+                    signOutPrompt: "تم تسجيل الدخول باسم {email}. هل تريد تسجيل الخروج؟",
+                    signOutCancel: "إلغاء",
+                    signOutConfirmBtn: "تسجيل الخروج",
                     signedInAs: "تم تسجيل الدخول باسم {email}",
                     uploadHint: "تم تسجيل الدخول باسم {email} - اضغط للرفع",
                     signInHint: "سجّل الدخول لإدارة البيانات",
@@ -2761,8 +2892,12 @@ body {
         }
         
         // Authentication functions
-        async function signInToFirebase(email, password) {
+        async function signInToFirebase(email, password, remember) {
             try {
+                const persistence = remember
+                    ? firebase.auth.Auth.Persistence.LOCAL
+                    : firebase.auth.Auth.Persistence.SESSION;
+                await auth.setPersistence(persistence);
                 await auth.signInWithEmailAndPassword(email, password);
                 console.log('✅ Signed in successfully');
                 return true;
@@ -2775,6 +2910,18 @@ body {
         function signOutFromFirebase() {
             auth.signOut();
             console.log('✅ Signed out');
+        }
+
+        function openSignOutModal(email) {
+            const message = document.getElementById('signOutMessage');
+            if (message) {
+                message.textContent = t('messages.signOutPrompt', { email });
+            }
+            document.getElementById('signOutModal').style.display = 'block';
+        }
+
+        function closeSignOutModal() {
+            document.getElementById('signOutModal').style.display = 'none';
         }
 
         // Auth modal helpers
@@ -2812,7 +2959,7 @@ body {
             try {
                 statusDiv.textContent = t('auth.signingIn');
                 submitBtn.disabled = true;
-                await signInToFirebase(email, password);
+                await signInToFirebase(email, password, remember);
                 if (remember) {
                     localStorage.setItem('authRememberEmail', email);
                 } else {
@@ -2856,6 +3003,7 @@ body {
         let currentDonationWeek = 1;
         let currentDonationView = 'all';
         let guidesData = [];
+        let activeGuideTag = 'all';
 
         // === UTILITY FUNCTIONS ===
         function parseCSV(csv) {
@@ -3025,17 +3173,22 @@ body {
             }
             try {
                 const snapshot = await database.ref('guides').once('value');
-                const data = snapshot.val() || {};
-                const entries = Object.values(data);
-                guidesData = entries
-                    .map(entry => ({
-                        title: entry.title || '',
-                        imageUrl: entry.imageUrl || '',
-                        createdAt: entry.createdAt || ''
-                    }))
-                    .filter(entry => entry.title && entry.imageUrl);
+                const entries = [];
+                snapshot.forEach(child => {
+                    const val = child.val() || {};
+                    entries.push({
+                        id: child.key,
+                        title: val.title || '',
+                        imageUrl: val.imageUrl || '',
+                        description: val.description || '',
+                        tags: Array.isArray(val.tags) ? val.tags : [],
+                        createdAt: val.createdAt || ''
+                    });
+                });
 
-            guidesData.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+                guidesData = entries.filter(entry => entry.title && entry.imageUrl);
+                guidesData.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+                renderGuideTags();
                 renderGuides();
             } catch (error) {
                 console.error('Error loading guides:', error);
@@ -3045,19 +3198,53 @@ body {
             }
         }
 
+        function renderGuideTags() {
+            const tagWrap = document.getElementById('guideTags');
+            if (!tagWrap) return;
+
+            const tags = new Set();
+            guidesData.forEach(entry => {
+                (entry.tags || []).forEach(tag => tags.add(tag));
+            });
+
+            const allTags = ['all', ...Array.from(tags)];
+            tagWrap.innerHTML = allTags.map(tag => {
+                const label = tag === 'all' ? t('guides.tagsAll') : tag;
+                const activeClass = activeGuideTag === tag ? 'active' : '';
+                return `<button class="guide-tag ${activeClass}" data-tag="${tag}">${label}</button>`;
+            }).join('');
+
+            tagWrap.querySelectorAll('.guide-tag').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    activeGuideTag = btn.getAttribute('data-tag') || 'all';
+                    renderGuideTags();
+                    renderGuides();
+                });
+            });
+        }
+
         function renderGuides() {
             const grid = document.getElementById('guidesGrid');
             if (!grid) return;
 
-            if (!guidesData.length) {
+            const filtered = activeGuideTag === 'all'
+                ? guidesData
+                : guidesData.filter(entry => (entry.tags || []).includes(activeGuideTag));
+
+            if (!filtered.length) {
                 grid.innerHTML = `<div class="kpi-subtext" style="grid-column: 1 / -1; text-align: center;">${t('guides.messages.empty')}</div>`;
                 return;
             }
 
-            grid.innerHTML = guidesData.map(entry => `
-                <button class="guide-card" data-full="${entry.imageUrl}" data-title="${entry.title}">
+            const isAdmin = auth.currentUser !== null;
+            grid.innerHTML = filtered.map(entry => `
+                <button class="guide-card" data-full="${entry.imageUrl}" data-title="${entry.title}" data-description="${entry.description || ''}" data-id="${entry.id}">
                     <img src="${entry.imageUrl}" alt="${entry.title}">
                     <div class="guide-card-title">${entry.title}</div>
+                    <div class="guide-card-meta">
+                        ${(entry.tags || []).map(tag => `#${tag}`).join(' ')}
+                    </div>
+                    ${isAdmin ? `<div style="margin-top: 8px;"><span class="view-profile-btn" data-edit="${entry.id}">${t('buttons.edit')}</span></div>` : ''}
                 </button>
             `).join('');
 
@@ -3065,12 +3252,25 @@ body {
                 card.addEventListener('click', () => {
                     const fullSrc = card.getAttribute('data-full');
                     const title = card.getAttribute('data-title');
+                    const description = card.getAttribute('data-description');
                     const preview = document.getElementById('guidePreviewImage');
+                    const descEl = document.getElementById('guidePreviewDescription');
                     if (preview && fullSrc) {
                         preview.src = fullSrc;
                         preview.alt = title || 'Guide preview';
+                        if (descEl) {
+                            descEl.textContent = description || '';
+                        }
                         document.getElementById('guidePreviewModal').style.display = 'block';
                     }
+                });
+            });
+
+            grid.querySelectorAll('[data-edit]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.getAttribute('data-edit');
+                    openEditGuide(id);
                 });
             });
         }
@@ -3091,6 +3291,9 @@ body {
             try {
                 const title = document.getElementById('guideTitleInput').value.trim();
                 const imageUrl = document.getElementById('guideImageInput').value.trim();
+                const tagsRaw = document.getElementById('guideTagsInput').value.trim();
+                const description = document.getElementById('guideDescriptionInput').value.trim();
+                const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
                 if (!title || !imageUrl) {
                     statusDiv.textContent = t('guides.messages.required');
                     return;
@@ -3101,6 +3304,8 @@ body {
                 await newRef.set({
                     title,
                     imageUrl,
+                    description,
+                    tags,
                     createdAt: new Date().toISOString(),
                     createdBy: auth.currentUser?.email || ''
                 });
@@ -3113,6 +3318,52 @@ body {
             } catch (error) {
                 console.error('Error saving guide:', error);
                 statusDiv.textContent = t('guides.messages.error', { error: error.message });
+            }
+        }
+
+        function openEditGuide(id) {
+            const entry = guidesData.find(g => g.id === id);
+            if (!entry) return;
+            document.getElementById('editGuideId').value = id;
+            document.getElementById('editGuideTitleInput').value = entry.title || '';
+            document.getElementById('editGuideImageInput').value = entry.imageUrl || '';
+            document.getElementById('editGuideTagsInput').value = (entry.tags || []).join(', ');
+            document.getElementById('editGuideDescriptionInput').value = entry.description || '';
+            document.getElementById('editGuideStatus').textContent = '';
+            document.getElementById('editGuideModal').style.display = 'block';
+        }
+
+        async function updateGuide() {
+            const statusDiv = document.getElementById('editGuideStatus');
+            try {
+                const id = document.getElementById('editGuideId').value;
+                const title = document.getElementById('editGuideTitleInput').value.trim();
+                const imageUrl = document.getElementById('editGuideImageInput').value.trim();
+                const tagsRaw = document.getElementById('editGuideTagsInput').value.trim();
+                const description = document.getElementById('editGuideDescriptionInput').value.trim();
+                const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+                if (!title || !imageUrl) {
+                    statusDiv.textContent = t('guides.messages.required');
+                    return;
+                }
+
+                statusDiv.textContent = t('guides.messages.saving');
+                await database.ref(`guides/${id}`).update({
+                    title,
+                    imageUrl,
+                    description,
+                    tags
+                });
+
+                statusDiv.textContent = t('guides.messages.updateSuccess');
+                await loadGuidesFromFirebase();
+                setTimeout(() => {
+                    document.getElementById('editGuideModal').style.display = 'none';
+                }, 1200);
+            } catch (error) {
+                console.error('Error updating guide:', error);
+                statusDiv.textContent = t('guides.messages.updateError', { error: error.message });
             }
         }
 
@@ -5004,6 +5255,21 @@ body {
         document.getElementById('closeAddGuideModal')?.addEventListener('click', () => {
             document.getElementById('addGuideModal').style.display = 'none';
         });
+
+        document.getElementById('closeSignOutModal')?.addEventListener('click', closeSignOutModal);
+        document.getElementById('cancelSignOutBtn')?.addEventListener('click', closeSignOutModal);
+        document.getElementById('confirmSignOutBtn')?.addEventListener('click', () => {
+            signOutFromFirebase();
+            const message = document.getElementById('signOutMessage');
+            if (message) {
+                message.textContent = t('messages.signOutSuccess');
+            }
+            setTimeout(() => closeSignOutModal(), 800);
+        });
+
+        document.getElementById('closeEditGuideModal')?.addEventListener('click', () => {
+            document.getElementById('editGuideModal').style.display = 'none';
+        });
         
         window.addEventListener('click', (e) => {
             if (e.target.id === 'editPlayerModal') {
@@ -5031,6 +5297,12 @@ body {
             }
             if (e.target.id === 'addGuideModal') {
                 document.getElementById('addGuideModal').style.display = 'none';
+            }
+            if (e.target.id === 'editGuideModal') {
+                document.getElementById('editGuideModal').style.display = 'none';
+            }
+            if (e.target.id === 'signOutModal') {
+                closeSignOutModal();
             }
         });
         
@@ -5088,6 +5360,7 @@ body {
         document.getElementById('donationTierFilter')?.addEventListener('change', applyDonationFilters);
         document.getElementById('addGuideBtn')?.addEventListener('click', showAddGuideModal);
         document.getElementById('saveGuideBtn')?.addEventListener('click', saveGuide);
+        document.getElementById('updateGuideBtn')?.addEventListener('click', updateGuide);
         document.getElementById('guidePreviewImage')?.addEventListener('click', () => {
             document.getElementById('guidePreviewImage')?.classList.toggle('zoomed');
         });
@@ -5340,6 +5613,9 @@ body {
             console.log('Auth state changed:', user ? `Signed in as ${user.email}` : 'Signed out');
             updateAuthUI();
             showDonationUpload();
+            if (guidesData.length > 0) {
+                renderGuides();
+            }
         });
         
         // Sign In/Out button handler
@@ -5347,11 +5623,8 @@ body {
             const user = auth.currentUser;
             
             if (user) {
-                // User is signed in - sign out
-                if (confirm(t('messages.signOutConfirm', { email: user.email }))) {
-                    signOutFromFirebase();
-                    alert(t('messages.signOutSuccess'));
-                }
+                // User is signed in - show sign out modal
+                openSignOutModal(user.email);
             } else {
                 // User is signed out - show inline auth modal
                 openAuthModal();
