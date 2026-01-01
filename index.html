@@ -707,6 +707,16 @@ body {
     max-height: 70vh;
     overflow: auto;
 }
+.guide-preview {
+    cursor: zoom-in;
+    transition: transform 0.2s ease;
+    transform-origin: center;
+}
+.guide-preview.zoomed {
+    cursor: zoom-out;
+    transform: scale(1.6);
+    transform-origin: top center;
+}
 
 .profile-stats {
     display: grid;
@@ -1695,7 +1705,7 @@ body {
                     <span class="modal-close" id="closeGuidePreview">&times;</span>
                 </div>
                 <div class="modal-body scrollable" style="text-align: center;">
-                    <img id="guidePreviewImage" src="" alt="Guide preview" style="max-width: 100%; max-height: 70vh; width: auto; height: auto; border-radius: 12px; border: 1px solid var(--border);">
+                    <img id="guidePreviewImage" class="guide-preview" src="" alt="Guide preview" style="max-width: 100%; max-height: 70vh; width: auto; height: auto; border-radius: 12px; border: 1px solid var(--border);">
                 </div>
             </div>
         </div>
@@ -4988,6 +4998,7 @@ body {
 
         document.getElementById('closeGuidePreview')?.addEventListener('click', () => {
             document.getElementById('guidePreviewModal').style.display = 'none';
+            document.getElementById('guidePreviewImage')?.classList.remove('zoomed');
         });
 
         document.getElementById('closeAddGuideModal')?.addEventListener('click', () => {
@@ -5016,6 +5027,7 @@ body {
             }
             if (e.target.id === 'guidePreviewModal') {
                 document.getElementById('guidePreviewModal').style.display = 'none';
+                document.getElementById('guidePreviewImage')?.classList.remove('zoomed');
             }
             if (e.target.id === 'addGuideModal') {
                 document.getElementById('addGuideModal').style.display = 'none';
@@ -5076,6 +5088,9 @@ body {
         document.getElementById('donationTierFilter')?.addEventListener('change', applyDonationFilters);
         document.getElementById('addGuideBtn')?.addEventListener('click', showAddGuideModal);
         document.getElementById('saveGuideBtn')?.addEventListener('click', saveGuide);
+        document.getElementById('guidePreviewImage')?.addEventListener('click', () => {
+            document.getElementById('guidePreviewImage')?.classList.toggle('zoomed');
+        });
 
         // Donation upload
         document.getElementById('donationUpload')?.addEventListener('change', (e) => {
