@@ -1029,6 +1029,10 @@ body {
     position: relative;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+.guide-card.pinned {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(212, 106, 45, 0.35), var(--shadow-md);
+}
 .guide-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
@@ -1078,6 +1082,21 @@ body {
 .guide-pin-btn.active {
     color: var(--accent);
     border-color: var(--accent);
+}
+.guide-pin-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
 }
 .guide-tags {
     display: flex;
@@ -3485,8 +3504,12 @@ body {
             const finalList = sorted.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
             grid.innerHTML = finalList.map(entry => `
-                <button class="guide-card" data-full="${entry.imageUrl}" data-title="${entry.title}" data-description="${entry.description || ''}" data-id="${entry.id}" ${guideSortMode === 'custom' && isAdmin ? 'draggable="true"' : ''}>
-                    ${isAdmin ? `<span class="guide-pin-btn ${entry.pinned ? 'active' : ''}" data-pin="${entry.id}" title="${t('guides.form.pinned')}" aria-label="${t('guides.form.pinned')}">📌</span>` : ''}
+                <button class="guide-card ${entry.pinned ? 'pinned' : ''}" data-full="${entry.imageUrl}" data-title="${entry.title}" data-description="${entry.description || ''}" data-id="${entry.id}" ${guideSortMode === 'custom' && isAdmin ? 'draggable="true"' : ''}>
+                    ${entry.pinned ? (
+                        isAdmin
+                            ? `<span class="guide-pin-btn active" data-pin="${entry.id}" title="${t('guides.form.pinned')}" aria-label="${t('guides.form.pinned')}">📌</span>`
+                            : `<span class="guide-pin-indicator" title="${t('guides.form.pinned')}" aria-label="${t('guides.form.pinned')}">📌</span>`
+                    ) : (isAdmin ? `<span class="guide-pin-btn" data-pin="${entry.id}" title="${t('guides.form.pinned')}" aria-label="${t('guides.form.pinned')}">📌</span>` : '')}
                     <img src="${entry.imageUrl}" alt="${entry.title}">
                     <div class="guide-card-title">${entry.title}</div>
                     <div class="guide-card-meta">
