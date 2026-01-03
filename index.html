@@ -3512,11 +3512,9 @@ body {
                     ) : (isAdmin ? `<span class="guide-pin-btn" data-pin="${entry.id}" title="${t('guides.form.pinned')}" aria-label="${t('guides.form.pinned')}">📌</span>` : '')}
                     <img src="${entry.imageUrl}" alt="${entry.title}">
                     <div class="guide-card-title">${entry.title}</div>
-                    <div class="guide-card-meta">
-                        ${(entry.tags || []).map(tag => `#${tag}`).join(' ')}
-                    </div>
                     <div class="guide-badges">
                         ${entry.pinned ? `<span class="guide-badge">${t('guides.pinnedLabel')}</span>` : ''}
+                        ${(entry.tags || []).map(tag => `<span class="guide-badge">#${tag}</span>`).join('')}
                         ${(entry.languages || []).map(lang => {
                             if (lang === 'en') return t('guides.filters.languageEn');
                             if (lang === 'ar') return t('guides.filters.languageAr');
