@@ -141,6 +141,9 @@ body {
     color: var(--text);
     text-decoration: none;
     font-weight: 600;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    line-height: 1;
     box-shadow: var(--shadow-sm);
 }
 .lootbar-cta:hover {
@@ -679,7 +682,7 @@ body {
 }
 
 .creator-tag {
-    font-family: 'Oswald', sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     color: #ff9933;
     font-size: 1.3rem;
@@ -1361,6 +1364,7 @@ body {
                     <span data-i18n="global.lootbarCta">Buy Last War: Survival Game Packages Cheaper from LootBar.gg</span>
                 </a>
                 <button class="lootbar-cta donate-cta" id="donateBinanceBtn" data-i18n="global.donateBinance">💛 Donate with Binance</button>
+                <a class="lootbar-cta donate-cta" href="https://www.paypal.com/ncp/payment/YQSH264RDJNH8" target="_blank" rel="noopener" data-i18n="global.donatePaypal">💙 Donate with PayPal</a>
             </div>
         </div>
 
@@ -1699,7 +1703,7 @@ body {
 
         <!-- Footer -->
         <div class="footer">
-            <p><span data-i18n="footer.createdBy">Created by:</span> <span class="creator-tag">#1918 [pWR] DeFOUR</span></p>
+            <p><span>Created with ❤️ by</span> <span class="creator-tag">#1918 [pWR] DeFOUR</span></p>
             <p style="font-size: 0.9rem; color: #808080; margin-top: 5px;" data-i18n="footer.subtitle">Elite Alliance Dashboard System</p>
         </div>
             </div>
@@ -1719,6 +1723,7 @@ body {
                             <span data-i18n="global.lootbarCta">Buy Last War: Survival Game Packages Cheaper</span>
                         </a>
                         <button class="lootbar-cta donate-cta" id="donateBinanceBtnDonation" data-i18n="global.donateBinance">💛 Donate with Binance</button>
+                        <a class="lootbar-cta donate-cta" href="https://www.paypal.com/ncp/payment/YQSH264RDJNH8" target="_blank" rel="noopener" data-i18n="global.donatePaypal">💙 Donate with PayPal</a>
                     </div>
                 </div>
 
@@ -1879,6 +1884,7 @@ body {
                                 <span data-i18n="global.lootbarCta">Buy Last War: Survival Game Packages Cheaper</span>
                             </a>
                             <button class="lootbar-cta donate-cta" id="donateBinanceBtnGuides" data-i18n="global.donateBinance">💛 Donate with Binance</button>
+                            <a class="lootbar-cta donate-cta" href="https://www.paypal.com/ncp/payment/YQSH264RDJNH8" target="_blank" rel="noopener" data-i18n="global.donatePaypal">💙 Donate with PayPal</a>
                         </div>
                         <button class="action-btn" id="addGuideBtn" data-i18n="guides.addButton" style="display: none;">➕ Add Guide</button>
                     </div>
@@ -2046,6 +2052,7 @@ body {
                 </div>
             </div>
         </div>
+
     </div>
 
     <!-- Auth Modal -->
@@ -2127,7 +2134,8 @@ body {
                     subtitle: "Live Leaderboards & Admin Controls",
                     pageTitle: "[pWR] Alliance Command Center",
                     lootbarCta: "Buy Last War: Survival Game Packages Cheaper from LootBar.gg",
-                    donateBinance: "💛 Donate with Binance"
+                    donateBinance: "💛 Donate with Binance",
+                    donatePaypal: "💙 Donate with PayPal"
                 },
                 theme: {
                     dark: "🌙 Dark",
@@ -2510,7 +2518,8 @@ body {
                     subtitle: "لوحات صدارة مباشرة وأدوات الإدارة",
                     pageTitle: "[pWR] مركز قيادة التحالف",
                     lootbarCta: "اشتر باقات لعبة الحرب الأخيرة بشكل أرخص من LootBar.gg",
-                    donateBinance: "💛 تبرع عبر باينانس"
+                    donateBinance: "💛 تبرع عبر باينانس",
+                    donatePaypal: "💙 تبرع عبر باي بال"
                 },
                 theme: {
                     dark: "🌙 داكن",
@@ -5509,6 +5518,7 @@ body {
             });
         });
 
+
         document.getElementById('exportCsvBtn').addEventListener('click', () => {
             const players = getCurrentDuelRows();
             const weeks = getDuelWeeksList();
@@ -6326,6 +6336,7 @@ body {
             }
         });
 
+
         document.getElementById('cancelDeleteGuideBtn')?.addEventListener('click', () => {
             document.getElementById('deleteGuideModal').style.display = 'none';
         });
@@ -6755,6 +6766,7 @@ body {
         
         // Start the app
         initializeDashboard();
+
     </script>
 
 </body>
