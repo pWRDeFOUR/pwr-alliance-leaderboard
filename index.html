@@ -1024,8 +1024,28 @@ body {
 
 .duel-filters {
     display: grid;
-    grid-template-columns: 1fr 180px 180px;
+    grid-template-columns: 1fr 170px 170px 170px 170px auto;
+    align-items: center;
     gap: 12px;
+    margin-bottom: 16px;
+}
+.duel-filters .search-bar {
+    height: 54px;
+    margin-bottom: 0;
+    padding: 0 18px;
+    font-size: 1rem;
+    font-family: 'Rajdhani', sans-serif;
+}
+.duel-filters .action-btn {
+    height: 54px;
+    padding: 0 16px;
+    font-size: 1rem;
+    font-family: 'Rajdhani', sans-serif;
+    text-transform: none;
+}
+.duel-filters #exportFilteredPdfBtn {
+    justify-self: end;
+    min-width: 90px;
 }
 
 .donation-filters {
@@ -1476,13 +1496,19 @@ body {
             <h3 class="chart-title" data-i18n="leaderboard.title">📋 Complete Leaderboard</h3>
             <div class="duel-filters">
                 <input type="text" id="searchBar" class="search-bar" data-i18n-placeholder="leaderboard.searchPlaceholder" placeholder="🔍 Search player name...">
+                <select id="duelMissingFilter" class="search-bar">
+                    <option value="" data-i18n="leaderboard.missingAll">All players</option>
+                    <option value="missing" data-i18n="leaderboard.missingOnly">Missing days</option>
+                </select>
                 <input type="number" id="duelMinPoints" class="search-bar" data-i18n-placeholder="leaderboard.minPointsPlaceholder" placeholder="Min points">
+                <input type="number" id="duelMaxPoints" class="search-bar" data-i18n-placeholder="leaderboard.maxPointsPlaceholder" placeholder="Max points">
                 <select id="duelDivisionFilter" class="search-bar">
                     <option value="" data-i18n="leaderboard.allDivisions">All divisions</option>
                     <option value="elite" data-i18n="divisions.eliteShort">Elite</option>
                     <option value="master" data-i18n="divisions.masterShort">Master</option>
                     <option value="warrior" data-i18n="divisions.warriorShort">Warrior</option>
                 </select>
+                <button class="action-btn" id="exportFilteredPdfBtn" data-i18n="buttons.exportReportPdf">📄 PDF</button>
             </div>
             <div class="table-wrapper">
                 <table class="data-table">
@@ -2135,6 +2161,7 @@ body {
                     resetDuel: "♻️ Reset Duel Data",
                     resetDonation: "♻️ Reset Donation Data",
                     exportPdf: "📄 Export PDF",
+                    exportReportPdf: "📄 PDF",
                     exportCsv: "💾 Export CSV",
                     screenshot: "📸 Screenshot",
                     view: "View",
@@ -2201,8 +2228,11 @@ body {
                     title: "📋 Complete Leaderboard",
                     searchPlaceholder: "🔍 Search player name...",
                     minPointsPlaceholder: "Min points",
+                    maxPointsPlaceholder: "Max points",
                     allDivisions: "All divisions",
                     allWeeks: "All Weeks",
+                    missingAll: "All players",
+                    missingOnly: "Missing days",
                     uploadModeWeek: "Upload: Full Week",
                     uploadModeDay: "Upload: Day by Day",
                     dayAll: "All Days",
@@ -2302,7 +2332,9 @@ body {
                     top3: "🥇 Top 3",
                     top10: "⭐ Top 10",
                     hundredM: "💎 100M Club",
-                    twoHundredM: "🏆 200M Club"
+                    twoHundredM: "🏆 200M Club",
+                    newPlayer: "🆕 New Player",
+                    removedPlayer: "🚪 Removed"
                 },
                 donation: {
                     buttons: {
@@ -2512,6 +2544,7 @@ body {
                     resetDuel: "♻️ إعادة ضبط بيانات المبارزة",
                     resetDonation: "♻️ إعادة ضبط بيانات التبرعات",
                     exportPdf: "📄 تصدير PDF",
+                    exportReportPdf: "📄 PDF",
                     exportCsv: "💾 تصدير CSV",
                     screenshot: "📸 لقطة شاشة",
                     view: "عرض",
@@ -2578,8 +2611,11 @@ body {
                     title: "📋 لوحة الترتيب الكاملة",
                     searchPlaceholder: "🔍 ابحث عن اسم اللاعب...",
                     minPointsPlaceholder: "أقل نقاط",
+                    maxPointsPlaceholder: "أعلى نقاط",
                     allDivisions: "كل الفئات",
                     allWeeks: "كل الأسابيع",
+                    missingAll: "كل اللاعبين",
+                    missingOnly: "أيام غياب",
                     uploadModeWeek: "رفع: الأسبوع كامل",
                     uploadModeDay: "رفع: يوم بيوم",
                     dayAll: "كل الأيام",
@@ -2679,7 +2715,9 @@ body {
                     top3: "🥇 أفضل 3",
                     top10: "⭐ أفضل 10",
                     hundredM: "💎 نادي 100M",
-                    twoHundredM: "🏆 نادي 200M"
+                    twoHundredM: "🏆 نادي 200M",
+                    newPlayer: "🆕 لاعب جديد",
+                    removedPlayer: "🚪 تمت إزالته"
                 },
                 donation: {
                     buttons: {
@@ -3608,6 +3646,28 @@ body {
             return getWeekAggregateRows(weekNum);
         }
 
+        function getLatestDuelWeekWithData() {
+            const weeks = getDuelWeeksList();
+            return weeks.length ? Math.max(...weeks) : null;
+        }
+
+        function getWeekPlayersSet(weekNum) {
+            const rows = getWeekAggregateRows(weekNum);
+            const set = new Set();
+            rows.forEach(row => {
+                if (row['Player Name']) {
+                    set.add(row['Player Name'].toLowerCase());
+                }
+            });
+            return set;
+        }
+
+        function isPlayerInWeek(playerName, weekNum) {
+            if (!weekNum) return false;
+            const set = getWeekPlayersSet(weekNum);
+            return set.has(playerName.toLowerCase());
+        }
+
         function getCurrentPlayers() {
             return getWeekDisplayRows(currentWeek);
         }
@@ -3623,11 +3683,16 @@ body {
             const weeks = getDuelWeeksList();
             if (!weeks.length) return [];
 
+            const latestWeek = getLatestDuelWeekWithData();
+            const latestPlayers = latestWeek ? getWeekPlayersSet(latestWeek) : null;
             const map = {};
             weeks.forEach(week => {
                 const rows = getWeekAggregateRows(week);
                 rows.forEach(row => {
                     const key = row['Player Name'];
+                    if (latestPlayers && !latestPlayers.has(key.toLowerCase())) {
+                        return;
+                    }
                     if (!map[key]) {
                         map[key] = { 'Player Name': key, TotalPoints: 0, WeekPoints: {} };
                     }
@@ -4062,6 +4127,23 @@ body {
             if (rank <= 10) achievements.push(t('achievements.top10'));
             if (points > 100000000) achievements.push(t('achievements.hundredM'));
             if (points > 200000000) achievements.push(t('achievements.twoHundredM'));
+
+            if (currentDuelView === 'week') {
+                const weeks = getDuelWeeksList();
+                const currentIndex = weeks.indexOf(Number(week));
+                if (currentIndex > 0) {
+                    const prevWeek = weeks[currentIndex - 1];
+                    if (!isPlayerInWeek(player['Player Name'], prevWeek)) {
+                        achievements.push(t('achievements.newPlayer'));
+                    }
+                }
+                if (currentIndex >= 0 && currentIndex < weeks.length - 1) {
+                    const nextWeek = weeks[currentIndex + 1];
+                    if (!isPlayerInWeek(player['Player Name'], nextWeek)) {
+                        achievements.push(t('achievements.removedPlayer'));
+                    }
+                }
+            }
             
             return achievements;
         }
@@ -4551,8 +4633,12 @@ body {
             renderTable();
             const searchInput = document.getElementById('searchBar');
             if (searchInput) searchInput.value = '';
+            const missingFilter = document.getElementById('duelMissingFilter');
+            if (missingFilter) missingFilter.value = '';
             const minPointsInput = document.getElementById('duelMinPoints');
             if (minPointsInput) minPointsInput.value = '';
+            const maxPointsInput = document.getElementById('duelMaxPoints');
+            if (maxPointsInput) maxPointsInput.value = '';
             const divisionFilter = document.getElementById('duelDivisionFilter');
             if (divisionFilter) divisionFilter.value = '';
             updateDuelDaySelectorState();
@@ -5348,6 +5434,81 @@ body {
             });
         });
 
+        document.getElementById('exportFilteredPdfBtn')?.addEventListener('click', () => {
+            const tableContainer = document.querySelector('#duelTab .table-container');
+            if (!tableContainer) return;
+            const filteredRows = getDuelFilteredRows();
+            if (!filteredRows.length) {
+                alert(t('messages.noData'));
+                return;
+            }
+            renderTable(filteredRows);
+
+            const exportWrapper = document.createElement('div');
+            exportWrapper.style.position = 'fixed';
+            exportWrapper.style.left = '-9999px';
+            exportWrapper.style.top = '0';
+            exportWrapper.style.width = `${tableContainer.clientWidth}px`;
+            exportWrapper.style.background = getComputedStyle(tableContainer).background || '';
+
+            const exportClone = tableContainer.cloneNode(true);
+            exportClone.style.width = `${tableContainer.clientWidth}px`;
+            exportClone.querySelector('.duel-filters')?.remove();
+            const wrapper = exportClone.querySelector('.table-wrapper');
+            if (wrapper) {
+                wrapper.style.maxHeight = 'none';
+                wrapper.style.overflow = 'visible';
+                wrapper.style.height = 'auto';
+            }
+
+            exportWrapper.appendChild(exportClone);
+            document.body.appendChild(exportWrapper);
+
+            const bgColor = getComputedStyle(document.body).backgroundColor || '#ffffff';
+            html2canvas(exportClone, { backgroundColor: bgColor, scale: 2, useCORS: true }).then(canvas => {
+                const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const imgWidth = pageWidth - 40;
+                const ratio = imgWidth / canvas.width;
+                const pageHeightPx = (pageHeight - 40) / ratio;
+                let offsetY = 0;
+
+                while (offsetY < canvas.height) {
+                    const sliceHeight = Math.min(pageHeightPx, canvas.height - offsetY);
+                    const pageCanvas = document.createElement('canvas');
+                    pageCanvas.width = canvas.width;
+                    pageCanvas.height = sliceHeight;
+                    const pageCtx = pageCanvas.getContext('2d');
+                    pageCtx.drawImage(
+                        canvas,
+                        0,
+                        offsetY,
+                        canvas.width,
+                        sliceHeight,
+                        0,
+                        0,
+                        canvas.width,
+                        sliceHeight
+                    );
+
+                    const imgData = pageCanvas.toDataURL('image/png');
+                    pdf.setFillColor(255, 255, 255);
+                    pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+                    pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, sliceHeight * ratio);
+
+                    offsetY += sliceHeight;
+                    if (offsetY < canvas.height) {
+                        pdf.addPage();
+                    }
+                }
+
+                pdf.save(`pwr_alliance_report_week${currentWeek}.pdf`);
+            }).finally(() => {
+                exportWrapper.remove();
+            });
+        });
+
         document.getElementById('exportCsvBtn').addEventListener('click', () => {
             const players = getCurrentDuelRows();
             const weeks = getDuelWeeksList();
@@ -5393,26 +5554,64 @@ body {
 
         function applyDuelFilters() {
             const term = document.getElementById('searchBar')?.value.toLowerCase() || '';
+            const missingFilter = document.getElementById('duelMissingFilter')?.value || '';
             const minPoints = parseInt(document.getElementById('duelMinPoints')?.value || '0', 10) || 0;
+            const maxPointsRaw = document.getElementById('duelMaxPoints')?.value || '';
+            const maxPoints = maxPointsRaw ? parseInt(maxPointsRaw, 10) || 0 : 0;
             const divisionFilter = document.getElementById('duelDivisionFilter')?.value || '';
             const baseRows = getCurrentDuelRows();
+            const missingEnabled = currentDuelView === 'week' && currentDuelDay === 'all' && hasDailyData(currentWeek);
             const filtered = baseRows.filter(p => {
                 const matchesName = p['Player Name'].toLowerCase().includes(term);
                 const matchesPoints = (p.Points || 0) >= minPoints;
+                const matchesMax = maxPoints ? (p.Points || 0) <= maxPoints : true;
+                const hasMissing = missingEnabled ? (p.MissingDays || []).length > 0 : false;
+                const matchesMissing = missingFilter
+                    ? (missingEnabled && missingFilter === 'missing' && hasMissing)
+                    : true;
                 const points = p.Points || 0;
                 const matchesDivision = divisionFilter
                     ? (divisionFilter === 'elite' && points > 100000000) ||
                       (divisionFilter === 'master' && points >= 50000000 && points <= 100000000) ||
                       (divisionFilter === 'warrior' && points < 50000000)
                     : true;
-                return matchesName && matchesPoints && matchesDivision;
+                return matchesName && matchesPoints && matchesMax && matchesDivision && matchesMissing;
             });
             renderTable(filtered);
         }
 
+        function getDuelFilteredRows() {
+            const term = document.getElementById('searchBar')?.value.toLowerCase() || '';
+            const missingFilter = document.getElementById('duelMissingFilter')?.value || '';
+            const minPoints = parseInt(document.getElementById('duelMinPoints')?.value || '0', 10) || 0;
+            const maxPointsRaw = document.getElementById('duelMaxPoints')?.value || '';
+            const maxPoints = maxPointsRaw ? parseInt(maxPointsRaw, 10) || 0 : 0;
+            const divisionFilter = document.getElementById('duelDivisionFilter')?.value || '';
+            const baseRows = getCurrentDuelRows();
+            const missingEnabled = currentDuelView === 'week' && currentDuelDay === 'all' && hasDailyData(currentWeek);
+            return baseRows.filter(p => {
+                const matchesName = p['Player Name'].toLowerCase().includes(term);
+                const matchesPoints = (p.Points || 0) >= minPoints;
+                const matchesMax = maxPoints ? (p.Points || 0) <= maxPoints : true;
+                const hasMissing = missingEnabled ? (p.MissingDays || []).length > 0 : false;
+                const matchesMissing = missingFilter
+                    ? (missingEnabled && missingFilter === 'missing' && hasMissing)
+                    : true;
+                const points = p.Points || 0;
+                const matchesDivision = divisionFilter
+                    ? (divisionFilter === 'elite' && points > 100000000) ||
+                      (divisionFilter === 'master' && points >= 50000000 && points <= 100000000) ||
+                      (divisionFilter === 'warrior' && points < 50000000)
+                    : true;
+                return matchesName && matchesPoints && matchesMax && matchesDivision && matchesMissing;
+            });
+        }
+
         // Search and filters
         document.getElementById('searchBar')?.addEventListener('input', applyDuelFilters);
+        document.getElementById('duelMissingFilter')?.addEventListener('change', applyDuelFilters);
         document.getElementById('duelMinPoints')?.addEventListener('input', applyDuelFilters);
+        document.getElementById('duelMaxPoints')?.addEventListener('input', applyDuelFilters);
         document.getElementById('duelDivisionFilter')?.addEventListener('change', applyDuelFilters);
 
         // Modal Close
