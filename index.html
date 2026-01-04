@@ -351,6 +351,25 @@ body {
 }
 
 .control-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+.control-select {
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #3a3020, #2a2515);
+    border: 2px solid #6b5a3d;
+    border-radius: 6px;
+    color: #d4a765;
+    font-family: 'Teko', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    min-height: 46px;
+    text-transform: none;
+}
+.control-select:focus {
+    outline: none;
+    border-color: #ff9933;
+    box-shadow: 0 0 15px rgba(255, 153, 51, 0.3);
+}
 
 /* ===== RESOURCE CARDS (KPIs) ===== */
 .kpi-grid {
@@ -1329,7 +1348,21 @@ body {
         <div class="week-controls">
             <div class="week-selector" id="weekSelector"></div>
             <div class="control-buttons">
-                <label for="csvUpload" class="upload-btn" id="uploadBtn" data-i18n="buttons.upload">
+                <select id="duelUploadMode" class="control-select">
+                    <option value="week" data-i18n="leaderboard.uploadModeWeek">Upload: Full Week</option>
+                    <option value="day" data-i18n="leaderboard.uploadModeDay">Upload: Day by Day</option>
+                </select>
+                <select id="duelDaySelector" class="control-select">
+                    <option value="all" data-i18n="leaderboard.dayAll">All Days</option>
+                    <option value="mon" data-i18n="leaderboard.dayMon">Mon</option>
+                    <option value="tue" data-i18n="leaderboard.dayTue">Tue</option>
+                    <option value="wed" data-i18n="leaderboard.dayWed">Wed</option>
+                    <option value="thu" data-i18n="leaderboard.dayThu">Thu</option>
+                    <option value="fri" data-i18n="leaderboard.dayFri">Fri</option>
+                    <option value="sat" data-i18n="leaderboard.daySat">Sat</option>
+                </select>
+                <button class="action-btn" id="newWeekBtn" data-i18n="buttons.newWeek">➕ New Week</button>
+                <label for="csvUpload" class="upload-btn" id="uploadBtn" data-i18n="buttons.uploadWeek">
                     📤 Upload Week Data
                     <input type="file" id="csvUpload" accept=".csv" style="display: none;">
                 </label>
@@ -2089,7 +2122,11 @@ body {
                 },
                 buttons: {
                     upload: "📤 Upload Week Data",
+                    uploadWeek: "📤 Upload Week Data",
+                    uploadDayGeneric: "📤 Upload Day Data",
+                    uploadDay: "📤 Upload {day} Data",
                     uploadDonation: "📤 Upload Donation CSV",
+                    newWeek: "➕ New Week",
                     signIn: "🔐 Sign In",
                     signOut: "🔓 Sign Out",
                     refresh: "🔄 Refresh Data",
@@ -2109,6 +2146,8 @@ body {
                     movement: "Movement",
                     playerName: "Player Name",
                     points: "Points",
+                    missingDays: "Missing Days",
+                    none: "None",
                     achievements: "Achievements",
                     division: "Division",
                     actions: "Actions",
@@ -2163,7 +2202,16 @@ body {
                     searchPlaceholder: "🔍 Search player name...",
                     minPointsPlaceholder: "Min points",
                     allDivisions: "All divisions",
-                    allWeeks: "All Weeks"
+                    allWeeks: "All Weeks",
+                    uploadModeWeek: "Upload: Full Week",
+                    uploadModeDay: "Upload: Day by Day",
+                    dayAll: "All Days",
+                    dayMon: "Mon",
+                    dayTue: "Tue",
+                    dayWed: "Wed",
+                    dayThu: "Thu",
+                    dayFri: "Fri",
+                    daySat: "Sat"
                 },
                 guides: {
                     title: "📘 Guides",
@@ -2370,6 +2418,10 @@ body {
                     signInRequired: "❌ Please sign in to upload data",
                     deleteConfirm: "Are you sure you want to delete",
                     uploadSuccess: "✅ Week {week} uploaded successfully!",
+                    uploadDaySuccess: "✅ Uploaded {day} for Week {week} ({count} players)",
+                    dayRequired: "❌ Please select a day before uploading.",
+                    dayViewRequired: "❌ Switch to a specific day to edit day-by-day data.",
+                    newWeekCreated: "✅ Week {week} created. You can upload day data now.",
                     deleteSuccess: "✅ Player deleted successfully",
                     saveSuccess: "✅ Player updated successfully!",
                     addSuccess: "✅ Player added successfully!",
@@ -2447,7 +2499,11 @@ body {
                 },
                 buttons: {
                     upload: "📤 رفع بيانات الأسبوع",
+                    uploadWeek: "📤 رفع بيانات الأسبوع",
+                    uploadDayGeneric: "📤 رفع بيانات اليوم",
+                    uploadDay: "📤 رفع بيانات {day}",
                     uploadDonation: "📤 رفع تبرعات الأسبوع",
+                    newWeek: "➕ أسبوع جديد",
                     signIn: "🔐 تسجيل الدخول",
                     signOut: "🔓 تسجيل الخروج",
                     refresh: "🔄 تحديث البيانات",
@@ -2467,6 +2523,8 @@ body {
                     movement: "الحركة",
                     playerName: "اسم اللاعب",
                     points: "النقاط",
+                    missingDays: "أيام الغياب",
+                    none: "لا يوجد",
                     achievements: "الإنجازات",
                     division: "الفئة",
                     actions: "الإجراءات",
@@ -2521,7 +2579,16 @@ body {
                     searchPlaceholder: "🔍 ابحث عن اسم اللاعب...",
                     minPointsPlaceholder: "أقل نقاط",
                     allDivisions: "كل الفئات",
-                    allWeeks: "كل الأسابيع"
+                    allWeeks: "كل الأسابيع",
+                    uploadModeWeek: "رفع: الأسبوع كامل",
+                    uploadModeDay: "رفع: يوم بيوم",
+                    dayAll: "كل الأيام",
+                    dayMon: "الإثنين",
+                    dayTue: "الثلاثاء",
+                    dayWed: "الأربعاء",
+                    dayThu: "الخميس",
+                    dayFri: "الجمعة",
+                    daySat: "السبت"
                 },
                 guides: {
                     title: "📘 الشروحات",
@@ -2728,6 +2795,10 @@ body {
                     signInRequired: "❌ يرجى تسجيل الدخول لرفع البيانات",
                     deleteConfirm: "هل أنت متأكد من حذف",
                     uploadSuccess: "✅ تم رفع الأسبوع {week} بنجاح!",
+                    uploadDaySuccess: "✅ تم رفع {day} للأسبوع {week} ({count} لاعب)",
+                    dayRequired: "❌ يرجى اختيار اليوم قبل الرفع.",
+                    dayViewRequired: "❌ اختر يوماً محدداً لتعديل بيانات اليوم.",
+                    newWeekCreated: "✅ تم إنشاء الأسبوع {week}. يمكنك رفع بيانات الأيام الآن.",
                     deleteSuccess: "✅ تم حذف اللاعب بنجاح",
                     saveSuccess: "✅ تم تحديث اللاعب بنجاح!",
                     addSuccess: "✅ تمت إضافة اللاعب بنجاح!",
@@ -2846,7 +2917,7 @@ body {
             updateAuthUI();
             
             // Update dynamic content only if data is loaded
-            if (Object.keys(weeklyData).length > 0) {
+            if (getDuelWeeksList().length > 0) {
                 updateWeekButtons();
                 updateDashboard();
             }
@@ -2865,6 +2936,7 @@ body {
                 }
             }
 
+            updateDuelUploadLabel();
             updateThemeToggle();
         }
         
@@ -2908,7 +2980,7 @@ body {
         }
 
         function refreshChartsForTheme() {
-            if (Object.keys(weeklyData).length > 0) {
+            if (getDuelWeeksList().length > 0) {
                 renderCharts();
                 if (currentProfilePlayer) {
                     openPlayerProfile(currentProfilePlayer);
@@ -2983,6 +3055,33 @@ body {
                 return null;
             }
         }
+
+        async function loadWeekDaysFromFirebase(weekNum) {
+            try {
+                const snapshot = await database.ref(`weeksDaily/${weekNum}`).once('value');
+                const data = snapshot.val();
+                if (!data) {
+                    return null;
+                }
+
+                const dayMap = {};
+                Object.entries(data).forEach(([dayKey, dayData]) => {
+                    if (!dayData) return;
+                    const rows = Object.values(dayData).map(entry => ({
+                        Rank: entry.rank,
+                        'Player Name': entry.playerName,
+                        Points: entry.points
+                    }));
+                    dayMap[dayKey] = rows;
+                });
+
+                weeklyDailyData[weekNum] = dayMap;
+                return dayMap;
+            } catch (error) {
+                console.error(`Error loading week days ${weekNum}:`, error);
+                return null;
+            }
+        }
         
         // Load all available weeks
         async function loadAllWeeksFromFirebase() {
@@ -2991,15 +3090,17 @@ body {
                 const metadata = metaSnapshot.val();
                 
                 const totalWeeks = metadata?.totalWeeks || 0;
+                duelTotalWeeks = totalWeeks;
                 
                 if (totalWeeks === 0) {
                     console.log('No weeks found in Firebase');
                     return 0;
                 }
                 
-                // Load all weeks
+                // Load all weeks (full + daily)
                 for (let i = 1; i <= totalWeeks; i++) {
                     await loadWeekFromFirebase(i);
+                    await loadWeekDaysFromFirebase(i);
                 }
                 
                 console.log(`✅ Loaded ${totalWeeks} weeks from Firebase`);
@@ -3044,6 +3145,8 @@ body {
                     lastUpdated: new Date().toISOString(),
                     uploadedBy: auth.currentUser.email
                 });
+
+                duelTotalWeeks = Math.max(duelTotalWeeks, weekNum);
                 
                 // Reload data locally
                 await loadWeekFromFirebase(weekNum);
@@ -3052,6 +3155,45 @@ body {
                 return true;
             } catch (error) {
                 console.error('Error saving to Firebase:', error);
+                throw error;
+            }
+        }
+
+        async function saveWeekDayToFirebase(weekNum, dayKey, csvData) {
+            try {
+                if (!auth.currentUser) {
+                    throw new Error('You must be signed in to upload data');
+                }
+
+                const players = parseCSV(csvData);
+                if (!players || players.length === 0) {
+                    throw new Error('Invalid CSV data');
+                }
+
+                const firebaseData = players.map(p => ({
+                    rank: p.Rank,
+                    playerName: p['Player Name'],
+                    points: p.Points
+                }));
+
+                await database.ref(`weeksDaily/${weekNum}/${dayKey}`).set(firebaseData);
+
+                const metaSnapshot = await database.ref('metadata').once('value');
+                const currentMeta = metaSnapshot.val() || {};
+
+                await database.ref('metadata').set({
+                    totalWeeks: Math.max(currentMeta.totalWeeks || 0, weekNum),
+                    latestWeek: Math.max(currentMeta.latestWeek || 0, weekNum),
+                    lastUpdated: new Date().toISOString(),
+                    uploadedBy: auth.currentUser.email
+                });
+
+                duelTotalWeeks = Math.max(duelTotalWeeks, weekNum);
+
+                await loadWeekDaysFromFirebase(weekNum);
+                return true;
+            } catch (error) {
+                console.error('Error saving day to Firebase:', error);
                 throw error;
             }
         }
@@ -3232,8 +3374,13 @@ body {
         // ============================================
         // === DATA MANAGEMENT ===
         let weeklyData = {};
+        let weeklyDailyData = {};
+        let duelTotalWeeks = 0;
         let currentWeek = 1;
         let currentDuelView = 'week';
+        let currentDuelDay = 'all';
+        let duelUploadMode = 'week';
+        const duelDayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
         let chartInstances = {};
         let currentProfilePlayer = null;
         let currentDonationProfile = null;
@@ -3369,8 +3516,100 @@ body {
             return result;
         }
 
+        function getDuelWeeksList() {
+            const weeks = new Set();
+            Object.entries(weeklyData).forEach(([week, rows]) => {
+                if (rows && rows.length) {
+                    weeks.add(Number(week));
+                }
+            });
+            Object.entries(weeklyDailyData).forEach(([week, dayMap]) => {
+                if (dayMap && Object.keys(dayMap).some(day => (dayMap[day] || []).length)) {
+                    weeks.add(Number(week));
+                }
+            });
+            return Array.from(weeks).sort((a, b) => a - b);
+        }
+
+        function hasDailyData(weekNum) {
+            return !!(weeklyDailyData[weekNum] && Object.keys(weeklyDailyData[weekNum]).length);
+        }
+
+        function getDayLabel(dayKey) {
+            const map = {
+                all: t('leaderboard.dayAll'),
+                mon: t('leaderboard.dayMon'),
+                tue: t('leaderboard.dayTue'),
+                wed: t('leaderboard.dayWed'),
+                thu: t('leaderboard.dayThu'),
+                fri: t('leaderboard.dayFri'),
+                sat: t('leaderboard.daySat')
+            };
+            return map[dayKey] || dayKey;
+        }
+
+        function aggregateWeekFromDays(weekNum) {
+            const dayMap = weeklyDailyData[weekNum] || {};
+            const playerMap = {};
+
+            duelDayKeys.forEach(day => {
+                const rows = dayMap[day] || [];
+                rows.forEach(row => {
+                    const name = row['Player Name'];
+                    if (!name) return;
+                    const key = name.toLowerCase();
+                    if (!playerMap[key]) {
+                        playerMap[key] = {
+                            'Player Name': name,
+                            Points: 0,
+                            DaysPresent: new Set()
+                        };
+                    }
+                    playerMap[key].Points += row.Points || 0;
+                    playerMap[key].DaysPresent.add(day);
+                });
+            });
+
+            const players = Object.values(playerMap).map(entry => {
+                const daysPresent = Array.from(entry.DaysPresent);
+                const missingDays = duelDayKeys.filter(day => !entry.DaysPresent.has(day));
+                return {
+                    Rank: 0,
+                    'Player Name': entry['Player Name'],
+                    Points: entry.Points,
+                    DaysPresent: daysPresent,
+                    MissingDays: missingDays
+                };
+            });
+
+            players.sort((a, b) => b.Points - a.Points);
+            players.forEach((player, index) => { player.Rank = index + 1; });
+            return players;
+        }
+
+        function getWeekAggregateRows(weekNum) {
+            if (hasDailyData(weekNum)) {
+                return aggregateWeekFromDays(weekNum);
+            }
+            return weeklyData[weekNum] || [];
+        }
+
+        function getWeekDayRows(weekNum, dayKey) {
+            return weeklyDailyData[weekNum]?.[dayKey] || [];
+        }
+
+        function getWeekDisplayRows(weekNum) {
+            if (currentDuelDay !== 'all' && hasDailyData(weekNum)) {
+                return getWeekDayRows(weekNum, currentDuelDay);
+            }
+            if (currentDuelDay !== 'all' && !hasDailyData(weekNum)) {
+                return [];
+            }
+            return getWeekAggregateRows(weekNum);
+        }
+
         function getCurrentPlayers() {
-            return weeklyData[currentWeek] || [];
+            return getWeekDisplayRows(currentWeek);
         }
 
         function getCurrentDuelRows() {
@@ -3381,12 +3620,12 @@ body {
         }
 
         function buildDuelCumulativeRows() {
-            const weeks = Object.keys(weeklyData).map(Number).sort((a, b) => a - b);
+            const weeks = getDuelWeeksList();
             if (!weeks.length) return [];
 
             const map = {};
             weeks.forEach(week => {
-                const rows = weeklyData[week] || [];
+                const rows = getWeekAggregateRows(week);
                 rows.forEach(row => {
                     const key = row['Player Name'];
                     if (!map[key]) {
@@ -3828,15 +4067,15 @@ body {
         }
 
         function calculateMovement(playerName) {
-            const weeks = Object.keys(weeklyData).sort((a, b) => a - b);
+            const weeks = getDuelWeeksList();
             if (weeks.length < 2 || currentWeek == 1) return { change: 0, type: 'same' };
             
-            const currentIndex = weeks.indexOf(currentWeek.toString());
-            if (currentIndex === 0) return { change: 0, type: 'same' };
+            const currentIndex = weeks.indexOf(Number(currentWeek));
+            if (currentIndex <= 0) return { change: 0, type: 'same' };
             
             const prevWeek = weeks[currentIndex - 1];
-            const currentData = weeklyData[currentWeek].find(p => p['Player Name'] === playerName);
-            const prevData = weeklyData[prevWeek].find(p => p['Player Name'] === playerName);
+            const currentData = getWeekAggregateRows(currentWeek).find(p => p['Player Name'] === playerName);
+            const prevData = getWeekAggregateRows(prevWeek).find(p => p['Player Name'] === playerName);
             
             if (!currentData || !prevData) return { change: 0, type: 'same' };
             
@@ -3883,7 +4122,7 @@ body {
         }
 
         function renderMovementHighlights() {
-            const weeks = Object.keys(weeklyData).sort((a, b) => a - b);
+            const weeks = getDuelWeeksList();
             if (weeks.length < 2 || currentWeek == 1) {
                 document.getElementById('movementSection').style.display = 'none';
                 return;
@@ -3891,10 +4130,18 @@ body {
             
             document.getElementById('movementSection').style.display = 'block';
             
-            const currentIndex = weeks.indexOf(currentWeek.toString());
+            const currentIndex = weeks.indexOf(Number(currentWeek));
+            if (currentIndex <= 0) {
+                document.getElementById('movementSection').style.display = 'none';
+                return;
+            }
             const prevWeek = weeks[currentIndex - 1];
-            const currentData = weeklyData[currentWeek];
-            const prevData = weeklyData[prevWeek];
+            const currentData = getWeekAggregateRows(currentWeek);
+            const prevData = getWeekAggregateRows(prevWeek);
+            if (!currentData.length || !prevData.length) {
+                document.getElementById('movementSection').style.display = 'none';
+                return;
+            }
             
             // Calculate movements
             const movements = currentData.map(p => {
@@ -4095,8 +4342,10 @@ body {
             const tbody = document.getElementById('tableBody');
             const thead = document.getElementById('duelTableHead');
             const isAdmin = auth.currentUser !== null;
-            const weeks = Object.keys(weeklyData).map(Number).sort((a, b) => a - b);
+            const weeks = getDuelWeeksList();
             const isCumulative = currentDuelView === 'all' && weeks.length > 0;
+            const showMissingDays = currentDuelView === 'week' && currentDuelDay === 'all' && hasDailyData(currentWeek);
+            const canEdit = isAdmin && currentDuelView === 'week' && (!hasDailyData(currentWeek) || currentDuelDay !== 'all');
 
             if (thead) {
                 if (isCumulative) {
@@ -4118,6 +4367,7 @@ body {
                             <th>${t('table.movement')}</th>
                             <th>${t('table.playerName')}</th>
                             <th>${t('table.points')}</th>
+                            ${showMissingDays ? `<th>${t('table.missingDays')}</th>` : ''}
                             <th>${t('table.achievements')}</th>
                             <th>${t('table.division')}</th>
                             <th>${t('table.actions')}</th>
@@ -4141,7 +4391,7 @@ body {
                 const division = getDivision(player.Points);
                 
                 // Admin buttons (only show if signed in + weekly view)
-                const adminButtons = isAdmin && !isCumulative ? `
+                const adminButtons = canEdit && !isCumulative ? `
                     <button class="view-profile-btn" onclick="editPlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(153, 204, 51, 0.4); border-color: #99cc33;">${t('buttons.edit')}</button>
                     <button class="view-profile-btn" onclick="deletePlayer('${player['Player Name'].replace(/'/g, "\\'")}', ${player.Rank})" style="background: rgba(204, 51, 0, 0.4); border-color: #cc3300;">${t('buttons.delete')}</button>
                 ` : '';
@@ -4166,12 +4416,18 @@ body {
                     `;
                 }
 
+                const missingDays = showMissingDays ? (player.MissingDays || []) : [];
+                const missingLabel = showMissingDays
+                    ? (missingDays.length ? missingDays.map(day => getDayLabel(day)).join(', ') : t('table.none'))
+                    : '';
+
                 return `
                     <tr>
                         <td><span class="rank-badge ${rankClass}">#${player.Rank}</span></td>
                         <td><span class="rank-movement ${movement.type}">${movementText}</span></td>
                         <td>${player['Player Name']}</td>
                         <td>${player.Points.toLocaleString()}</td>
+                        ${showMissingDays ? `<td>${missingLabel}</td>` : ''}
                         <td>${achievements.map(a => `<span class="achievement-badge">${a}</span>`).join('')}</td>
                         <td>${division}</td>
                         <td>${actionCell}</td>
@@ -4181,13 +4437,22 @@ body {
         }
 
         function updateWeekButtons() {
-            const weeks = Object.keys(weeklyData).sort((a, b) => a - b);
+            const dataWeeks = getDuelWeeksList();
+            const dataMax = dataWeeks.length ? Math.max(...dataWeeks) : 0;
+            const totalWeeks = Math.max(duelTotalWeeks, dataMax);
+            const weeks = totalWeeks
+                ? Array.from({ length: totalWeeks }, (_, i) => i + 1)
+                : dataWeeks;
             const weekSelector = document.getElementById('weekSelector');
             if (!weekSelector) return;
-
+            
             if (!weeks.length) {
                 weekSelector.innerHTML = '';
                 return;
+            }
+
+            if (!weeks.includes(Number(currentWeek))) {
+                currentWeek = weeks[weeks.length - 1];
             }
 
             const allActive = currentDuelView === 'all';
@@ -4197,6 +4462,85 @@ body {
                     `<button class="week-btn ${!allActive && week == currentWeek ? 'active' : ''}" onclick="selectWeek(${week})">${t('week')} ${week}</button>`
                 ).join('')}
             `;
+        }
+
+        async function createNewDuelWeek() {
+            if (!auth.currentUser) {
+                alert(t('messages.signInRequired'));
+                return;
+            }
+
+            const dataWeeks = getDuelWeeksList();
+            const dataMax = dataWeeks.length ? Math.max(...dataWeeks) : 0;
+            const nextWeek = Math.max(duelTotalWeeks, dataMax, Number(currentWeek) || 0) + 1;
+
+            try {
+                const metaSnapshot = await database.ref('metadata').once('value');
+                const currentMeta = metaSnapshot.val() || {};
+
+                await database.ref('metadata').set({
+                    totalWeeks: Math.max(currentMeta.totalWeeks || 0, nextWeek),
+                    latestWeek: nextWeek,
+                    lastUpdated: new Date().toISOString(),
+                    uploadedBy: auth.currentUser.email
+                });
+
+                duelTotalWeeks = Math.max(duelTotalWeeks, nextWeek);
+                currentWeek = nextWeek;
+                currentDuelView = 'week';
+                updateWeekButtons();
+                updateDashboard();
+
+                alert(t('messages.newWeekCreated', { week: nextWeek }));
+            } catch (error) {
+                console.error('Error creating new week:', error);
+                alert(t('messages.uploadError', { error: error.message }));
+            }
+        }
+
+        function updateDuelDaySelectorState() {
+            const selector = document.getElementById('duelDaySelector');
+            if (!selector) return;
+            if (currentDuelView === 'all') {
+                selector.value = 'all';
+                selector.disabled = true;
+                return;
+            }
+            selector.disabled = false;
+            selector.value = currentDuelDay;
+        }
+
+        function updateDuelUploadLabel() {
+            const label = document.getElementById('uploadBtn');
+            if (!label) return;
+            const textNode = Array.from(label.childNodes).find(node => node.nodeType === 3);
+            if (!textNode) return;
+            const modeSelect = document.getElementById('duelUploadMode');
+            if (modeSelect && modeSelect.value !== duelUploadMode) {
+                modeSelect.value = duelUploadMode;
+            }
+
+            let labelText = t('buttons.uploadWeek');
+            if (duelUploadMode === 'day') {
+                labelText = currentDuelDay === 'all'
+                    ? t('buttons.uploadDayGeneric')
+                    : t('buttons.uploadDay', { day: getDayLabel(currentDuelDay) });
+            }
+            textNode.textContent = labelText;
+        }
+
+        function canEditDuelRows() {
+            if (!auth.currentUser) return false;
+            if (currentDuelView !== 'week') return false;
+            if (hasDailyData(currentWeek) && currentDuelDay === 'all') return false;
+            return true;
+        }
+
+        function updateDuelAdminVisibility() {
+            const addPlayerBtn = document.getElementById('addPlayerBtn');
+            if (addPlayerBtn) {
+                addPlayerBtn.style.display = canEditDuelRows() ? 'inline-block' : 'none';
+            }
         }
 
         function updateDashboard() {
@@ -4211,6 +4555,9 @@ body {
             if (minPointsInput) minPointsInput.value = '';
             const divisionFilter = document.getElementById('duelDivisionFilter');
             if (divisionFilter) divisionFilter.value = '';
+            updateDuelDaySelectorState();
+            updateDuelUploadLabel();
+            updateDuelAdminVisibility();
         }
 
         // === DONATION LEADERBOARD ===
@@ -4726,9 +5073,13 @@ body {
 
             try {
                 await database.ref('weeks').remove();
+                await database.ref('weeksDaily').remove();
                 await database.ref('metadata').remove();
                 weeklyData = {};
+                weeklyDailyData = {};
+                duelTotalWeeks = 0;
                 currentWeek = 1;
+                currentDuelDay = 'all';
                 updateWeekButtons();
                 updateDashboard();
 
@@ -4804,21 +5155,30 @@ body {
         function selectWeek(week) {
             currentWeek = week;
             currentDuelView = 'week';
+            if (!hasDailyData(currentWeek) && currentDuelDay !== 'all') {
+                currentDuelDay = 'all';
+            }
             updateWeekButtons();
             updateDashboard();
         }
 
         function selectDuelView(view) {
             currentDuelView = view;
+            if (currentDuelView === 'all') {
+                currentDuelDay = 'all';
+            }
+            updateDuelDaySelectorState();
+            updateDuelUploadLabel();
             updateWeekButtons();
             renderKPIs();
             renderCharts();
             renderDivisions();
             renderTable();
+            updateDuelAdminVisibility();
         }
 
         function openPlayerProfile(playerName) {
-            const weeks = Object.keys(weeklyData).sort((a, b) => a - b);
+            const weeks = getDuelWeeksList();
             const playerData = getCurrentPlayers().find(p => p['Player Name'] === playerName);
             
             if (!playerData) return;
@@ -4833,7 +5193,7 @@ body {
             
             // Player history chart
             const historyData = weeks.map(week => {
-                const data = weeklyData[week].find(p => p['Player Name'] === playerName);
+                const data = getWeekAggregateRows(week).find(p => p['Player Name'] === playerName);
                 return data ? data.Points : 0;
             });
             
@@ -4909,22 +5269,43 @@ body {
                         return;
                     }
                     
-                    const existingWeeks = Object.keys(weeklyData).map(Number);
-                    const nextWeek = existingWeeks.length > 0 ? Math.max(...existingWeeks) + 1 : 1;
-                    
-                    console.log(`Uploading Week ${nextWeek} with ${newPlayers.length} players...`);
-                    console.log('Existing weeks:', existingWeeks);
-                    
-                    // Save to Firebase
-                    await saveWeekToFirebase(nextWeek, csvContent);
-                    
-                    // Update UI
-                    currentWeek = nextWeek;
-                    currentDuelView = 'week';
-                    updateWeekButtons();
-                    updateDashboard();
-                    
-                    alert(t('messages.uploadSuccessDetail', { week: nextWeek, count: newPlayers.length }));
+                    const existingWeeks = getDuelWeeksList();
+                    const latestWeek = Math.max(duelTotalWeeks, existingWeeks.length > 0 ? Math.max(...existingWeeks) : 0);
+
+                    if (duelUploadMode === 'day') {
+                        if (currentDuelDay === 'all') {
+                            alert(t('messages.dayRequired'));
+                            e.target.value = '';
+                            return;
+                        }
+
+                        const targetWeek = Number(currentWeek) || (latestWeek || 1);
+                        console.log(`Uploading ${currentDuelDay} for Week ${targetWeek} with ${newPlayers.length} players...`);
+
+                        await saveWeekDayToFirebase(targetWeek, currentDuelDay, csvContent);
+
+                        currentWeek = targetWeek;
+                        currentDuelView = 'week';
+                        updateWeekButtons();
+                        updateDashboard();
+
+                        alert(t('messages.uploadDaySuccess', { week: targetWeek, day: getDayLabel(currentDuelDay), count: newPlayers.length }));
+                    } else {
+                        const nextWeek = latestWeek > 0 ? latestWeek + 1 : 1;
+                        console.log(`Uploading Week ${nextWeek} with ${newPlayers.length} players...`);
+                        console.log('Existing weeks:', existingWeeks);
+
+                        // Save to Firebase
+                        await saveWeekToFirebase(nextWeek, csvContent);
+
+                        // Update UI
+                        currentWeek = nextWeek;
+                        currentDuelView = 'week';
+                        updateWeekButtons();
+                        updateDashboard();
+
+                        alert(t('messages.uploadSuccessDetail', { week: nextWeek, count: newPlayers.length }));
+                    }
                     
                 } catch (error) {
                     console.error('Upload error:', error);
@@ -4969,7 +5350,7 @@ body {
 
         document.getElementById('exportCsvBtn').addEventListener('click', () => {
             const players = getCurrentDuelRows();
-            const weeks = Object.keys(weeklyData).map(Number).sort((a, b) => a - b);
+            const weeks = getDuelWeeksList();
             const isCumulative = currentDuelView === 'all' && weeks.length > 0;
             let csv = '';
             if (isCumulative) {
@@ -4985,7 +5366,8 @@ body {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = isCumulative ? 'pwr_alliance_all_weeks.csv' : `pwr_alliance_week${currentWeek}.csv`;
+            const daySuffix = currentDuelDay !== 'all' ? `_${currentDuelDay}` : '';
+            a.download = isCumulative ? 'pwr_alliance_all_weeks.csv' : `pwr_alliance_week${currentWeek}${daySuffix}.csv`;
             a.click();
         });
 
@@ -5049,6 +5431,36 @@ body {
         // ============================================
         // === EDIT/DELETE/ADD PLAYER FUNCTIONS ===
         // ============================================
+
+        function getEditableDuelContext() {
+            const hasDays = hasDailyData(currentWeek);
+            if (currentDuelView !== 'week') {
+                return { editable: false, reason: 'allWeeks' };
+            }
+            if (hasDays && currentDuelDay === 'all') {
+                return { editable: false, reason: 'allDays' };
+            }
+            if (hasDays && currentDuelDay !== 'all') {
+                return { editable: true, mode: 'day', day: currentDuelDay };
+            }
+            return { editable: true, mode: 'week' };
+        }
+
+        async function saveDuelRows(context, players) {
+            const csvContent = 'Rank,Player Name,Points\n' +
+                players.map(p => `${p.Rank},"${p['Player Name']}","${p.Points}"`).join('\n');
+
+            if (context.mode === 'day') {
+                await saveWeekDayToFirebase(currentWeek, context.day, csvContent);
+                if (!weeklyDailyData[currentWeek]) {
+                    weeklyDailyData[currentWeek] = {};
+                }
+                weeklyDailyData[currentWeek][context.day] = players;
+            } else {
+                await saveWeekToFirebase(currentWeek, csvContent);
+                weeklyData[currentWeek] = players;
+            }
+        }
         
         // Edit Player
         function editPlayer(playerName, rank) {
@@ -5056,8 +5468,15 @@ body {
                 alert(t('messages.signInEdit'));
                 return;
             }
+            const context = getEditableDuelContext();
+            if (!context.editable) {
+                alert(t('messages.dayViewRequired'));
+                return;
+            }
             
-            const players = getCurrentPlayers();
+            const players = context.mode === 'day'
+                ? getWeekDayRows(currentWeek, context.day)
+                : (weeklyData[currentWeek] || []);
             const player = players.find(p => p['Player Name'] === playerName && p.Rank === rank);
             
             if (!player) {
@@ -5082,6 +5501,11 @@ body {
             const statusDiv = document.getElementById('editPlayerStatus');
             
             try {
+                const context = getEditableDuelContext();
+                if (!context.editable) {
+                    statusDiv.textContent = t('messages.dayViewRequired');
+                    return;
+                }
                 const originalName = document.getElementById('editPlayerOriginalName').value;
                 const originalRank = parseInt(document.getElementById('editPlayerOriginalRank').value);
                 const newName = document.getElementById('editPlayerName').value.trim();
@@ -5100,8 +5524,10 @@ body {
                 
                 statusDiv.textContent = t('messages.saving');
                 
-                // Get current week data
-                const players = getCurrentPlayers();
+                // Get editable data
+                const players = context.mode === 'day'
+                    ? getWeekDayRows(currentWeek, context.day)
+                    : (weeklyData[currentWeek] || []);
                 
                 // Find and update the player
                 const playerIndex = players.findIndex(p => 
@@ -5121,16 +5547,9 @@ body {
                 
                 // Sort by rank
                 players.sort((a, b) => a.Rank - b.Rank);
-                
-                // Convert to CSV format
-                const csvContent = 'Rank,Player Name,Points\n' + 
-                    players.map(p => `${p.Rank},"${p['Player Name']}","${p.Points}"`).join('\n');
-                
-                // Save to Firebase (this will overwrite the week)
-                await saveWeekToFirebase(currentWeek, csvContent);
-                
-                // Update local data
-                weeklyData[currentWeek] = players;
+
+                // Save to Firebase
+                await saveDuelRows(context, players);
                 
                 // Refresh UI
                 updateDashboard();
@@ -5153,14 +5572,21 @@ body {
                 alert(t('messages.signInDeletePlayer'));
                 return;
             }
+            const context = getEditableDuelContext();
+            if (!context.editable) {
+                alert(t('messages.dayViewRequired'));
+                return;
+            }
             
             if (!confirm(t('messages.deletePlayerConfirm', { name: playerName, rank, week: currentWeek }))) {
                 return;
             }
             
             try {
-                // Get current week data
-                const players = getCurrentPlayers();
+                // Get editable data
+                const players = context.mode === 'day'
+                    ? getWeekDayRows(currentWeek, context.day)
+                    : (weeklyData[currentWeek] || []);
                 
                 // Remove the player
                 const filteredPlayers = players.filter(p => 
@@ -5176,16 +5602,9 @@ body {
                 filteredPlayers.forEach((p, index) => {
                     p.Rank = index + 1;
                 });
-                
-                // Convert to CSV format
-                const csvContent = 'Rank,Player Name,Points\n' + 
-                    filteredPlayers.map(p => `${p.Rank},"${p['Player Name']}","${p.Points}"`).join('\n');
-                
+
                 // Save to Firebase
-                await saveWeekToFirebase(currentWeek, csvContent);
-                
-                // Update local data
-                weeklyData[currentWeek] = filteredPlayers;
+                await saveDuelRows(context, filteredPlayers);
                 
                 // Refresh UI
                 updateDashboard();
@@ -5204,6 +5623,11 @@ body {
                 alert(t('messages.signInAddPlayer'));
                 return;
             }
+            const context = getEditableDuelContext();
+            if (!context.editable) {
+                alert(t('messages.dayViewRequired'));
+                return;
+            }
             
             document.getElementById('addPlayerName').value = '';
             document.getElementById('addPlayerRank').value = '';
@@ -5218,6 +5642,11 @@ body {
             const statusDiv = document.getElementById('addPlayerStatus');
             
             try {
+                const context = getEditableDuelContext();
+                if (!context.editable) {
+                    statusDiv.textContent = t('messages.dayViewRequired');
+                    return;
+                }
                 const newName = document.getElementById('addPlayerName').value.trim();
                 const newRank = parseInt(document.getElementById('addPlayerRank').value);
                 const newPoints = parseInt(document.getElementById('addPlayerPoints').value.replace(/,/g, ''));
@@ -5234,8 +5663,10 @@ body {
                 
                 statusDiv.textContent = t('messages.adding');
                 
-                // Get current week data
-                const players = getCurrentPlayers();
+                // Get editable data
+                const players = context.mode === 'day'
+                    ? getWeekDayRows(currentWeek, context.day)
+                    : (weeklyData[currentWeek] || []);
                 
                 // Add new player
                 players.push({
@@ -5251,16 +5682,9 @@ body {
                 players.forEach((p, index) => {
                     p.Rank = index + 1;
                 });
-                
-                // Convert to CSV format
-                const csvContent = 'Rank,Player Name,Points\n' + 
-                    players.map(p => `${p.Rank},"${p['Player Name']}","${p.Points}"`).join('\n');
-                
+
                 // Save to Firebase
-                await saveWeekToFirebase(currentWeek, csvContent);
-                
-                // Update local data
-                weeklyData[currentWeek] = players;
+                await saveDuelRows(context, players);
                 
                 // Refresh UI
                 updateDashboard();
@@ -5284,7 +5708,8 @@ body {
                 return;
             }
             
-            if (Object.keys(weeklyData).length === 1) {
+            const availableWeeks = getDuelWeeksList();
+            if (availableWeeks.length === 1) {
                 alert(t('messages.cannotDeleteOnlyWeek'));
                 return;
             }
@@ -5292,7 +5717,7 @@ body {
             const confirmText = prompt(
                 t('messages.deleteWeekConfirm', {
                     week: currentWeek,
-                    count: getCurrentPlayers().length
+                    count: getWeekAggregateRows(currentWeek).length
                 })
             );
             
@@ -5304,23 +5729,30 @@ body {
             try {
                 // Delete from Firebase
                 await database.ref(`weeks/${currentWeek}`).remove();
+                await database.ref(`weeksDaily/${currentWeek}`).remove();
                 
                 // Update metadata
                 delete weeklyData[currentWeek];
-                const weeks = Object.keys(weeklyData).map(Number);
-                const newTotalWeeks = Math.max(...weeks);
-                const newLatestWeek = newTotalWeeks;
+                delete weeklyDailyData[currentWeek];
+                const weeks = getDuelWeeksList();
+                const newTotalWeeks = weeks.length;
+                const newLatestWeek = weeks.length ? Math.max(...weeks) : 1;
                 
                 await database.ref('metadata').set({
-                    totalWeeks: weeks.length,
+                    totalWeeks: newTotalWeeks,
                     latestWeek: newLatestWeek,
                     lastUpdated: new Date().toISOString(),
                     uploadedBy: auth.currentUser.email
                 });
+
+                duelTotalWeeks = newTotalWeeks;
                 
                 // Switch to another week
                 currentWeek = newLatestWeek;
                 currentDuelView = 'week';
+                if (!hasDailyData(currentWeek)) {
+                    currentDuelDay = 'all';
+                }
                 
                 // Refresh UI
                 updateWeekButtons();
@@ -5347,6 +5779,7 @@ body {
                 
                 // Clear local data
                 weeklyData = {};
+                weeklyDailyData = {};
                 
                 // Reload from Firebase
                 const totalWeeks = await loadAllWeeksFromFirebase();
@@ -5354,6 +5787,9 @@ body {
                 if (totalWeeks > 0) {
                     currentWeek = totalWeeks;
                     currentDuelView = 'week';
+                    if (!hasDailyData(currentWeek)) {
+                        currentDuelDay = 'all';
+                    }
                 }
                 
                 // Refresh UI
@@ -5759,6 +6195,19 @@ body {
         document.getElementById('donationRefreshBtn')?.addEventListener('click', refreshDonationDataFromFirebase);
         document.getElementById('donationDeleteWeekBtn')?.addEventListener('click', deleteDonationWeek);
         document.getElementById('donationAddCommanderBtn')?.addEventListener('click', showAddDonationModal);
+        document.getElementById('newWeekBtn')?.addEventListener('click', createNewDuelWeek);
+        document.getElementById('duelUploadMode')?.addEventListener('change', (e) => {
+            duelUploadMode = e.target.value;
+            updateDuelUploadLabel();
+        });
+        document.getElementById('duelDaySelector')?.addEventListener('change', (e) => {
+            currentDuelDay = e.target.value;
+            if (currentDuelView === 'all') {
+                currentDuelView = 'week';
+            }
+            updateWeekButtons();
+            updateDashboard();
+        });
 
         // Tabs
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -5950,6 +6399,9 @@ body {
                 // Set current week to latest available
                 currentWeek = totalWeeks;
                 currentDuelView = 'week';
+                if (!hasDailyData(currentWeek)) {
+                    currentDuelDay = 'all';
+                }
                 
                 // Update UI
                 updateWeekButtons();
@@ -5976,6 +6428,8 @@ body {
             const donationDeleteWeekBtn = document.getElementById('donationDeleteWeekBtn');
             const donationAddCommanderBtn = document.getElementById('donationAddCommanderBtn');
             const addGuideBtn = document.getElementById('addGuideBtn');
+            const duelUploadModeSelect = document.getElementById('duelUploadMode');
+            const newWeekBtn = document.getElementById('newWeekBtn');
             
             console.log('🔄 Updating Auth UI, user:', user ? user.email : 'None');
             
@@ -5988,22 +6442,24 @@ body {
                 }
                 if (uploadLabel) {
                     uploadLabel.style.display = 'inline-block';
-                    // Update only the text node, not the entire content (preserves the input element)
-                    const textNode = Array.from(uploadLabel.childNodes).find(node => node.nodeType === 3);
-                    if (textNode) {
-                        textNode.textContent = t('buttons.upload');
-                    }
+                    updateDuelUploadLabel();
                     uploadLabel.style.background = 'linear-gradient(135deg, #1f8a83, #176a64)';
                     uploadLabel.style.boxShadow = '0 0 18px rgba(31, 138, 131, 0.35)';
                     uploadLabel.title = t('messages.uploadHint', { email: user.email });
                     console.log('✅ Upload button shown');
+                }
+                if (duelUploadModeSelect) {
+                    duelUploadModeSelect.style.display = 'inline-block';
+                }
+                if (newWeekBtn) {
+                    newWeekBtn.style.display = 'inline-block';
+                    newWeekBtn.textContent = t('buttons.newWeek');
                 }
                 if (deleteWeekBtn) {
                     deleteWeekBtn.style.display = 'inline-block';
                     deleteWeekBtn.textContent = t('buttons.deleteWeek');
                 }
                 if (addPlayerBtn) {
-                    addPlayerBtn.style.display = 'inline-block';
                     addPlayerBtn.textContent = t('buttons.addPlayer');
                 }
                 const resetDuelBtn = document.getElementById('resetDuelBtn');
@@ -6039,6 +6495,12 @@ body {
                 if (uploadLabel) {
                     uploadLabel.style.display = 'none';
                 }
+                if (duelUploadModeSelect) {
+                    duelUploadModeSelect.style.display = 'none';
+                }
+                if (newWeekBtn) {
+                    newWeekBtn.style.display = 'none';
+                }
                 if (deleteWeekBtn) {
                     deleteWeekBtn.style.display = 'none';
                 }
@@ -6066,6 +6528,7 @@ body {
                     refreshDataBtn.textContent = t('buttons.refresh');
                 }
             }
+            updateDuelAdminVisibility();
         }
         
         // Auth state observer
