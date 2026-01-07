@@ -746,15 +746,29 @@ body {
     max-height: 70vh;
     overflow: auto;
 }
+.guide-preview-body {
+    text-align: center;
+    overflow: auto;
+    max-height: 75vh;
+    padding: 8px;
+}
 .guide-preview {
-    cursor: zoom-in;
-    transition: transform 0.2s ease;
-    transform-origin: center;
+    cursor: default;
+    transition: none;
+    transform: none;
+    max-width: 100%;
+    max-height: 70vh;
+    width: auto;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    display: inline-block;
 }
 .guide-preview.zoomed {
-    cursor: zoom-out;
-    transform: scale(1.6);
-    transform-origin: top center;
+    cursor: default;
+    transform: none;
+    max-width: 100%;
+    max-height: 70vh;
 }
 
 .profile-stats {
@@ -1932,11 +1946,11 @@ body {
         <div id="guidePreviewModal" class="modal">
             <div class="modal-content" style="max-width: 960px;">
                 <div class="modal-header">
-                    <h2 data-i18n="guides.previewTitle">🖼️ Guide Preview</h2>
+                    <h2 id="guidePreviewTitle">🖼️ Guide Preview</h2>
                     <span class="modal-close" id="closeGuidePreview">&times;</span>
                 </div>
-                <div class="modal-body scrollable" style="text-align: center;">
-                    <img id="guidePreviewImage" class="guide-preview" src="" alt="Guide preview" style="max-width: 100%; max-height: 70vh; width: auto; height: auto; border-radius: 12px; border: 1px solid var(--border);">
+                <div class="modal-body scrollable guide-preview-body">
+                    <img id="guidePreviewImage" class="guide-preview" src="" alt="Guide preview">
                     <p id="guidePreviewDescription" style="margin-top: 16px; color: var(--text-muted);"></p>
                 </div>
             </div>
@@ -2176,6 +2190,7 @@ body {
                     uploadDay: "📤 Upload {day} Data",
                     uploadDonation: "📤 Upload Donation CSV",
                     newWeek: "➕ New Week",
+                    downloadGuide: "⬇️ Download Guide",
                     signIn: "🔐 Sign In",
                     signOut: "🔓 Sign Out",
                     refresh: "🔄 Refresh Data",
@@ -2560,6 +2575,7 @@ body {
                     uploadDay: "📤 رفع بيانات {day}",
                     uploadDonation: "📤 رفع تبرعات الأسبوع",
                     newWeek: "➕ أسبوع جديد",
+                    downloadGuide: "⬇️ تحميل الدليل",
                     signIn: "🔐 تسجيل الدخول",
                     signOut: "🔓 تسجيل الخروج",
                     refresh: "🔄 تحديث البيانات",
@@ -3849,7 +3865,10 @@ body {
                             return t('guides.filters.languageOther');
                         }).map(label => `<span class="guide-badge">${label}</span>`).join('')}
                     </div>
-                    ${isAdmin ? `<div style="margin-top: 8px;"><span class="view-profile-btn" data-edit="${entry.id}">${t('buttons.edit')}</span> <span class="view-profile-btn" data-delete="${entry.id}">${t('buttons.delete')}</span></div>` : ''}
+                    <div style="margin-top: 8px;">
+                        <a class="view-profile-btn" href="${entry.imageUrl}" download data-download="${entry.id}">${t('buttons.downloadGuide')}</a>
+                        ${isAdmin ? ` <span class="view-profile-btn" data-edit="${entry.id}">${t('buttons.edit')}</span> <span class="view-profile-btn" data-delete="${entry.id}">${t('buttons.delete')}</span>` : ''}
+                    </div>
                 </button>
             `).join('');
 
@@ -3859,10 +3878,14 @@ body {
                     const title = card.getAttribute('data-title');
                     const description = card.getAttribute('data-description');
                     const preview = document.getElementById('guidePreviewImage');
+                    const titleEl = document.getElementById('guidePreviewTitle');
                     const descEl = document.getElementById('guidePreviewDescription');
                     if (preview && fullSrc) {
                         preview.src = fullSrc;
                         preview.alt = title || 'Guide preview';
+                        if (titleEl) {
+                            titleEl.textContent = title || t('guides.previewTitle');
+                        }
                         if (descEl) {
                             descEl.textContent = description || '';
                         }
@@ -3876,6 +3899,12 @@ body {
                     e.stopPropagation();
                     const id = btn.getAttribute('data-edit');
                     openEditGuide(id);
+                });
+            });
+
+            grid.querySelectorAll('[data-download]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                 });
             });
 
@@ -6494,9 +6523,6 @@ body {
             if (sort) sort.value = 'custom';
             renderGuideTags();
             renderGuides();
-        });
-        document.getElementById('guidePreviewImage')?.addEventListener('click', () => {
-            document.getElementById('guidePreviewImage')?.classList.toggle('zoomed');
         });
 
         // Donation upload
