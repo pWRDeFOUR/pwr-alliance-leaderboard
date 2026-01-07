@@ -746,6 +746,30 @@ body {
     max-height: 70vh;
     overflow: auto;
 }
+.merge-preview-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+}
+.merge-preview-item {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(20, 18, 15, 0.7);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+.merge-preview-name {
+    font-weight: 600;
+    color: var(--text);
+}
+.merge-preview-arrow {
+    color: var(--text-muted);
+    font-weight: 700;
+}
 .guide-preview-body {
     text-align: center;
     overflow: auto;
@@ -1092,6 +1116,7 @@ body {
     flex-direction: column;
     align-items: stretch;
     gap: 0;
+    height: 100%;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .guide-card.pinned {
@@ -1212,6 +1237,21 @@ body {
     gap: 6px;
     margin-top: 8px;
     padding: 0 2px 2px;
+}
+.guide-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px 1px;
+    margin-top: 6px;
+}
+.guide-card-title {
+    min-height: 32px;
+}
+.guide-badges {
+    min-height: 28px;
 }
 .guide-badge {
     padding: 4px 8px;
@@ -1541,6 +1581,7 @@ body {
                     <option value="master" data-i18n="divisions.masterShort">Master</option>
                     <option value="warrior" data-i18n="divisions.warriorShort">Warrior</option>
                 </select>
+                <button class="action-btn" id="mergePreviewBtn" data-i18n="buttons.mergePreview" style="display: none;">🔎 Merges</button>
                 <button class="action-btn" id="exportFilteredPdfBtn" data-i18n="buttons.exportReportPdf">📄 PDF</button>
             </div>
             <div class="table-wrapper">
@@ -1695,6 +1736,23 @@ body {
                     </button>
 
                     <div id="donationAddStatus" style="text-align: center; color: #ffaa33; margin-top: 10px; font-weight: 600;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Merge Preview Modal -->
+        <div id="mergePreviewModal" class="modal">
+            <div class="modal-content" style="max-width: 720px;">
+                <div class="modal-header">
+                    <h2 data-i18n="modals.mergePreviewTitle">🔎 Possible Merges</h2>
+                    <span class="modal-close" id="closeMergePreviewModal">&times;</span>
+                </div>
+                <div class="modal-body scrollable">
+                    <div class="kpi-subtext" id="mergePreviewHint"></div>
+                    <div class="merge-preview-list" id="mergePreviewList"></div>
+                    <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+                        <button class="upload-btn" id="mergePreviewApplyBtn" data-i18n="buttons.mergeApply" style="display: none;">✅ Apply</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2190,6 +2248,8 @@ body {
                     uploadDay: "📤 Upload {day} Data",
                     uploadDonation: "📤 Upload Donation CSV",
                     newWeek: "➕ New Week",
+                    mergePreview: "🔎 Merges",
+                    mergeApply: "✅ Apply",
                     downloadGuide: "⬇️ Download Guide",
                     signIn: "🔐 Sign In",
                     signOut: "🔓 Sign Out",
@@ -2339,6 +2399,11 @@ body {
                 modals: {
                     editPlayer: "✏️ EDIT PLAYER",
                     addPlayer: "➕ ADD NEW PLAYER",
+                    mergePreviewTitle: "🔎 Possible Merges",
+                    mergePreviewEmpty: "No matches found between the latest week and the previous week.",
+                    mergePreviewHint: "Comparing Week {prev} → Week {latest}",
+                    mergeApplySuccess: "✅ Merges applied to Week {week}",
+                    mergeApplyError: "❌ Merge apply failed: {error}",
                     playerProfile: "Player Profile",
                     currentRank: "Current Rank",
                     totalPoints: "Total Points",
@@ -2575,6 +2640,8 @@ body {
                     uploadDay: "📤 رفع بيانات {day}",
                     uploadDonation: "📤 رفع تبرعات الأسبوع",
                     newWeek: "➕ أسبوع جديد",
+                    mergePreview: "🔎 التطابقات",
+                    mergeApply: "✅ تطبيق",
                     downloadGuide: "⬇️ تحميل الدليل",
                     signIn: "🔐 تسجيل الدخول",
                     signOut: "🔓 تسجيل الخروج",
@@ -2724,6 +2791,11 @@ body {
                 modals: {
                     editPlayer: "✏️ تعديل اللاعب",
                     addPlayer: "➕ إضافة لاعب جديد",
+                    mergePreviewTitle: "🔎 تطابقات محتملة",
+                    mergePreviewEmpty: "لا توجد تطابقات بين أحدث أسبوع والأسبوع السابق.",
+                    mergePreviewHint: "مقارنة الأسبوع {prev} ← الأسبوع {latest}",
+                    mergeApplySuccess: "✅ تم تطبيق التطابقات على الأسبوع {week}",
+                    mergeApplyError: "❌ فشل تطبيق التطابقات: {error}",
                     playerProfile: "ملف اللاعب",
                     currentRank: "الترتيب الحالي",
                     totalPoints: "إجمالي النقاط",
@@ -3635,7 +3707,7 @@ body {
                 rows.forEach(row => {
                     const name = row['Player Name'];
                     if (!name) return;
-                    const key = name.toLowerCase();
+                    const key = normalizePlayerName(name);
                     if (!playerMap[key]) {
                         playerMap[key] = {
                             'Player Name': name,
@@ -3696,7 +3768,7 @@ body {
             const set = new Set();
             rows.forEach(row => {
                 if (row['Player Name']) {
-                    set.add(row['Player Name'].toLowerCase());
+                    set.add(normalizePlayerName(row['Player Name']));
                 }
             });
             return set;
@@ -3705,7 +3777,197 @@ body {
         function isPlayerInWeek(playerName, weekNum) {
             if (!weekNum) return false;
             const set = getWeekPlayersSet(weekNum);
-            return set.has(playerName.toLowerCase());
+            return set.has(normalizePlayerName(playerName));
+        }
+
+        function normalizePlayerName(name) {
+            return String(name || '')
+                .trim()
+                .replace(/\s+/g, '')
+                .toLowerCase();
+        }
+
+        function getMergePreviewPairs() {
+            const weeks = getDuelWeeksList();
+            if (weeks.length < 2) return [];
+            const latestWeek = getLatestDuelWeekWithData();
+            const latestIndex = weeks.indexOf(latestWeek);
+            if (latestIndex <= 0) return [];
+            const prevWeek = weeks[latestIndex - 1];
+
+            const prevRows = getWeekAggregateRows(prevWeek);
+            const latestRows = getWeekAggregateRows(latestWeek);
+            const prevMap = new Map();
+
+            prevRows.forEach(row => {
+                const name = row['Player Name'];
+                const key = normalizePlayerName(name);
+                if (!key) return;
+                if (!prevMap.has(key)) {
+                    prevMap.set(key, new Set());
+                }
+                prevMap.get(key).add(name);
+            });
+
+            const pairs = [];
+            latestRows.forEach(row => {
+                const name = row['Player Name'];
+                const key = normalizePlayerName(name);
+                if (!key) return;
+                const prevNames = prevMap.get(key);
+                if (!prevNames) return;
+                prevNames.forEach(prevName => {
+                    if (prevName !== name) {
+                        pairs.push({ prevName, latestName: name, prevWeek, latestWeek });
+                    }
+                });
+            });
+
+            const seen = new Set();
+            return pairs.filter(pair => {
+                const signature = `${pair.prevName}=>${pair.latestName}`;
+                if (seen.has(signature)) return false;
+                seen.add(signature);
+                return true;
+            });
+        }
+
+        function mergeRowsByName(rows, renameMap) {
+            const merged = new Map();
+            rows.forEach(row => {
+                const rawName = row['Player Name'];
+                if (!rawName) return;
+                const normalized = normalizePlayerName(rawName);
+                const targetName = renameMap.get(normalized) || rawName;
+                const targetKey = normalizePlayerName(targetName);
+                const points = Number(row.Points || 0);
+
+                if (!merged.has(targetKey)) {
+                    merged.set(targetKey, {
+                        'Player Name': targetName,
+                        Points: 0
+                    });
+                }
+                const entry = merged.get(targetKey);
+                entry.Points += points;
+            });
+
+            const mergedRows = Array.from(merged.values()).sort((a, b) => b.Points - a.Points);
+            mergedRows.forEach((row, index) => {
+                row.Rank = index + 1;
+            });
+            return mergedRows;
+        }
+
+        function buildRenameMap(pairs) {
+            const map = new Map();
+            pairs.forEach(pair => {
+                const latestKey = normalizePlayerName(pair.latestName);
+                if (!latestKey) return;
+                map.set(latestKey, pair.prevName);
+            });
+            return map;
+        }
+
+        async function applyMergePreviewPairs() {
+            if (!auth.currentUser) {
+                alert(t('messages.signInRequired'));
+                return;
+            }
+            const pairs = getMergePreviewPairs();
+            if (!pairs.length) {
+                alert(t('modals.mergePreviewEmpty'));
+                return;
+            }
+            const latestWeek = pairs[0].latestWeek;
+            const renameMap = buildRenameMap(pairs);
+
+            try {
+                if (hasDailyData(latestWeek)) {
+                    for (const day of duelDayKeys) {
+                        const rows = weeklyDailyData[latestWeek]?.[day] || [];
+                        if (!rows.length) continue;
+                        const mergedRows = mergeRowsByName(rows, renameMap);
+                        if (!mergedRows.length) continue;
+                        if (!weeklyDailyData[latestWeek]) {
+                            weeklyDailyData[latestWeek] = {};
+                        }
+                        weeklyDailyData[latestWeek][day] = mergedRows;
+                        const csvContent = 'Rank,Player Name,Points\n' +
+                            mergedRows.map(p => `${p.Rank},"${p['Player Name']}","${p.Points}"`).join('\n');
+                        await saveWeekDayToFirebase(latestWeek, day, csvContent);
+                    }
+                } else {
+                    const rows = weeklyData[latestWeek] || [];
+                    const mergedRows = mergeRowsByName(rows, renameMap);
+                    weeklyData[latestWeek] = mergedRows;
+                    const csvContent = 'Rank,Player Name,Points\n' +
+                        mergedRows.map(p => `${p.Rank},"${p['Player Name']}","${p.Points}"`).join('\n');
+                    await saveWeekToFirebase(latestWeek, csvContent);
+                }
+
+                updateDashboard();
+                const modal = document.getElementById('mergePreviewModal');
+                if (modal) modal.style.display = 'none';
+                alert(t('modals.mergeApplySuccess', { week: latestWeek }));
+            } catch (error) {
+                console.error('Merge apply error:', error);
+                alert(t('modals.mergeApplyError', { error: error.message }));
+            }
+        }
+
+        function openMergePreviewModal() {
+            const modal = document.getElementById('mergePreviewModal');
+            const list = document.getElementById('mergePreviewList');
+            const hint = document.getElementById('mergePreviewHint');
+            const applyBtn = document.getElementById('mergePreviewApplyBtn');
+            if (!modal || !list || !hint) return;
+
+            const pairs = getMergePreviewPairs();
+            list.innerHTML = '';
+            if (applyBtn) {
+                applyBtn.style.display = auth.currentUser ? 'inline-block' : 'none';
+            }
+
+            if (!pairs.length) {
+                hint.textContent = '';
+                const empty = document.createElement('div');
+                empty.className = 'kpi-subtext';
+                empty.textContent = t('modals.mergePreviewEmpty');
+                list.appendChild(empty);
+                if (applyBtn) {
+                    applyBtn.disabled = true;
+                }
+            } else {
+                const { prevWeek, latestWeek } = pairs[0];
+                hint.textContent = t('modals.mergePreviewHint', { prev: prevWeek, latest: latestWeek });
+                if (applyBtn) {
+                    applyBtn.disabled = false;
+                }
+                pairs.forEach(pair => {
+                    const item = document.createElement('div');
+                    item.className = 'merge-preview-item';
+
+                    const prev = document.createElement('div');
+                    prev.className = 'merge-preview-name';
+                    prev.textContent = pair.prevName;
+
+                    const arrow = document.createElement('div');
+                    arrow.className = 'merge-preview-arrow';
+                    arrow.textContent = '→';
+
+                    const latest = document.createElement('div');
+                    latest.className = 'merge-preview-name';
+                    latest.textContent = pair.latestName;
+
+                    item.appendChild(prev);
+                    item.appendChild(arrow);
+                    item.appendChild(latest);
+                    list.appendChild(item);
+                });
+            }
+
+            modal.style.display = 'block';
         }
 
         function getCurrentPlayers() {
@@ -3725,16 +3987,29 @@ body {
 
             const latestWeek = getLatestDuelWeekWithData();
             const latestPlayers = latestWeek ? getWeekPlayersSet(latestWeek) : null;
+            const latestNameMap = new Map();
+            if (latestWeek) {
+                getWeekAggregateRows(latestWeek).forEach(row => {
+                    const key = normalizePlayerName(row['Player Name']);
+                    if (key) {
+                        latestNameMap.set(key, row['Player Name']);
+                    }
+                });
+            }
             const map = {};
             weeks.forEach(week => {
                 const rows = getWeekAggregateRows(week);
                 rows.forEach(row => {
-                    const key = row['Player Name'];
-                    if (latestPlayers && !latestPlayers.has(key.toLowerCase())) {
+                    const key = normalizePlayerName(row['Player Name']);
+                    if (latestPlayers && !latestPlayers.has(key)) {
                         return;
                     }
                     if (!map[key]) {
-                        map[key] = { 'Player Name': key, TotalPoints: 0, WeekPoints: {} };
+                        map[key] = {
+                            'Player Name': latestNameMap.get(key) || row['Player Name'],
+                            TotalPoints: 0,
+                            WeekPoints: {}
+                        };
                     }
                     map[key].WeekPoints[week] = row.Points || 0;
                     map[key].TotalPoints += row.Points || 0;
@@ -3856,16 +4131,7 @@ body {
                     ) : (isAdmin ? `<span class="guide-pin-btn" data-pin="${entry.id}" title="${t('guides.form.pinned')}" aria-label="${t('guides.form.pinned')}">📌</span>` : '')}
                     <img src="${entry.imageUrl}" alt="${entry.title}">
                     <div class="guide-card-title">${entry.title}</div>
-                    <div class="guide-badges">
-                        ${entry.pinned ? `<span class="guide-badge">${t('guides.pinnedLabel')}</span>` : ''}
-                        ${(entry.tags || []).map(tag => `<span class="guide-badge">#${tag}</span>`).join('')}
-                        ${(entry.languages || []).map(lang => {
-                            if (lang === 'en') return t('guides.filters.languageEn');
-                            if (lang === 'ar') return t('guides.filters.languageAr');
-                            return t('guides.filters.languageOther');
-                        }).map(label => `<span class="guide-badge">${label}</span>`).join('')}
-                    </div>
-                    <div style="margin-top: 8px;">
+                    <div class="guide-actions" style="margin-top: 8px;">
                         <a class="view-profile-btn" href="${entry.imageUrl}" download data-download="${entry.id}">${t('buttons.downloadGuide')}</a>
                         ${isAdmin ? ` <span class="view-profile-btn" data-edit="${entry.id}">${t('buttons.edit')}</span> <span class="view-profile-btn" data-delete="${entry.id}">${t('buttons.delete')}</span>` : ''}
                     </div>
@@ -5667,17 +5933,27 @@ body {
         document.getElementById('duelMinPoints')?.addEventListener('input', applyDuelFilters);
         document.getElementById('duelMaxPoints')?.addEventListener('input', applyDuelFilters);
         document.getElementById('duelDivisionFilter')?.addEventListener('change', applyDuelFilters);
+        document.getElementById('mergePreviewBtn')?.addEventListener('click', openMergePreviewModal);
+        document.getElementById('mergePreviewApplyBtn')?.addEventListener('click', applyMergePreviewPairs);
 
         // Modal Close
         document.getElementById('closeModal').addEventListener('click', () => {
             document.getElementById('playerModal').style.display = 'none';
             currentProfilePlayer = null;
         });
+        document.getElementById('closeMergePreviewModal')?.addEventListener('click', () => {
+            const modal = document.getElementById('mergePreviewModal');
+            if (modal) modal.style.display = 'none';
+        });
 
         window.addEventListener('click', (e) => {
             if (e.target.id === 'playerModal') {
                 document.getElementById('playerModal').style.display = 'none';
                 currentProfilePlayer = null;
+            }
+            if (e.target.id === 'mergePreviewModal') {
+                const modal = document.getElementById('mergePreviewModal');
+                if (modal) modal.style.display = 'none';
             }
         });
 
@@ -6681,6 +6957,7 @@ body {
             const addGuideBtn = document.getElementById('addGuideBtn');
             const duelUploadModeSelect = document.getElementById('duelUploadMode');
             const newWeekBtn = document.getElementById('newWeekBtn');
+            const mergePreviewBtn = document.getElementById('mergePreviewBtn');
             
             console.log('🔄 Updating Auth UI, user:', user ? user.email : 'None');
             
@@ -6736,6 +7013,10 @@ body {
                 if (refreshDataBtn) {
                     refreshDataBtn.textContent = t('buttons.refresh');
                 }
+                if (mergePreviewBtn) {
+                    mergePreviewBtn.style.display = 'inline-block';
+                    mergePreviewBtn.textContent = t('buttons.mergePreview');
+                }
             } else {
                 // User is signed out - HIDE admin buttons
                 if (signInBtn) {
@@ -6777,6 +7058,9 @@ body {
                 }
                 if (refreshDataBtn) {
                     refreshDataBtn.textContent = t('buttons.refresh');
+                }
+                if (mergePreviewBtn) {
+                    mergePreviewBtn.style.display = 'none';
                 }
             }
             updateDuelAdminVisibility();
