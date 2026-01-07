@@ -337,6 +337,15 @@ body {
     box-shadow: 0 0 20px rgba(255, 102, 0, 0.6);
     text-shadow: 0 0 5px #000;
 }
+.sortable-th {
+    cursor: pointer;
+    user-select: none;
+}
+.sort-indicator {
+    margin-left: 6px;
+    font-size: 0.9em;
+    color: #ffcc66;
+}
 
 .upload-btn {
     padding: 12px 25px;
@@ -1089,10 +1098,6 @@ body {
     font-family: 'Rajdhani', sans-serif;
     text-transform: none;
 }
-.duel-filters #exportFilteredPdfBtn {
-    justify-self: end;
-    min-width: 90px;
-}
 
 .donation-filters {
     display: grid;
@@ -1454,7 +1459,6 @@ body {
                     <option value="fri" data-i18n="leaderboard.dayFri">Fri</option>
                     <option value="sat" data-i18n="leaderboard.daySat">Sat</option>
                 </select>
-                <button class="action-btn" id="newWeekBtn" data-i18n="buttons.newWeek">➕ New Week</button>
                 <label for="csvUpload" class="upload-btn" id="uploadBtn" data-i18n="buttons.uploadWeek">
                     📤 Upload Week Data
                     <input type="file" id="csvUpload" accept=".csv" style="display: none;">
@@ -1463,7 +1467,6 @@ body {
                 <button class="action-btn" id="deleteWeekBtn" data-i18n="buttons.deleteWeek" style="display: none;">🗑️ Delete Week</button>
                 <button class="action-btn" id="addPlayerBtn" data-i18n="buttons.addPlayer" style="display: none;">➕ Add Player</button>
                 <button class="action-btn" id="resetDuelBtn" data-i18n="buttons.resetDuel" style="display: none;">♻️ Reset Duel Data</button>
-                <button class="action-btn" id="exportPdfBtn" data-i18n="buttons.exportPdf">📄 Export PDF</button>
                 <button class="action-btn" id="exportCsvBtn" data-i18n="buttons.exportCsv">💾 Export CSV</button>
                 <button class="action-btn" id="exportPngBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
             </div>
@@ -1582,7 +1585,6 @@ body {
                     <option value="warrior" data-i18n="divisions.warriorShort">Warrior</option>
                 </select>
                 <button class="action-btn" id="mergePreviewBtn" data-i18n="buttons.mergePreview" style="display: none;">🔎 Merges</button>
-                <button class="action-btn" id="exportFilteredPdfBtn" data-i18n="buttons.exportReportPdf">📄 PDF</button>
             </div>
             <div class="table-wrapper">
                 <table class="data-table">
@@ -1824,7 +1826,6 @@ body {
                         <button class="action-btn" id="donationRefreshBtn" data-i18n="buttons.refresh">🔄 Refresh Data</button>
                         <button class="action-btn" id="donationDeleteWeekBtn" data-i18n="buttons.deleteWeek" style="display: none;">🗑️ Delete Week</button>
                         <button class="action-btn" id="donationAddCommanderBtn" data-i18n="donation.buttons.addCommander" style="display: none;">➕ Add Commander</button>
-                        <button class="action-btn" id="donationExportPdfBtn" data-i18n="buttons.exportPdf">📄 Export PDF</button>
                         <button class="action-btn" id="donationExportCsvBtn" data-i18n="buttons.exportCsv">💾 Export CSV</button>
                         <button class="action-btn" id="donationExportPngBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
                         <button class="action-btn" id="resetDonationBtn" data-i18n="buttons.resetDonation" style="display: none;">♻️ Reset Donation Data</button>
@@ -1955,6 +1956,10 @@ body {
                     <div id="donationStatus" style="margin-top: 10px; color: #ffaa33; text-align: center;"></div>
                 </div>
             </div>
+            <div class="footer">
+                <p><span>Created with ❤️ by</span> <span class="creator-tag">#1918 [pWR] DeFOUR</span></p>
+                <p style="font-size: 0.9rem; color: #808080; margin-top: 5px;" data-i18n="footer.subtitle">Elite Alliance Dashboard System</p>
+            </div>
         </div>
 
         <div id="guidesTab" class="tab-panel">
@@ -1998,6 +2003,10 @@ body {
                     <div class="guide-tags" id="guideTags"></div>
                     <div class="guides-grid" id="guidesGrid"></div>
                 </div>
+            </div>
+            <div class="footer">
+                <p><span>Created with ❤️ by</span> <span class="creator-tag">#1918 [pWR] DeFOUR</span></p>
+                <p style="font-size: 0.9rem; color: #808080; margin-top: 5px;" data-i18n="footer.subtitle">Elite Alliance Dashboard System</p>
             </div>
         </div>
 
@@ -4782,6 +4791,7 @@ body {
 
         function renderTable(data = null) {
             const players = data || getCurrentDuelRows();
+            const sortedPlayers = applyDuelSort(players);
             const tbody = document.getElementById('tableBody');
             const thead = document.getElementById('duelTableHead');
             const isAdmin = auth.currentUser !== null;
@@ -4794,10 +4804,10 @@ body {
                 if (isCumulative) {
                     thead.innerHTML = `
                         <tr>
-                            <th>${t('table.rank')}</th>
-                            <th>${t('table.playerName')}</th>
-                            ${weeks.map(w => `<th>${t('week')} ${w}</th>`).join('')}
-                            <th>${t('table.total')}</th>
+                            <th class="sortable-th" data-sort="rank">${t('table.rank')}${getSortIndicator('rank')}</th>
+                            <th class="sortable-th" data-sort="player">${t('table.playerName')}${getSortIndicator('player')}</th>
+                            ${weeks.map(w => `<th class="sortable-th" data-sort="week-${w}">${t('week')} ${w}${getSortIndicator(`week-${w}`)}</th>`).join('')}
+                            <th class="sortable-th" data-sort="total">${t('table.total')}${getSortIndicator('total')}</th>
                             <th>${t('table.achievements')}</th>
                             <th>${t('table.division')}</th>
                             <th>${t('table.actions')}</th>
@@ -4806,20 +4816,20 @@ body {
                 } else {
                     thead.innerHTML = `
                         <tr>
-                            <th>${t('table.rank')}</th>
+                            <th class="sortable-th" data-sort="rank">${t('table.rank')}${getSortIndicator('rank')}</th>
                             <th>${t('table.movement')}</th>
-                            <th>${t('table.playerName')}</th>
-                            <th>${t('table.points')}</th>
-                            ${showMissingDays ? `<th>${t('table.missingDays')}</th>` : ''}
+                            <th class="sortable-th" data-sort="player">${t('table.playerName')}${getSortIndicator('player')}</th>
+                            <th class="sortable-th" data-sort="points">${t('table.points')}${getSortIndicator('points')}</th>
+                            ${showMissingDays ? `<th class="sortable-th" data-sort="missing">${t('table.missingDays')}${getSortIndicator('missing')}</th>` : ''}
                             <th>${t('table.achievements')}</th>
-                            <th>${t('table.division')}</th>
+                            <th class="sortable-th" data-sort="division">${t('table.division')}${getSortIndicator('division')}</th>
                             <th>${t('table.actions')}</th>
                         </tr>
                     `;
                 }
             }
 
-            tbody.innerHTML = players.map(player => {
+            tbody.innerHTML = sortedPlayers.map(player => {
                 let rankClass = 'rank-default';
                 if (player.Rank === 1) rankClass = 'rank-1';
                 else if (player.Rank === 2) rankClass = 'rank-2';
@@ -4877,6 +4887,14 @@ body {
                     </tr>
                 `;
             }).join('');
+
+            thead?.querySelectorAll('.sortable-th').forEach(th => {
+                th.addEventListener('click', () => {
+                    const key = th.getAttribute('data-sort');
+                    if (!key) return;
+                    setDuelSort(key);
+                });
+            });
         }
 
         function updateWeekButtons() {
@@ -4899,12 +4917,104 @@ body {
             }
 
             const allActive = currentDuelView === 'all';
+            const newWeekStyle = auth.currentUser ? '' : 'display: none;';
             weekSelector.innerHTML = `
                 <button class="week-btn ${allActive ? 'active' : ''}" onclick="selectDuelView('all')">${t('leaderboard.allWeeks')}</button>
                 ${weeks.map(week =>
                     `<button class="week-btn ${!allActive && week == currentWeek ? 'active' : ''}" onclick="selectWeek(${week})">${t('week')} ${week}</button>`
                 ).join('')}
+                <button class="week-btn" id="newWeekBtn" data-i18n="buttons.newWeek" style="${newWeekStyle}" onclick="createNewDuelWeek()">➕ New Week</button>
             `;
+        }
+
+        let duelSortState = { key: '', dir: 'asc' };
+        let donationSortState = { key: '', dir: 'asc' };
+
+        function getSortIndicator(key) {
+            if (duelSortState.key !== key) return '';
+            return `<span class="sort-indicator">${duelSortState.dir === 'asc' ? '▲' : '▼'}</span>`;
+        }
+
+        function getDonationSortIndicator(key) {
+            if (donationSortState.key !== key) return '';
+            return `<span class="sort-indicator">${donationSortState.dir === 'asc' ? '▲' : '▼'}</span>`;
+        }
+
+        function setDuelSort(key) {
+            if (duelSortState.key === key) {
+                duelSortState.dir = duelSortState.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                duelSortState.key = key;
+                duelSortState.dir = 'asc';
+            }
+            renderTable();
+        }
+
+        function setDonationSort(key) {
+            if (donationSortState.key === key) {
+                donationSortState.dir = donationSortState.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                donationSortState.key = key;
+                donationSortState.dir = 'asc';
+            }
+            renderDonationTable(getCurrentDonationRows());
+        }
+
+        function compareValues(a, b) {
+            if (typeof a === 'number' && typeof b === 'number') return a - b;
+            return String(a || '').localeCompare(String(b || ''), undefined, { numeric: true, sensitivity: 'base' });
+        }
+
+        function applyDuelSort(rows) {
+            if (!duelSortState.key) return rows;
+            const sorted = [...rows];
+            const key = duelSortState.key;
+            const dir = duelSortState.dir === 'asc' ? 1 : -1;
+            sorted.sort((left, right) => {
+                const a = getDuelSortValue(left, key);
+                const b = getDuelSortValue(right, key);
+                return compareValues(a, b) * dir;
+            });
+            return sorted;
+        }
+
+        function getDuelSortValue(row, key) {
+            if (key === 'rank') return row.Rank || 0;
+            if (key === 'player') return row['Player Name'] || '';
+            if (key === 'points') return row.Points || 0;
+            if (key === 'missing') return (row.MissingDays || []).length;
+            if (key === 'division') return getDivision(row.Points || 0);
+            if (key === 'total') return row.Points || 0;
+            if (key.startsWith('week-')) {
+                const week = Number(key.split('-')[1]);
+                return row.WeekPoints?.[week] || 0;
+            }
+            return '';
+        }
+
+        function applyDonationSort(rows) {
+            if (!donationSortState.key) return rows;
+            const sorted = [...rows];
+            const key = donationSortState.key;
+            const dir = donationSortState.dir === 'asc' ? 1 : -1;
+            sorted.sort((left, right) => {
+                const a = getDonationSortValue(left, key);
+                const b = getDonationSortValue(right, key);
+                return compareValues(a, b) * dir;
+            });
+            return sorted;
+        }
+
+        function getDonationSortValue(row, key) {
+            if (key === 'rank') return row.Rank || 0;
+            if (key === 'commander') return row.Commander || '';
+            if (key === 'points') return row.Points || 0;
+            if (key === 'total') return row.Points || 0;
+            if (key.startsWith('week-')) {
+                const week = Number(key.split('-')[1]);
+                return row.WeekPoints?.[week] || 0;
+            }
+            return '';
         }
 
         async function createNewDuelWeek() {
@@ -5031,6 +5141,7 @@ body {
             if (!tbody || !thead) return;
 
             const safeRows = rows || [];
+            const sortedRows = applyDonationSort(safeRows);
             const weeks = getDonationWeeksList();
             const isCumulative = currentDonationView === 'all' && weeks.length > 0;
             const isAdmin = auth.currentUser !== null;
@@ -5038,10 +5149,10 @@ body {
             if (isCumulative) {
                 thead.innerHTML = `
                     <tr>
-                        <th>${t('table.rank')}</th>
-                        <th>${t('table.commander')}</th>
-                        ${weeks.map(w => `<th>${t('week')} ${w}</th>`).join('')}
-                        <th>${t('table.total')}</th>
+                        <th class="sortable-th" data-sort="rank">${t('table.rank')}${getDonationSortIndicator('rank')}</th>
+                        <th class="sortable-th" data-sort="commander">${t('table.commander')}${getDonationSortIndicator('commander')}</th>
+                        ${weeks.map(w => `<th class="sortable-th" data-sort="week-${w}">${t('week')} ${w}${getDonationSortIndicator(`week-${w}`)}</th>`).join('')}
+                        <th class="sortable-th" data-sort="total">${t('table.total')}${getDonationSortIndicator('total')}</th>
                         <th>${t('table.achievements')}</th>
                         <th>${t('table.actions')}</th>
                     </tr>
@@ -5049,16 +5160,16 @@ body {
             } else {
                 thead.innerHTML = `
                     <tr>
-                        <th>${t('table.rank')}</th>
-                        <th>${t('table.commander')}</th>
-                        <th>${t('table.points')}</th>
+                        <th class="sortable-th" data-sort="rank">${t('table.rank')}${getDonationSortIndicator('rank')}</th>
+                        <th class="sortable-th" data-sort="commander">${t('table.commander')}${getDonationSortIndicator('commander')}</th>
+                        <th class="sortable-th" data-sort="points">${t('table.points')}${getDonationSortIndicator('points')}</th>
                         <th>${t('table.achievements')}</th>
                         <th>${t('table.actions')}</th>
                     </tr>
                 `;
             }
 
-            tbody.innerHTML = safeRows.map(player => {
+            tbody.innerHTML = sortedRows.map(player => {
                 const rankClass = player.Rank === 1 ? 'rank-1' : player.Rank === 2 ? 'rank-2' : player.Rank === 3 ? 'rank-3' : player.Rank <= 10 ? 'rank-top10' : 'rank-default';
                 const achievements = getDonationAchievements(player);
                 const points = (player.Points || 0);
@@ -5100,6 +5211,14 @@ body {
             renderDonationCharts(safeRows);
             renderDonationDivisions(safeRows);
             renderDonationMovementHighlights();
+
+            thead.querySelectorAll('.sortable-th').forEach(th => {
+                th.addEventListener('click', () => {
+                    const key = th.getAttribute('data-sort');
+                    if (!key) return;
+                    setDonationSort(key);
+                });
+            });
         }
 
         function getDonationTier(points) {
@@ -5777,100 +5896,6 @@ body {
         });
 
         // Export Functions
-        document.getElementById('exportPdfBtn').addEventListener('click', () => {
-            const panel = document.getElementById('duelTab');
-            const bgColor = getComputedStyle(document.body).backgroundColor || '#ffffff';
-            html2canvas(panel, { backgroundColor: bgColor, scale: 2, useCORS: true }).then(canvas => {
-                const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
-                const imgData = canvas.toDataURL('image/png');
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
-                const imgWidth = canvas.width * ratio;
-                const imgHeight = canvas.height * ratio;
-                pdf.setFillColor(255, 255, 255);
-                pdf.rect(0, 0, pageWidth, pageHeight, 'F');
-                pdf.addImage(imgData, 'PNG', (pageWidth - imgWidth) / 2, 20, imgWidth, imgHeight);
-                pdf.save(`pwr_alliance_week${currentWeek}.pdf`);
-            });
-        });
-
-        document.getElementById('exportFilteredPdfBtn')?.addEventListener('click', () => {
-            const tableContainer = document.querySelector('#duelTab .table-container');
-            if (!tableContainer) return;
-            const filteredRows = getDuelFilteredRows();
-            if (!filteredRows.length) {
-                alert(t('messages.noData'));
-                return;
-            }
-            renderTable(filteredRows);
-
-            const exportWrapper = document.createElement('div');
-            exportWrapper.style.position = 'fixed';
-            exportWrapper.style.left = '-9999px';
-            exportWrapper.style.top = '0';
-            exportWrapper.style.width = `${tableContainer.clientWidth}px`;
-            exportWrapper.style.background = getComputedStyle(tableContainer).background || '';
-
-            const exportClone = tableContainer.cloneNode(true);
-            exportClone.style.width = `${tableContainer.clientWidth}px`;
-            exportClone.querySelector('.duel-filters')?.remove();
-            const wrapper = exportClone.querySelector('.table-wrapper');
-            if (wrapper) {
-                wrapper.style.maxHeight = 'none';
-                wrapper.style.overflow = 'visible';
-                wrapper.style.height = 'auto';
-            }
-
-            exportWrapper.appendChild(exportClone);
-            document.body.appendChild(exportWrapper);
-
-            const bgColor = getComputedStyle(document.body).backgroundColor || '#ffffff';
-            html2canvas(exportClone, { backgroundColor: bgColor, scale: 2, useCORS: true }).then(canvas => {
-                const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                const imgWidth = pageWidth - 40;
-                const ratio = imgWidth / canvas.width;
-                const pageHeightPx = (pageHeight - 40) / ratio;
-                let offsetY = 0;
-
-                while (offsetY < canvas.height) {
-                    const sliceHeight = Math.min(pageHeightPx, canvas.height - offsetY);
-                    const pageCanvas = document.createElement('canvas');
-                    pageCanvas.width = canvas.width;
-                    pageCanvas.height = sliceHeight;
-                    const pageCtx = pageCanvas.getContext('2d');
-                    pageCtx.drawImage(
-                        canvas,
-                        0,
-                        offsetY,
-                        canvas.width,
-                        sliceHeight,
-                        0,
-                        0,
-                        canvas.width,
-                        sliceHeight
-                    );
-
-                    const imgData = pageCanvas.toDataURL('image/png');
-                    pdf.setFillColor(255, 255, 255);
-                    pdf.rect(0, 0, pageWidth, pageHeight, 'F');
-                    pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, sliceHeight * ratio);
-
-                    offsetY += sliceHeight;
-                    if (offsetY < canvas.height) {
-                        pdf.addPage();
-                    }
-                }
-
-                pdf.save(`pwr_alliance_report_week${currentWeek}.pdf`);
-            }).finally(() => {
-                exportWrapper.remove();
-            });
-        });
-
-
         document.getElementById('exportCsvBtn').addEventListener('click', () => {
             const players = getCurrentDuelRows();
             const weeks = getDuelWeeksList();
@@ -6901,24 +6926,6 @@ body {
             a.href = url;
             a.download = 'pwr_alliance_donations.csv';
             a.click();
-        });
-
-        document.getElementById('donationExportPdfBtn')?.addEventListener('click', () => {
-            const panel = document.getElementById('donationTab');
-            const bgColor = getComputedStyle(document.body).backgroundColor || '#ffffff';
-            html2canvas(panel, { backgroundColor: bgColor, scale: 2, useCORS: true }).then(canvas => {
-                const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
-                const imgData = canvas.toDataURL('image/png');
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
-                const imgWidth = canvas.width * ratio;
-                const imgHeight = canvas.height * ratio;
-                pdf.setFillColor(255, 255, 255);
-                pdf.rect(0, 0, pageWidth, pageHeight, 'F');
-                pdf.addImage(imgData, 'PNG', (pageWidth - imgWidth) / 2, 20, imgWidth, imgHeight);
-                pdf.save('pwr_alliance_donations.pdf');
-            });
         });
 
         document.getElementById('donationExportPngBtn')?.addEventListener('click', () => {
