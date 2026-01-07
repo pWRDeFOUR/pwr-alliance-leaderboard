@@ -4160,6 +4160,48 @@ body {
                 });
             });
 
+            grid.querySelectorAll('[data-download]').forEach(link => {
+                link.addEventListener('click', async (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const url = link.getAttribute('href');
+                    if (!url) return;
+                    const safeTitle = (link.closest('.guide-card')?.getAttribute('data-title') || 'guide')
+                        .replace(/[^\w\-]+/g, '_')
+                        .replace(/_+/g, '_')
+                        .replace(/^_+|_+$/g, '')
+                        .slice(0, 80) || 'guide';
+                    const urlPath = (() => {
+                        try {
+                            return new URL(url).pathname;
+                        } catch (error) {
+                            return '';
+                        }
+                    })();
+                    const urlFilename = urlPath ? urlPath.split('/').pop() : '';
+                    const urlExtMatch = urlFilename ? urlFilename.match(/\.[a-z0-9]{2,5}$/i) : null;
+                    try {
+                        const response = await fetch(url, { mode: 'cors' });
+                        const blob = await response.blob();
+                        const contentType = blob.type || response.headers.get('content-type') || '';
+                        const mimeExt = contentType.split('/')[1] ? `.${contentType.split('/')[1].split(';')[0]}` : '';
+                        const fileExt = urlExtMatch ? urlExtMatch[0] : (mimeExt || '.png');
+                        const downloadName = urlFilename && urlExtMatch ? urlFilename : `${safeTitle}${fileExt}`;
+                        const objectUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = objectUrl;
+                        a.download = downloadName;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        URL.revokeObjectURL(objectUrl);
+                    } catch (error) {
+                        console.error('Download failed:', error);
+                        window.open(url, '_blank', 'noopener');
+                    }
+                });
+            });
+
             grid.querySelectorAll('[data-edit]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
