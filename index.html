@@ -1124,6 +1124,29 @@ body {
     height: 100%;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+.guide-media {
+    width: 100%;
+    border-radius: 8px;
+    display: block;
+    object-fit: cover;
+}
+.guide-media-video {
+    background: #111;
+}
+.guide-media-video video {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+}
+.guide-media-embed {
+    background: #111;
+    border-radius: 8px;
+    padding: 18px;
+    color: #d8c9b4;
+    font-weight: 600;
+    text-align: center;
+}
 .guide-card.pinned {
     border-color: var(--accent);
     box-shadow: 0 0 0 2px rgba(212, 106, 45, 0.35), var(--shadow-md);
@@ -2018,6 +2041,8 @@ body {
                 </div>
                 <div class="modal-body scrollable guide-preview-body">
                     <img id="guidePreviewImage" class="guide-preview" src="" alt="Guide preview">
+                    <video id="guidePreviewVideo" class="guide-preview" controls style="display: none;"></video>
+                    <iframe id="guidePreviewEmbed" class="guide-preview" style="display: none; width: 100%; height: 70vh; border: 0;" allow="autoplay; fullscreen"></iframe>
                     <p id="guidePreviewDescription" style="margin-top: 16px; color: var(--text-muted);"></p>
                 </div>
             </div>
@@ -2034,8 +2059,20 @@ body {
                         <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.title">Title:</label>
                         <input type="text" id="guideTitleInput" class="search-bar" data-i18n-placeholder="guides.form.titlePlaceholder" placeholder="Enter guide title" style="margin-bottom: 15px;">
 
-                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.image">Image URL:</label>
-                        <input type="text" id="guideImageInput" class="search-bar" data-i18n-placeholder="guides.form.imagePlaceholder" placeholder="Paste image URL" style="margin-bottom: 15px;">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.mediaType">Media Type:</label>
+                        <select id="guideMediaType" class="search-bar" style="margin-bottom: 15px;">
+                            <option value="image" data-i18n="guides.form.mediaImage">Image</option>
+                            <option value="video" data-i18n="guides.form.mediaVideo">Video (MP4)</option>
+                            <option value="embed" data-i18n="guides.form.mediaEmbed">Google Drive Preview</option>
+                        </select>
+
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.mediaUrl">Media URL:</label>
+                        <input type="text" id="guideImageInput" class="search-bar" data-i18n-placeholder="guides.form.mediaUrlPlaceholder" placeholder="Paste image or video URL" style="margin-bottom: 15px;">
+
+                        <div id="guideThumbWrap" style="display: none;">
+                            <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.thumbnail">Thumbnail URL:</label>
+                            <input type="text" id="guideThumbInput" class="search-bar" data-i18n-placeholder="guides.form.thumbnailPlaceholder" placeholder="Paste thumbnail image URL" style="margin-bottom: 15px;">
+                        </div>
 
                         <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.language">Languages:</label>
                         <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 15px;">
@@ -2082,8 +2119,20 @@ body {
                         <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.title">Title:</label>
                         <input type="text" id="editGuideTitleInput" class="search-bar" data-i18n-placeholder="guides.form.titlePlaceholder" placeholder="Enter guide title" style="margin-bottom: 15px;">
 
-                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.image">Image URL:</label>
-                        <input type="text" id="editGuideImageInput" class="search-bar" data-i18n-placeholder="guides.form.imagePlaceholder" placeholder="Paste image URL" style="margin-bottom: 15px;">
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.mediaType">Media Type:</label>
+                        <select id="editGuideMediaType" class="search-bar" style="margin-bottom: 15px;">
+                            <option value="image" data-i18n="guides.form.mediaImage">Image</option>
+                            <option value="video" data-i18n="guides.form.mediaVideo">Video (MP4)</option>
+                            <option value="embed" data-i18n="guides.form.mediaEmbed">Google Drive Preview</option>
+                        </select>
+
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.mediaUrl">Media URL:</label>
+                        <input type="text" id="editGuideImageInput" class="search-bar" data-i18n-placeholder="guides.form.mediaUrlPlaceholder" placeholder="Paste image or video URL" style="margin-bottom: 15px;">
+
+                        <div id="editGuideThumbWrap" style="display: none;">
+                            <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.thumbnail">Thumbnail URL:</label>
+                            <input type="text" id="editGuideThumbInput" class="search-bar" data-i18n-placeholder="guides.form.thumbnailPlaceholder" placeholder="Paste thumbnail image URL" style="margin-bottom: 15px;">
+                        </div>
 
                         <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="guides.form.language">Languages:</label>
                         <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 15px;">
@@ -2364,6 +2413,14 @@ body {
                     form: {
                         title: "Title:",
                         image: "Image URL:",
+                        mediaType: "Media Type:",
+                        mediaImage: "Image",
+                        mediaVideo: "Video (MP4)",
+                        mediaEmbed: "Google Drive Preview",
+                        mediaUrl: "Media URL:",
+                        mediaUrlPlaceholder: "Paste image or video URL",
+                        thumbnail: "Thumbnail URL:",
+                        thumbnailPlaceholder: "Paste thumbnail image URL",
                         tags: "Tags (comma separated):",
                         description: "Description:",
                         language: "Languages:",
@@ -2378,6 +2435,7 @@ body {
                     messages: {
                         signInRequired: "❌ Please sign in to add guides",
                         required: "⚠️ Title and image URL are required",
+                        thumbnailRequired: "⚠️ Thumbnail URL is required for video guides",
                         loading: "⏳ Loading guides...",
                         saving: "⏳ Saving guide...",
                         saved: "✅ Guide added",
@@ -2756,6 +2814,14 @@ body {
                     form: {
                         title: "العنوان:",
                         image: "رابط الصورة:",
+                        mediaType: "نوع الوسائط:",
+                        mediaImage: "صورة",
+                        mediaVideo: "فيديو (MP4)",
+                        mediaEmbed: "معاينة Google Drive",
+                        mediaUrl: "رابط الوسائط:",
+                        mediaUrlPlaceholder: "الصق رابط الصورة أو الفيديو",
+                        thumbnail: "رابط المصغّر:",
+                        thumbnailPlaceholder: "الصق رابط صورة المصغّر",
                         tags: "الوسوم (مفصولة بفواصل):",
                         description: "الوصف:",
                         language: "اللغات:",
@@ -2770,6 +2836,7 @@ body {
                     messages: {
                         signInRequired: "❌ يرجى تسجيل الدخول لإضافة الأدلة",
                         required: "⚠️ العنوان ورابط الصورة مطلوبان",
+                        thumbnailRequired: "⚠️ رابط المصغّر مطلوب للفيديو",
                         loading: "⏳ جارٍ تحميل الأدلة...",
                         saving: "⏳ جارٍ حفظ الدليل...",
                         saved: "✅ تم إضافة الدليل",
@@ -4052,6 +4119,8 @@ body {
                         id: child.key,
                         title: val.title || '',
                         imageUrl: val.imageUrl || '',
+                        mediaType: val.mediaType || '',
+                        thumbnailUrl: val.thumbnailUrl || '',
                         description: val.description || '',
                         tags: Array.isArray(val.tags) ? val.tags : [],
                         languages: Array.isArray(val.languages) ? val.languages : (val.language ? [val.language] : []),
@@ -4098,6 +4167,32 @@ body {
             });
         }
 
+        function isGuideVideoUrl(url) {
+            const source = String(url || '');
+            if (/\.mp4(\?.*)?$/i.test(source)) return true;
+            return /drive\.usercontent\.google\.com\/download/i.test(source);
+        }
+
+        function isGuideEmbedUrl(url) {
+            const source = String(url || '');
+            return /drive\.google\.com\/file\/d\/[^/]+\/preview/i.test(source);
+        }
+
+        function resolveGuideMediaType(entry) {
+            if (entry.mediaType) return entry.mediaType;
+            if (isGuideEmbedUrl(entry.imageUrl)) return 'embed';
+            if (isGuideVideoUrl(entry.imageUrl)) return 'video';
+            return 'image';
+        }
+
+        function updateGuideMediaFields(prefix) {
+            const typeSelect = document.getElementById(`${prefix}GuideMediaType`);
+            const thumbWrap = document.getElementById(`${prefix}GuideThumbWrap`);
+            if (!typeSelect || !thumbWrap) return;
+            const value = typeSelect.value || 'image';
+            thumbWrap.style.display = value === 'image' ? 'none' : 'block';
+        }
+
         function renderGuides() {
             const grid = document.getElementById('guidesGrid');
             if (!grid) return;
@@ -4132,13 +4227,25 @@ body {
             const finalList = sorted.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
             grid.innerHTML = finalList.map(entry => `
-                <button class="guide-card ${entry.pinned ? 'pinned' : ''}" data-full="${entry.imageUrl}" data-title="${entry.title}" data-description="${entry.description || ''}" data-id="${entry.id}" ${guideSortMode === 'custom' && isAdmin ? 'draggable="true"' : ''}>
+                <button class="guide-card ${entry.pinned ? 'pinned' : ''}" data-full="${entry.imageUrl}" data-thumb="${entry.thumbnailUrl || ''}" data-title="${entry.title}" data-description="${entry.description || ''}" data-id="${entry.id}" data-type="${resolveGuideMediaType(entry)}" ${guideSortMode === 'custom' && isAdmin ? 'draggable="true"' : ''}>
                     ${entry.pinned ? (
                         isAdmin
                             ? `<span class="guide-pin-btn active" data-pin="${entry.id}" title="${t('guides.form.pinned')}" aria-label="${t('guides.form.pinned')}">📌</span>`
                             : `<span class="guide-pin-indicator" title="${t('guides.form.pinned')}" aria-label="${t('guides.form.pinned')}">📌</span>`
                     ) : (isAdmin ? `<span class="guide-pin-btn" data-pin="${entry.id}" title="${t('guides.form.pinned')}" aria-label="${t('guides.form.pinned')}">📌</span>` : '')}
-                    <img src="${entry.imageUrl}" alt="${entry.title}">
+                    ${resolveGuideMediaType(entry) === 'video'
+                        ? (entry.thumbnailUrl
+                            ? `<img class="guide-media" src="${entry.thumbnailUrl}" alt="${entry.title}">`
+                            : `<div class="guide-media guide-media-video"><video src="${entry.imageUrl}" muted playsinline preload="metadata"></video></div>`
+                        )
+                        : (resolveGuideMediaType(entry) === 'embed'
+                            ? (entry.thumbnailUrl
+                                ? `<img class="guide-media" src="${entry.thumbnailUrl}" alt="${entry.title}">`
+                                : `<div class="guide-media guide-media-embed">▶ Video Guide</div>`
+                            )
+                            : `<img class="guide-media" src="${entry.imageUrl}" alt="${entry.title}">`
+                        )
+                    }
                     <div class="guide-card-title">${entry.title}</div>
                     <div class="guide-actions" style="margin-top: 8px;">
                         <a class="view-profile-btn" href="${entry.imageUrl}" download data-download="${entry.id}">${t('buttons.downloadGuide')}</a>
@@ -4150,22 +4257,67 @@ body {
             grid.querySelectorAll('.guide-card').forEach(card => {
                 card.addEventListener('click', () => {
                     const fullSrc = card.getAttribute('data-full');
+                    const thumb = card.getAttribute('data-thumb');
                     const title = card.getAttribute('data-title');
                     const description = card.getAttribute('data-description');
+                    const type = card.getAttribute('data-type') || 'image';
                     const preview = document.getElementById('guidePreviewImage');
+                    const previewVideo = document.getElementById('guidePreviewVideo');
+                    const previewEmbed = document.getElementById('guidePreviewEmbed');
                     const titleEl = document.getElementById('guidePreviewTitle');
                     const descEl = document.getElementById('guidePreviewDescription');
-                    if (preview && fullSrc) {
-                        preview.src = fullSrc;
-                        preview.alt = title || 'Guide preview';
-                        if (titleEl) {
-                            titleEl.textContent = title || t('guides.previewTitle');
+                    if (!fullSrc) return;
+                    if (type === 'video') {
+                        if (preview) {
+                            preview.style.display = 'none';
+                            preview.src = '';
                         }
-                        if (descEl) {
-                            descEl.textContent = description || '';
+                        if (previewEmbed) {
+                            previewEmbed.removeAttribute('src');
+                            previewEmbed.style.display = 'none';
                         }
-                        document.getElementById('guidePreviewModal').style.display = 'block';
+                        if (previewVideo) {
+                            previewVideo.src = fullSrc;
+                            previewVideo.style.display = 'inline-block';
+                            previewVideo.load();
+                        }
+                    } else if (type === 'embed') {
+                        if (preview) {
+                            preview.style.display = 'none';
+                            preview.src = '';
+                        }
+                        if (previewVideo) {
+                            previewVideo.pause();
+                            previewVideo.removeAttribute('src');
+                            previewVideo.style.display = 'none';
+                        }
+                        if (previewEmbed) {
+                            previewEmbed.src = fullSrc;
+                            previewEmbed.style.display = 'block';
+                        }
+                    } else {
+                        if (previewVideo) {
+                            previewVideo.pause();
+                            previewVideo.removeAttribute('src');
+                            previewVideo.style.display = 'none';
+                        }
+                        if (previewEmbed) {
+                            previewEmbed.removeAttribute('src');
+                            previewEmbed.style.display = 'none';
+                        }
+                        if (preview) {
+                            preview.src = fullSrc;
+                            preview.alt = title || 'Guide preview';
+                            preview.style.display = 'inline-block';
+                        }
                     }
+                    if (titleEl) {
+                        titleEl.textContent = title || t('guides.previewTitle');
+                    }
+                    if (descEl) {
+                        descEl.textContent = description || '';
+                    }
+                    document.getElementById('guidePreviewModal').style.display = 'block';
                 });
             });
 
@@ -4273,12 +4425,15 @@ body {
             }
             document.getElementById('guideTitleInput').value = '';
             document.getElementById('guideImageInput').value = '';
+            document.getElementById('guideMediaType').value = 'image';
+            document.getElementById('guideThumbInput').value = '';
             document.getElementById('guideTagsInput').value = '';
             document.getElementById('guideDescriptionInput').value = '';
             document.getElementById('guideLangEn').checked = true;
             document.getElementById('guideLangAr').checked = false;
             document.getElementById('guideLangOther').checked = false;
             document.getElementById('guideFormStatus').textContent = '';
+            updateGuideMediaFields('');
             document.getElementById('addGuideModal').style.display = 'block';
         }
 
@@ -4287,6 +4442,8 @@ body {
             try {
                 const title = document.getElementById('guideTitleInput').value.trim();
                 const imageUrl = document.getElementById('guideImageInput').value.trim();
+                const mediaType = document.getElementById('guideMediaType').value || 'image';
+                const thumbnailUrl = document.getElementById('guideThumbInput').value.trim();
                 const tagsRaw = document.getElementById('guideTagsInput').value.trim();
                 const description = document.getElementById('guideDescriptionInput').value.trim();
                 const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
@@ -4298,6 +4455,10 @@ body {
                     statusDiv.textContent = t('guides.messages.required');
                     return;
                 }
+                if (mediaType !== 'image' && !thumbnailUrl) {
+                    statusDiv.textContent = t('guides.messages.thumbnailRequired');
+                    return;
+                }
 
                 statusDiv.textContent = t('guides.messages.saving');
                 const newRef = database.ref('guides').push();
@@ -4305,6 +4466,8 @@ body {
                 await newRef.set({
                     title,
                     imageUrl,
+                    mediaType,
+                    thumbnailUrl: mediaType === 'image' ? '' : thumbnailUrl,
                     description,
                     tags,
                     languages,
@@ -4331,6 +4494,8 @@ body {
             document.getElementById('editGuideId').value = id;
             document.getElementById('editGuideTitleInput').value = entry.title || '';
             document.getElementById('editGuideImageInput').value = entry.imageUrl || '';
+            document.getElementById('editGuideMediaType').value = resolveGuideMediaType(entry);
+            document.getElementById('editGuideThumbInput').value = entry.thumbnailUrl || '';
             document.getElementById('editGuideTagsInput').value = (entry.tags || []).join(', ');
             document.getElementById('editGuideDescriptionInput').value = entry.description || '';
             const langs = entry.languages || [];
@@ -4338,6 +4503,7 @@ body {
             document.getElementById('editGuideLangAr').checked = langs.includes('ar');
             document.getElementById('editGuideLangOther').checked = langs.includes('other');
             document.getElementById('editGuideStatus').textContent = '';
+            updateGuideMediaFields('edit');
             document.getElementById('editGuideModal').style.display = 'block';
         }
 
@@ -4347,6 +4513,8 @@ body {
                 const id = document.getElementById('editGuideId').value;
                 const title = document.getElementById('editGuideTitleInput').value.trim();
                 const imageUrl = document.getElementById('editGuideImageInput').value.trim();
+                const mediaType = document.getElementById('editGuideMediaType').value || 'image';
+                const thumbnailUrl = document.getElementById('editGuideThumbInput').value.trim();
                 const tagsRaw = document.getElementById('editGuideTagsInput').value.trim();
                 const description = document.getElementById('editGuideDescriptionInput').value.trim();
                 const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
@@ -4359,11 +4527,17 @@ body {
                     statusDiv.textContent = t('guides.messages.required');
                     return;
                 }
+                if (mediaType !== 'image' && !thumbnailUrl) {
+                    statusDiv.textContent = t('guides.messages.thumbnailRequired');
+                    return;
+                }
 
                 statusDiv.textContent = t('guides.messages.saving');
                 await database.ref(`guides/${id}`).update({
                     title,
                     imageUrl,
+                    mediaType,
+                    thumbnailUrl: mediaType === 'image' ? '' : thumbnailUrl,
                     description,
                     tags,
                     languages
@@ -6680,6 +6854,17 @@ body {
         document.getElementById('closeGuidePreview')?.addEventListener('click', () => {
             document.getElementById('guidePreviewModal').style.display = 'none';
             document.getElementById('guidePreviewImage')?.classList.remove('zoomed');
+            const previewVideo = document.getElementById('guidePreviewVideo');
+            if (previewVideo) {
+                previewVideo.pause();
+                previewVideo.removeAttribute('src');
+                previewVideo.style.display = 'none';
+            }
+            const previewEmbed = document.getElementById('guidePreviewEmbed');
+            if (previewEmbed) {
+                previewEmbed.removeAttribute('src');
+                previewEmbed.style.display = 'none';
+            }
         });
 
         document.getElementById('closeAddGuideModal')?.addEventListener('click', () => {
@@ -6758,6 +6943,17 @@ body {
             if (e.target.id === 'guidePreviewModal') {
                 document.getElementById('guidePreviewModal').style.display = 'none';
                 document.getElementById('guidePreviewImage')?.classList.remove('zoomed');
+                const previewVideo = document.getElementById('guidePreviewVideo');
+                if (previewVideo) {
+                    previewVideo.pause();
+                    previewVideo.removeAttribute('src');
+                    previewVideo.style.display = 'none';
+                }
+                const previewEmbed = document.getElementById('guidePreviewEmbed');
+                if (previewEmbed) {
+                    previewEmbed.removeAttribute('src');
+                    previewEmbed.style.display = 'none';
+                }
             }
             if (e.target.id === 'addGuideModal') {
                 document.getElementById('addGuideModal').style.display = 'none';
@@ -6784,6 +6980,8 @@ body {
                 handleAuthSubmit(e);
             }
         });
+        document.getElementById('guideMediaType')?.addEventListener('change', () => updateGuideMediaFields(''));
+        document.getElementById('editGuideMediaType')?.addEventListener('change', () => updateGuideMediaFields('edit'));
         
         // Control buttons
         document.getElementById('deleteWeekBtn')?.addEventListener('click', deleteCurrentWeek);
