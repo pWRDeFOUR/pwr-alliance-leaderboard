@@ -566,6 +566,7 @@ body {
     max-height: 600px;
     overflow-y: auto;
     border-radius: 8px;
+    scrollbar-gutter: stable;
 }
 
 .table-wrapper::-webkit-scrollbar { width: 12px; }
@@ -579,6 +580,7 @@ body {
 .data-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .data-table thead {
@@ -598,6 +600,7 @@ body {
     text-shadow: 1px 1px 2px #000;
     font-family: 'Teko', sans-serif;
     letter-spacing: 1px;
+    box-sizing: border-box;
 }
 
 .data-table tbody tr {
@@ -612,6 +615,14 @@ body {
 .data-table td {
     padding: 12px 15px;
     color: #c4b5a0;
+    box-sizing: border-box;
+}
+[dir="rtl"] .data-table {
+    direction: rtl;
+}
+[dir="rtl"] .data-table th,
+[dir="rtl"] .data-table td {
+    text-align: right;
 }
 
 /* ===== RANK BADGES - MILITARY STYLE ===== */
@@ -778,6 +789,24 @@ body {
 .merge-preview-arrow {
     color: var(--text-muted);
     font-weight: 700;
+}
+.merge-week-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: rgba(20, 18, 15, 0.7);
+    align-items: start;
+}
+.merge-week-item select {
+    width: 100%;
+}
+.merge-week-variants {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 4px;
 }
 .guide-preview-body {
     text-align: center;
@@ -1782,6 +1811,22 @@ body {
             </div>
         </div>
 
+        <div id="mergeWeekModal" class="modal">
+            <div class="modal-content" style="max-width: 720px;">
+                <div class="modal-header">
+                    <h2 data-i18n="modals.mergeWeekTitle">🧹 Merge Week Duplicates</h2>
+                    <span class="modal-close" id="closeMergeWeekModal">&times;</span>
+                </div>
+                <div class="modal-body scrollable">
+                    <div class="kpi-subtext" id="mergeWeekHint"></div>
+                    <div class="merge-preview-list" id="mergeWeekList"></div>
+                    <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+                        <button class="upload-btn" id="mergeWeekApplyBtn" data-i18n="buttons.mergeWeekApply">✅ Apply Selected</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Donation Profile Modal -->
         <div id="donationProfileModal" class="modal">
@@ -2198,6 +2243,23 @@ body {
             </div>
         </div>
 
+        <div id="systemModal" class="modal">
+            <div class="modal-content" style="max-width: 520px;">
+                <div class="modal-header">
+                    <h2 id="systemModalTitle">⚠️ Notice</h2>
+                    <span class="modal-close" id="closeSystemModal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p id="systemModalMessage" style="white-space: pre-line; color: var(--text-muted); margin-bottom: 18px;"></p>
+                    <input type="text" id="systemModalInput" class="search-bar" style="display: none; margin-bottom: 16px;">
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button class="action-btn" id="systemModalCancel">Cancel</button>
+                        <button class="upload-btn" id="systemModalConfirm">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Auth Modal -->
@@ -2308,6 +2370,8 @@ body {
                     newWeek: "➕ New Week",
                     mergePreview: "🔎 Merges",
                     mergeApply: "✅ Apply",
+                    mergeWeek: "🧹 Merge Week",
+                    mergeWeekApply: "✅ Apply Selected",
                     downloadGuide: "⬇️ Download Guide",
                     signIn: "🔐 Sign In",
                     signOut: "🔓 Sign Out",
@@ -2469,6 +2533,9 @@ body {
                     mergePreviewTitle: "🔎 Possible Merges",
                     mergePreviewEmpty: "No matches found between the latest week and the previous week.",
                     mergePreviewHint: "Comparing Week {prev} → Week {latest}",
+                    mergeWeekTitle: "🧹 Merge Week Duplicates",
+                    mergeWeekEmpty: "No duplicate names found in Week {week}.",
+                    mergeWeekHint: "Select which duplicates to merge for Week {week}",
                     mergeApplySuccess: "✅ Merges applied to Week {week}",
                     mergeApplyError: "❌ Merge apply failed: {error}",
                     playerProfile: "Player Profile",
@@ -2670,7 +2737,9 @@ body {
                     resetConfirm: "⚠️ This will permanently delete ALL Alliance Duel data in Firebase.\n\nType \"RESET\" to confirm:",
                     resetSuccess: "✅ Alliance Duel data reset",
                     resetCancelled: "Reset cancelled",
-                    resetError: "❌ Reset failed: {error}"
+                    resetError: "❌ Reset failed: {error}",
+                    mergeWeekSuccess: "✅ Week {week} duplicates merged",
+                    mergeWeekError: "❌ Merge failed: {error}"
                 },
                 week: "Week"
             },
@@ -2709,6 +2778,8 @@ body {
                     newWeek: "➕ أسبوع جديد",
                     mergePreview: "🔎 التطابقات",
                     mergeApply: "✅ تطبيق",
+                    mergeWeek: "🧹 دمج الأسبوع",
+                    mergeWeekApply: "✅ تطبيق المحدد",
                     downloadGuide: "⬇️ تحميل الدليل",
                     signIn: "🔐 تسجيل الدخول",
                     signOut: "🔓 تسجيل الخروج",
@@ -2870,6 +2941,9 @@ body {
                     mergePreviewTitle: "🔎 تطابقات محتملة",
                     mergePreviewEmpty: "لا توجد تطابقات بين أحدث أسبوع والأسبوع السابق.",
                     mergePreviewHint: "مقارنة الأسبوع {prev} ← الأسبوع {latest}",
+                    mergeWeekTitle: "🧹 دمج تكرارات الأسبوع",
+                    mergeWeekEmpty: "لا توجد أسماء مكررة في الأسبوع {week}.",
+                    mergeWeekHint: "اختر التكرارات المراد دمجها للأسبوع {week}",
                     mergeApplySuccess: "✅ تم تطبيق التطابقات على الأسبوع {week}",
                     mergeApplyError: "❌ فشل تطبيق التطابقات: {error}",
                     playerProfile: "ملف اللاعب",
@@ -3071,7 +3145,9 @@ body {
                     resetConfirm: "⚠️ سيتم حذف جميع بيانات المبارزة نهائياً من Firebase.\n\nاكتب \"RESET\" للتأكيد:",
                     resetSuccess: "✅ تم إعادة ضبط بيانات المبارزة",
                     resetCancelled: "تم إلغاء إعادة الضبط",
-                    resetError: "❌ فشل إعادة الضبط: {error}"
+                    resetError: "❌ فشل إعادة الضبط: {error}",
+                    mergeWeekSuccess: "✅ تم دمج تكرارات الأسبوع {week}",
+                    mergeWeekError: "❌ فشل الدمج: {error}"
                 },
                 week: "الأسبوع"
             }
@@ -3935,6 +4011,204 @@ body {
             return mergedRows;
         }
 
+        function buildNameFrequencyMap(rows) {
+            const freqMap = new Map();
+            rows.forEach(row => {
+                const name = row['Player Name'];
+                if (!name) return;
+                const key = normalizePlayerName(name);
+                if (!key) return;
+                const entry = freqMap.get(key) || new Map();
+                entry.set(name, (entry.get(name) || 0) + 1);
+                freqMap.set(key, entry);
+            });
+            return freqMap;
+        }
+
+        function buildWeekFrequencyMap(weekNum) {
+            if (hasDailyData(weekNum)) {
+                const allRows = [];
+                duelDayKeys.forEach(day => {
+                    const rows = weeklyDailyData[weekNum]?.[day] || [];
+                    allRows.push(...rows);
+                });
+                return buildNameFrequencyMap(allRows);
+            }
+            return buildNameFrequencyMap(weeklyData[weekNum] || []);
+        }
+
+        function pickMostFrequentName(freqMap) {
+            const result = new Map();
+            freqMap.forEach((counts, key) => {
+                let bestName = '';
+                let bestCount = -1;
+                counts.forEach((count, name) => {
+                    if (count > bestCount) {
+                        bestCount = count;
+                        bestName = name;
+                    }
+                });
+                if (bestName) {
+                    result.set(key, bestName);
+                }
+            });
+            return result;
+        }
+
+        function buildPreviousWeekNameMap(weekNum) {
+            const weeks = getDuelWeeksList();
+            const currentIndex = weeks.indexOf(Number(weekNum));
+            if (currentIndex <= 0) return new Map();
+            const prevWeek = weeks[currentIndex - 1];
+            const prevRows = getWeekAggregateRows(prevWeek);
+            const map = new Map();
+            prevRows.forEach(row => {
+                const name = row['Player Name'];
+                const key = normalizePlayerName(name);
+                if (key && !map.has(key)) {
+                    map.set(key, name);
+                }
+            });
+            return map;
+        }
+
+        function getWeekDuplicateCandidates(weekNum) {
+            const weekFreqMap = buildWeekFrequencyMap(weekNum);
+            const candidates = [];
+            weekFreqMap.forEach((counts, key) => {
+                const variants = Array.from(counts.entries())
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([name, count]) => ({ name, count }));
+                if (variants.length > 1) {
+                    candidates.push({ key, variants });
+                }
+            });
+            return candidates;
+        }
+
+        async function applyMergeWeekSelections(renameMap, targetWeek) {
+            if (!renameMap || !renameMap.size) return;
+            if (hasDailyData(targetWeek)) {
+                for (const day of duelDayKeys) {
+                    const rows = weeklyDailyData[targetWeek]?.[day] || [];
+                    if (!rows.length) continue;
+                    const mergedRows = mergeRowsByName(rows, renameMap);
+                    if (!mergedRows.length) continue;
+                    if (!weeklyDailyData[targetWeek]) {
+                        weeklyDailyData[targetWeek] = {};
+                    }
+                    weeklyDailyData[targetWeek][day] = mergedRows;
+                    const csvContent = 'Rank,Player Name,Points\n' +
+                        mergedRows.map(p => `${p.Rank},"${p['Player Name']}","${p.Points}"`).join('\n');
+                    await saveWeekDayToFirebase(targetWeek, day, csvContent);
+                }
+            } else {
+                const rows = weeklyData[targetWeek] || [];
+                if (!rows.length) return;
+                const mergedRows = mergeRowsByName(rows, renameMap);
+                weeklyData[targetWeek] = mergedRows;
+                const csvContent = 'Rank,Player Name,Points\n' +
+                    mergedRows.map(p => `${p.Rank},"${p['Player Name']}","${p.Points}"`).join('\n');
+                await saveWeekToFirebase(targetWeek, csvContent);
+            }
+        }
+
+        async function mergeCurrentWeekDuplicates() {
+            if (!auth.currentUser) {
+                await showAlert(t('messages.signInRequired'));
+                return;
+            }
+            if (currentDuelView !== 'week') {
+                await showAlert(t('messages.dayViewRequired'));
+                return;
+            }
+            const targetWeek = Number(currentWeek);
+            try {
+                const prevNameMap = buildPreviousWeekNameMap(targetWeek);
+                const weekFreqMap = buildWeekFrequencyMap(targetWeek);
+                const weekBest = pickMostFrequentName(weekFreqMap);
+                const renameMap = new Map();
+                weekBest.forEach((fallbackName, key) => {
+                    renameMap.set(key, prevNameMap.get(key) || fallbackName);
+                });
+
+                await applyMergeWeekSelections(renameMap, targetWeek);
+                updateDashboard();
+                await showAlert(t('messages.mergeWeekSuccess', { week: targetWeek }));
+            } catch (error) {
+                console.error('Merge week duplicates error:', error);
+                await showAlert(t('messages.mergeWeekError', { error: error.message }));
+            }
+        }
+
+        async function openMergeWeekModal() {
+            if (!auth.currentUser) {
+                await showAlert(t('messages.signInRequired'));
+                return;
+            }
+            if (currentDuelView !== 'week') {
+                await showAlert(t('messages.dayViewRequired'));
+                return;
+            }
+            const targetWeek = Number(currentWeek);
+            const list = document.getElementById('mergeWeekList');
+            const hint = document.getElementById('mergeWeekHint');
+            if (!list || !hint) return;
+
+            const prevNameMap = buildPreviousWeekNameMap(targetWeek);
+            const candidates = getWeekDuplicateCandidates(targetWeek);
+            list.innerHTML = '';
+            hint.textContent = t('modals.mergeWeekHint', { week: targetWeek });
+
+            if (!candidates.length) {
+                const empty = document.createElement('div');
+                empty.className = 'kpi-subtext';
+                empty.textContent = t('modals.mergeWeekEmpty', { week: targetWeek });
+                list.appendChild(empty);
+            } else {
+                candidates.forEach((candidate, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'merge-week-item';
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = true;
+                    checkbox.id = `mergeWeekCheck-${index}`;
+
+                    const content = document.createElement('div');
+                    const select = document.createElement('select');
+                    select.className = 'search-bar';
+                    select.setAttribute('data-key', candidate.key);
+
+                    candidate.variants.forEach(variant => {
+                        const option = document.createElement('option');
+                        option.value = variant.name;
+                        option.textContent = `${variant.name} (${variant.count})`;
+                        select.appendChild(option);
+                    });
+
+                    const preferred = prevNameMap.get(candidate.key) || candidate.variants[0].name;
+                    select.value = preferred;
+
+                    const label = document.createElement('div');
+                    label.textContent = preferred;
+
+                    const variantList = document.createElement('div');
+                    variantList.className = 'merge-week-variants';
+                    variantList.textContent = candidate.variants.map(v => `${v.name} (${v.count})`).join(' • ');
+
+                    content.appendChild(select);
+                    content.appendChild(variantList);
+
+                    item.appendChild(checkbox);
+                    item.appendChild(content);
+                    list.appendChild(item);
+                });
+            }
+
+            document.getElementById('mergeWeekModal').style.display = 'block';
+        }
+
         function buildRenameMap(pairs) {
             const map = new Map();
             pairs.forEach(pair => {
@@ -3947,12 +4221,12 @@ body {
 
         async function applyMergePreviewPairs() {
             if (!auth.currentUser) {
-                alert(t('messages.signInRequired'));
+                await showAlert(t('messages.signInRequired'));
                 return;
             }
             const pairs = getMergePreviewPairs();
             if (!pairs.length) {
-                alert(t('modals.mergePreviewEmpty'));
+                await showAlert(t('modals.mergePreviewEmpty'));
                 return;
             }
             const latestWeek = pairs[0].latestWeek;
@@ -3985,10 +4259,10 @@ body {
                 updateDashboard();
                 const modal = document.getElementById('mergePreviewModal');
                 if (modal) modal.style.display = 'none';
-                alert(t('modals.mergeApplySuccess', { week: latestWeek }));
+                await showAlert(t('modals.mergeApplySuccess', { week: latestWeek }));
             } catch (error) {
                 console.error('Merge apply error:', error);
-                alert(t('modals.mergeApplyError', { error: error.message }));
+                await showAlert(t('modals.mergeApplyError', { error: error.message }));
             }
         }
 
@@ -4418,9 +4692,9 @@ body {
             }
         }
 
-        function showAddGuideModal() {
+        async function showAddGuideModal() {
             if (!auth.currentUser) {
-                alert(t('guides.messages.signInRequired'));
+                await showAlert(t('guides.messages.signInRequired'));
                 return;
             }
             document.getElementById('guideTitleInput').value = '';
@@ -5098,7 +5372,99 @@ body {
                     `<button class="week-btn ${!allActive && week == currentWeek ? 'active' : ''}" onclick="selectWeek(${week})">${t('week')} ${week}</button>`
                 ).join('')}
                 <button class="week-btn" id="newWeekBtn" data-i18n="buttons.newWeek" style="${newWeekStyle}" onclick="createNewDuelWeek()">➕ New Week</button>
+                <button class="week-btn" id="mergeWeekBtn" data-i18n="buttons.mergeWeek" style="${newWeekStyle}" onclick="openMergeWeekModal()">🧹 Merge Week</button>
             `;
+        }
+
+        function openSystemModal({ title, message, showInput = false, inputPlaceholder = '', confirmText = 'OK', cancelText = 'Cancel', showCancel = true }) {
+            return new Promise(resolve => {
+                const modal = document.getElementById('systemModal');
+                const titleEl = document.getElementById('systemModalTitle');
+                const messageEl = document.getElementById('systemModalMessage');
+                const inputEl = document.getElementById('systemModalInput');
+                const confirmBtn = document.getElementById('systemModalConfirm');
+                const cancelBtn = document.getElementById('systemModalCancel');
+                const closeBtn = document.getElementById('closeSystemModal');
+
+                if (!modal || !titleEl || !messageEl || !inputEl || !confirmBtn || !cancelBtn || !closeBtn) {
+                    resolve({ confirmed: false, value: null });
+                    return;
+                }
+
+                titleEl.textContent = title || 'Notice';
+                messageEl.textContent = message || '';
+                confirmBtn.textContent = confirmText || 'OK';
+                cancelBtn.textContent = cancelText || 'Cancel';
+                cancelBtn.style.display = showCancel ? 'inline-block' : 'none';
+
+                inputEl.style.display = showInput ? 'block' : 'none';
+                inputEl.value = '';
+                inputEl.placeholder = inputPlaceholder || '';
+
+                const cleanup = () => {
+                    confirmBtn.onclick = null;
+                    cancelBtn.onclick = null;
+                    closeBtn.onclick = null;
+                    modal.onclick = null;
+                };
+
+                confirmBtn.onclick = () => {
+                    const value = showInput ? inputEl.value : null;
+                    modal.style.display = 'none';
+                    cleanup();
+                    resolve({ confirmed: true, value });
+                };
+
+                const cancelHandler = () => {
+                    modal.style.display = 'none';
+                    cleanup();
+                    resolve({ confirmed: false, value: null });
+                };
+
+                cancelBtn.onclick = cancelHandler;
+                closeBtn.onclick = cancelHandler;
+                modal.onclick = (e) => {
+                    if (e.target === modal) cancelHandler();
+                };
+
+                modal.style.display = 'block';
+                if (showInput) {
+                    setTimeout(() => inputEl.focus(), 0);
+                } else {
+                    confirmBtn.focus();
+                }
+            });
+        }
+
+        async function showAlert(message, title) {
+            await openSystemModal({
+                title: title || '⚠️',
+                message,
+                showCancel: false,
+                confirmText: 'OK'
+            });
+        }
+
+        async function showConfirm(message, title) {
+            const result = await openSystemModal({
+                title: title || '⚠️',
+                message,
+                showCancel: true,
+                confirmText: 'OK',
+                cancelText: t('messages.signOutCancel') || 'Cancel'
+            });
+            return result.confirmed;
+        }
+
+        async function showPrompt(message, title) {
+            const result = await openSystemModal({
+                title: title || '⚠️',
+                message,
+                showInput: true,
+                confirmText: 'OK',
+                cancelText: t('messages.signOutCancel') || 'Cancel'
+            });
+            return result.confirmed ? result.value : null;
         }
 
         let duelSortState = { key: '', dir: 'asc' };
@@ -5193,7 +5559,7 @@ body {
 
         async function createNewDuelWeek() {
             if (!auth.currentUser) {
-                alert(t('messages.signInRequired'));
+                await showAlert(t('messages.signInRequired'));
                 return;
             }
 
@@ -5218,10 +5584,10 @@ body {
                 updateWeekButtons();
                 updateDashboard();
 
-                alert(t('messages.newWeekCreated', { week: nextWeek }));
+                await showAlert(t('messages.newWeekCreated', { week: nextWeek }));
             } catch (error) {
                 console.error('Error creating new week:', error);
-                alert(t('messages.uploadError', { error: error.message }));
+                await showAlert(t('messages.uploadError', { error: error.message }));
             }
         }
 
@@ -5801,13 +6167,13 @@ body {
 
         async function resetAllianceDuelData() {
             if (!auth.currentUser) {
-                alert(t('messages.signInRequired'));
+                await showAlert(t('messages.signInRequired'));
                 return;
             }
 
-            const confirmText = prompt(t('messages.resetConfirm'));
+            const confirmText = await showPrompt(t('messages.resetConfirm'));
             if (confirmText !== 'RESET') {
-                alert(t('messages.resetCancelled'));
+                await showAlert(t('messages.resetCancelled'));
                 return;
             }
 
@@ -5834,22 +6200,22 @@ body {
                     `;
                 }
 
-                alert(t('messages.resetSuccess'));
+                await showAlert(t('messages.resetSuccess'));
             } catch (error) {
                 console.error('Reset duel error:', error);
-                alert(t('messages.resetError', { error: error.message }));
+                await showAlert(t('messages.resetError', { error: error.message }));
             }
         }
 
         async function resetDonationData() {
             if (!auth.currentUser) {
-                alert(t('donation.messages.signInRequired'));
+                await showAlert(t('donation.messages.signInRequired'));
                 return;
             }
 
-            const confirmText = prompt(t('donation.messages.resetConfirm'));
+            const confirmText = await showPrompt(t('donation.messages.resetConfirm'));
             if (confirmText !== 'RESET') {
-                alert(t('donation.messages.resetCancelled'));
+                await showAlert(t('donation.messages.resetCancelled'));
                 return;
             }
 
@@ -5862,10 +6228,10 @@ body {
                 updateDonationWeekButtons();
                 renderDonationTable([]);
                 setDonationStatus(t('donation.messages.resetSuccess'));
-                alert(t('donation.messages.resetSuccess'));
+                await showAlert(t('donation.messages.resetSuccess'));
             } catch (error) {
                 console.error('Reset donation error:', error);
-                alert(t('donation.messages.resetError', { error: error.message }));
+                await showAlert(t('donation.messages.resetError', { error: error.message }));
             }
         }
 
@@ -5987,7 +6353,7 @@ body {
             
             // Check authentication first
             if (!auth.currentUser) {
-                alert(t('messages.signInRequired'));
+                await showAlert(t('messages.signInRequired'));
                 e.target.value = '';
                 return;
             }
@@ -6004,7 +6370,7 @@ body {
                     console.log('Parsed players:', newPlayers.length, newPlayers.slice(0, 3));
                     
                     if (!newPlayers || newPlayers.length === 0) {
-                        alert(t('messages.invalidCsv'));
+                        await showAlert(t('messages.invalidCsv'));
                         e.target.value = '';
                         return;
                     }
@@ -6014,7 +6380,7 @@ body {
 
                     if (duelUploadMode === 'day') {
                         if (currentDuelDay === 'all') {
-                            alert(t('messages.dayRequired'));
+                            await showAlert(t('messages.dayRequired'));
                             e.target.value = '';
                             return;
                         }
@@ -6029,7 +6395,7 @@ body {
                         updateWeekButtons();
                         updateDashboard();
 
-                        alert(t('messages.uploadDaySuccess', { week: targetWeek, day: getDayLabel(currentDuelDay), count: newPlayers.length }));
+                        await showAlert(t('messages.uploadDaySuccess', { week: targetWeek, day: getDayLabel(currentDuelDay), count: newPlayers.length }));
                     } else {
                         const nextWeek = latestWeek > 0 ? latestWeek + 1 : 1;
                         console.log(`Uploading Week ${nextWeek} with ${newPlayers.length} players...`);
@@ -6044,17 +6410,17 @@ body {
                         updateWeekButtons();
                         updateDashboard();
 
-                        alert(t('messages.uploadSuccessDetail', { week: nextWeek, count: newPlayers.length }));
+                        await showAlert(t('messages.uploadSuccessDetail', { week: nextWeek, count: newPlayers.length }));
                     }
                     
                 } catch (error) {
                     console.error('Upload error:', error);
-                    alert(t('messages.uploadError', { error: error.message }));
+                    await showAlert(t('messages.uploadError', { error: error.message }));
                 }
             };
             
             reader.onerror = function() {
-                alert(t('messages.fileReadError'));
+                showAlert(t('messages.fileReadError'));
             };
             
             console.log('Starting to read file...');
@@ -6176,6 +6542,34 @@ body {
         document.getElementById('duelDivisionFilter')?.addEventListener('change', applyDuelFilters);
         document.getElementById('mergePreviewBtn')?.addEventListener('click', openMergePreviewModal);
         document.getElementById('mergePreviewApplyBtn')?.addEventListener('click', applyMergePreviewPairs);
+        document.getElementById('mergeWeekApplyBtn')?.addEventListener('click', async () => {
+            const list = document.getElementById('mergeWeekList');
+            const targetWeek = Number(currentWeek);
+            if (!list) return;
+            const renameMap = new Map();
+            list.querySelectorAll('.merge-week-item').forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                const select = item.querySelector('select[data-key]');
+                if (!checkbox || !select) return;
+                if (!checkbox.checked) return;
+                const key = select.getAttribute('data-key');
+                if (!key) return;
+                renameMap.set(key, select.value);
+            });
+            if (!renameMap.size) {
+                await showAlert(t('modals.mergeWeekEmpty', { week: targetWeek }));
+                return;
+            }
+            try {
+                await applyMergeWeekSelections(renameMap, targetWeek);
+                updateDashboard();
+                document.getElementById('mergeWeekModal').style.display = 'none';
+                await showAlert(t('messages.mergeWeekSuccess', { week: targetWeek }));
+            } catch (error) {
+                console.error('Merge week apply error:', error);
+                await showAlert(t('messages.mergeWeekError', { error: error.message }));
+            }
+        });
 
         // Modal Close
         document.getElementById('closeModal').addEventListener('click', () => {
@@ -6186,6 +6580,10 @@ body {
             const modal = document.getElementById('mergePreviewModal');
             if (modal) modal.style.display = 'none';
         });
+        document.getElementById('closeMergeWeekModal')?.addEventListener('click', () => {
+            const modal = document.getElementById('mergeWeekModal');
+            if (modal) modal.style.display = 'none';
+        });
 
         window.addEventListener('click', (e) => {
             if (e.target.id === 'playerModal') {
@@ -6194,6 +6592,10 @@ body {
             }
             if (e.target.id === 'mergePreviewModal') {
                 const modal = document.getElementById('mergePreviewModal');
+                if (modal) modal.style.display = 'none';
+            }
+            if (e.target.id === 'mergeWeekModal') {
+                const modal = document.getElementById('mergeWeekModal');
                 if (modal) modal.style.display = 'none';
             }
         });
@@ -6233,14 +6635,14 @@ body {
         }
         
         // Edit Player
-        function editPlayer(playerName, rank) {
+        async function editPlayer(playerName, rank) {
             if (!auth.currentUser) {
-                alert(t('messages.signInEdit'));
+                await showAlert(t('messages.signInEdit'));
                 return;
             }
             const context = getEditableDuelContext();
             if (!context.editable) {
-                alert(t('messages.dayViewRequired'));
+                await showAlert(t('messages.dayViewRequired'));
                 return;
             }
             
@@ -6250,7 +6652,7 @@ body {
             const player = players.find(p => p['Player Name'] === playerName && p.Rank === rank);
             
             if (!player) {
-                alert(t('messages.playerNotFound'));
+                await showAlert(t('messages.playerNotFound'));
                 return;
             }
             
@@ -6339,16 +6741,17 @@ body {
         // Delete Player
         async function deletePlayer(playerName, rank) {
             if (!auth.currentUser) {
-                alert(t('messages.signInDeletePlayer'));
+                await showAlert(t('messages.signInDeletePlayer'));
                 return;
             }
             const context = getEditableDuelContext();
             if (!context.editable) {
-                alert(t('messages.dayViewRequired'));
+                await showAlert(t('messages.dayViewRequired'));
                 return;
             }
             
-            if (!confirm(t('messages.deletePlayerConfirm', { name: playerName, rank, week: currentWeek }))) {
+            const confirmed = await showConfirm(t('messages.deletePlayerConfirm', { name: playerName, rank, week: currentWeek }));
+            if (!confirmed) {
                 return;
             }
             
@@ -6364,7 +6767,7 @@ body {
                 );
                 
                 if (filteredPlayers.length === players.length) {
-                    alert(t('messages.playerNotFound'));
+                    await showAlert(t('messages.playerNotFound'));
                     return;
                 }
                 
@@ -6379,23 +6782,23 @@ body {
                 // Refresh UI
                 updateDashboard();
                 
-                alert(t('messages.deletePlayerSuccess', { name: playerName, week: currentWeek }));
+                await showAlert(t('messages.deletePlayerSuccess', { name: playerName, week: currentWeek }));
                 
             } catch (error) {
                 console.error('Error deleting player:', error);
-                alert(t('messages.deletePlayerError', { error: error.message }));
+                await showAlert(t('messages.deletePlayerError', { error: error.message }));
             }
         }
         
         // Show Add Player Modal
-        function showAddPlayerModal() {
+        async function showAddPlayerModal() {
             if (!auth.currentUser) {
-                alert(t('messages.signInAddPlayer'));
+                await showAlert(t('messages.signInAddPlayer'));
                 return;
             }
             const context = getEditableDuelContext();
             if (!context.editable) {
-                alert(t('messages.dayViewRequired'));
+                await showAlert(t('messages.dayViewRequired'));
                 return;
             }
             
@@ -6474,17 +6877,17 @@ body {
         // Delete Week
         async function deleteCurrentWeek() {
             if (!auth.currentUser) {
-                alert(t('messages.signInDeleteWeek'));
+                await showAlert(t('messages.signInDeleteWeek'));
                 return;
             }
             
             const availableWeeks = getDuelWeeksList();
             if (availableWeeks.length === 1) {
-                alert(t('messages.cannotDeleteOnlyWeek'));
+                await showAlert(t('messages.cannotDeleteOnlyWeek'));
                 return;
             }
             
-            const confirmText = prompt(
+            const confirmText = await showPrompt(
                 t('messages.deleteWeekConfirm', {
                     week: currentWeek,
                     count: getWeekAggregateRows(currentWeek).length
@@ -6492,7 +6895,7 @@ body {
             );
             
             if (confirmText !== 'DELETE') {
-                alert(t('messages.deleteCancelled'));
+                await showAlert(t('messages.deleteCancelled'));
                 return;
             }
             
@@ -6528,11 +6931,11 @@ body {
                 updateWeekButtons();
                 updateDashboard();
                 
-                alert(t('messages.weekDeleted', { week: currentWeek }));
+                await showAlert(t('messages.weekDeleted', { week: currentWeek }));
                 
             } catch (error) {
                 console.error('Error deleting week:', error);
-                alert(t('messages.deleteWeekError', { error: error.message }));
+                await showAlert(t('messages.deleteWeekError', { error: error.message }));
             }
         }
         
@@ -6566,11 +6969,11 @@ body {
                 updateWeekButtons();
                 updateDashboard();
                 
-                alert(t('messages.refreshSuccess', { count: totalWeeks }));
+                await showAlert(t('messages.refreshSuccess', { count: totalWeeks }));
                 
             } catch (error) {
                 console.error('Error refreshing data:', error);
-                alert(t('messages.refreshError', { error: error.message }));
+                await showAlert(t('messages.refreshError', { error: error.message }));
             } finally {
                 const refreshBtn = document.getElementById('refreshDataBtn');
                 if (refreshBtn) {
@@ -6585,9 +6988,9 @@ body {
                 rows.map(p => `${p.Rank},"${p.Commander}","${p.Points}"`).join('\n');
         }
 
-        function editDonationEntry(commanderName, rank) {
+        async function editDonationEntry(commanderName, rank) {
             if (!auth.currentUser) {
-                alert(t('donation.messages.signInRequired'));
+                await showAlert(t('donation.messages.signInRequired'));
                 return;
             }
 
@@ -6598,7 +7001,7 @@ body {
             const rows = donationWeeksData[currentDonationWeek] || [];
             const entry = rows.find(p => p.Commander === commanderName && p.Rank === rank);
             if (!entry) {
-                alert(t('donation.messages.deleteError', { error: t('messages.playerNotFound') }));
+                await showAlert(t('donation.messages.deleteError', { error: t('messages.playerNotFound') }));
                 return;
             }
 
@@ -6659,11 +7062,12 @@ body {
 
         async function deleteDonationEntry(commanderName, rank) {
             if (!auth.currentUser) {
-                alert(t('donation.messages.signInRequired'));
+                await showAlert(t('donation.messages.signInRequired'));
                 return;
             }
 
-            if (!confirm(t('donation.messages.deleteConfirm', { name: commanderName, rank, week: currentDonationWeek }))) {
+            const confirmed = await showConfirm(t('donation.messages.deleteConfirm', { name: commanderName, rank, week: currentDonationWeek }));
+            if (!confirmed) {
                 return;
             }
 
@@ -6671,7 +7075,7 @@ body {
                 const rows = donationWeeksData[currentDonationWeek] || [];
                 const filteredRows = rows.filter(p => !(p.Commander === commanderName && p.Rank === rank));
                 if (filteredRows.length === rows.length) {
-                    alert(t('donation.messages.deleteError', { error: t('messages.playerNotFound') }));
+                    await showAlert(t('donation.messages.deleteError', { error: t('messages.playerNotFound') }));
                     return;
                 }
 
@@ -6681,16 +7085,16 @@ body {
                 donationWeeksData[currentDonationWeek] = filteredRows;
 
                 renderDonationTable(getCurrentDonationRows());
-                alert(t('donation.messages.deleteSuccess'));
+                await showAlert(t('donation.messages.deleteSuccess'));
             } catch (error) {
                 console.error('Error deleting donation entry:', error);
-                alert(t('donation.messages.deleteError', { error: error.message }));
+                await showAlert(t('donation.messages.deleteError', { error: error.message }));
             }
         }
 
-        function showAddDonationModal() {
+        async function showAddDonationModal() {
             if (!auth.currentUser) {
-                alert(t('donation.messages.signInRequired'));
+                await showAlert(t('donation.messages.signInRequired'));
                 return;
             }
 
@@ -6751,19 +7155,19 @@ body {
 
         async function deleteDonationWeek() {
             if (!auth.currentUser) {
-                alert(t('donation.messages.signInRequired'));
+                await showAlert(t('donation.messages.signInRequired'));
                 return;
             }
 
             const weeks = getDonationWeeksList();
             if (weeks.length <= 1) {
-                alert(t('donation.messages.deleteWeekOnlyWeek'));
+                await showAlert(t('donation.messages.deleteWeekOnlyWeek'));
                 return;
             }
 
-            const confirmText = prompt(t('donation.messages.deleteWeekConfirm', { week: currentDonationWeek, count: (donationWeeksData[currentDonationWeek] || []).length }));
+            const confirmText = await showPrompt(t('donation.messages.deleteWeekConfirm', { week: currentDonationWeek, count: (donationWeeksData[currentDonationWeek] || []).length }));
             if (confirmText !== 'DELETE') {
-                alert(t('donation.messages.deleteWeekCancelled'));
+                await showAlert(t('donation.messages.deleteWeekCancelled'));
                 return;
             }
 
@@ -6784,10 +7188,10 @@ body {
                 currentDonationView = 'week';
                 updateDonationWeekButtons();
                 renderDonationTable(getCurrentDonationRows());
-                alert(t('donation.messages.deleteWeekSuccess', { week: currentDonationWeek }));
+                await showAlert(t('donation.messages.deleteWeekSuccess', { week: currentDonationWeek }));
             } catch (error) {
                 console.error('Error deleting donation week:', error);
-                alert(t('donation.messages.deleteWeekError', { error: error.message }));
+                await showAlert(t('donation.messages.deleteWeekError', { error: error.message }));
             }
         }
 
@@ -7067,9 +7471,9 @@ body {
         });
 
         // Donation upload
-        document.getElementById('donationUpload')?.addEventListener('change', (e) => {
+        document.getElementById('donationUpload')?.addEventListener('change', async (e) => {
             if (!auth.currentUser) {
-                alert(t('donation.messages.signInRequired'));
+                await showAlert(t('donation.messages.signInRequired'));
                 e.target.value = '';
                 return;
             }
@@ -7091,13 +7495,13 @@ body {
                     setDonationStatus(t('donation.messages.uploadSuccess', { week: nextWeek, count: rows.length }));
                 } catch (error) {
                     console.error('Donation upload error:', error);
-                    alert(t('donation.messages.uploadError', { error: error.message }));
+                    await showAlert(t('donation.messages.uploadError', { error: error.message }));
                 } finally {
                     e.target.value = '';
                 }
             };
             reader.onerror = function() {
-                alert(t('messages.fileReadError'));
+                showAlert(t('messages.fileReadError'));
                 e.target.value = '';
             };
             reader.readAsText(file);
@@ -7106,7 +7510,7 @@ body {
         document.getElementById('donationExportCsvBtn')?.addEventListener('click', () => {
             const rows = getCurrentDonationRows();
             if (!rows.length) {
-                alert(t('donation.messages.noExport'));
+                showAlert(t('donation.messages.noExport'));
                 return;
             }
             const weeks = getDonationWeeksList();
