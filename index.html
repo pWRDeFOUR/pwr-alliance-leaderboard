@@ -305,6 +305,39 @@ body {
 }
 
 .week-selector { display: flex; gap: 10px; flex-wrap: wrap; }
+.view-switcher {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    justify-content: center;
+    position: sticky;
+    top: 72px;
+    z-index: 20;
+    padding: 10px;
+    backdrop-filter: blur(10px);
+    background: color-mix(in srgb, var(--surface) 80%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: var(--shadow-sm);
+}
+.view-switcher .view-btn {
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-display);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.view-switcher .view-btn.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+}
 
 .week-btn, .action-btn {
     padding: 12px 20px;
@@ -1527,6 +1560,13 @@ body {
         <!-- KPIs -->
         <div class="kpi-grid" id="kpiGrid"></div>
 
+        <div class="view-switcher" id="duelViewSwitcher">
+            <button class="view-btn" data-view="charts" data-i18n="leaderboard.viewCharts">Charts</button>
+            <button class="view-btn" data-view="report" data-i18n="leaderboard.viewReport">Report</button>
+            <button class="view-btn" data-view="both" data-i18n="leaderboard.viewBoth">Both</button>
+        </div>
+
+        <div id="duelChartsSection">
         <!-- Movement Highlights -->
         <div class="movement-section" id="movementSection" style="display: none;">
             <h2 class="section-title" data-i18n="movement.title">📈 Weekly Movement Highlights</h2>
@@ -1619,8 +1659,10 @@ body {
             </div>
         </div>
 
+        </div>
+
         <!-- Data Table -->
-        <div class="table-container">
+        <div id="duelReportSection" class="table-container">
             <h3 class="chart-title" data-i18n="leaderboard.title">📋 Complete Leaderboard</h3>
             <div class="duel-filters">
                 <input type="text" id="searchBar" class="search-bar" data-i18n-placeholder="leaderboard.searchPlaceholder" placeholder="🔍 Search player name...">
@@ -2453,6 +2495,9 @@ body {
                     allWeeks: "All Weeks",
                     missingAll: "All players",
                     missingOnly: "Missing days",
+                    viewCharts: "Charts",
+                    viewReport: "Report",
+                    viewBoth: "Both",
                     uploadModeWeek: "Upload: Full Week",
                     uploadModeDay: "Upload: Day by Day",
                     dayAll: "All Days",
@@ -2861,6 +2906,9 @@ body {
                     allWeeks: "كل الأسابيع",
                     missingAll: "كل اللاعبين",
                     missingOnly: "أيام غياب",
+                    viewCharts: "الرسوم",
+                    viewReport: "التقرير",
+                    viewBoth: "الكل",
                     uploadModeWeek: "رفع: الأسبوع كامل",
                     uploadModeDay: "رفع: يوم بيوم",
                     dayAll: "كل الأيام",
@@ -3682,6 +3730,7 @@ body {
         let currentDuelView = 'week';
         let currentDuelDay = 'all';
         let duelUploadMode = 'week';
+        let duelSectionView = localStorage.getItem('duelSectionView') || 'both';
         const duelDayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
         let chartInstances = {};
         let currentProfilePlayer = null;
@@ -5374,6 +5423,26 @@ body {
                 <button class="week-btn" id="newWeekBtn" data-i18n="buttons.newWeek" style="${newWeekStyle}" onclick="createNewDuelWeek()">➕ New Week</button>
                 <button class="week-btn" id="mergeWeekBtn" data-i18n="buttons.mergeWeek" style="${newWeekStyle}" onclick="openMergeWeekModal()">🧹 Merge Week</button>
             `;
+        }
+
+        function applyDuelSectionView() {
+            const charts = document.getElementById('duelChartsSection');
+            const report = document.getElementById('duelReportSection');
+            const buttons = document.querySelectorAll('#duelViewSwitcher .view-btn');
+            if (!charts || !report) return;
+
+            const view = duelSectionView || 'both';
+            charts.style.display = view === 'report' ? 'none' : 'block';
+            report.style.display = view === 'charts' ? 'none' : 'block';
+            buttons.forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-view') === view);
+            });
+        }
+
+        function setDuelSectionView(view) {
+            duelSectionView = view;
+            localStorage.setItem('duelSectionView', view);
+            applyDuelSectionView();
         }
 
         function openSystemModal({ title, message, showInput = false, inputPlaceholder = '', confirmText = 'OK', cancelText = 'Cancel', showCancel = true }) {
@@ -7451,6 +7520,12 @@ body {
             guideLanguageFilter = e.target.value;
             renderGuides();
         });
+        document.querySelectorAll('#duelViewSwitcher .view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const view = btn.getAttribute('data-view');
+                if (view) setDuelSectionView(view);
+            });
+        });
         document.getElementById('guideSort')?.addEventListener('change', (e) => {
             guideSortMode = e.target.value;
             renderGuides();
@@ -7588,6 +7663,7 @@ body {
             
             updateAuthUI();
             showDonationUpload();
+            applyDuelSectionView();
             
             // Apply full language translations now that data is loaded
             setLanguage(currentLanguage);
