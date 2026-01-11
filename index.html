@@ -338,6 +338,17 @@ body {
     color: var(--text);
     box-shadow: var(--shadow-sm);
 }
+.discord-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+.discord-link img {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
 
 .week-btn, .action-btn {
     padding: 12px 20px;
@@ -1495,6 +1506,10 @@ body {
         </div>
             <div class="global-actions">
                 <button class="action-btn compact" id="languageToggle">🌐 العربية</button>
+                <a class="action-btn compact discord-link" href="https://discord.gg/U9ZMbREzEN" target="_blank" rel="noopener">
+                    <img src="https://pngimg.com/uploads/discord/discord_PNG3.png" alt="Discord">
+                    Discord
+                </a>
                 <button class="action-btn compact" id="themeToggle">🌙 Dark</button>
                 <button class="action-btn compact" id="signInOutBtn" data-i18n="buttons.signIn">🔐 Sign In</button>
                 <button class="action-btn compact" id="shareBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
@@ -5710,20 +5725,10 @@ body {
             renderMovementHighlights();
             renderCharts();
             renderDivisions();
-            renderTable();
-            const searchInput = document.getElementById('searchBar');
-            if (searchInput) searchInput.value = '';
-            const missingFilter = document.getElementById('duelMissingFilter');
-            if (missingFilter) missingFilter.value = '';
-            const minPointsInput = document.getElementById('duelMinPoints');
-            if (minPointsInput) minPointsInput.value = '';
-            const maxPointsInput = document.getElementById('duelMaxPoints');
-            if (maxPointsInput) maxPointsInput.value = '';
-            const divisionFilter = document.getElementById('duelDivisionFilter');
-            if (divisionFilter) divisionFilter.value = '';
             updateDuelDaySelectorState();
             updateDuelUploadLabel();
             updateDuelAdminVisibility();
+            applyDuelFilters();
         }
 
         // === DONATION LEADERBOARD ===
