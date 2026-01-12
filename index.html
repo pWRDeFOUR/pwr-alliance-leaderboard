@@ -1950,6 +1950,7 @@ body {
                         </label>
                         <button class="action-btn" id="donationRefreshBtn" data-i18n="buttons.refresh">🔄 Refresh Data</button>
                         <button class="action-btn" id="donationDeleteWeekBtn" data-i18n="buttons.deleteWeek" style="display: none;">🗑️ Delete Week</button>
+                        <button class="action-btn" id="donationMergeWeekBtn" data-i18n="buttons.mergeWeek" style="display: none;">🧹 Merge Week</button>
                         <button class="action-btn" id="donationAddCommanderBtn" data-i18n="donation.buttons.addCommander" style="display: none;">➕ Add Commander</button>
                         <button class="action-btn" id="donationExportCsvBtn" data-i18n="buttons.exportCsv">💾 Export CSV</button>
                         <button class="action-btn" id="donationExportPngBtn" data-i18n="buttons.screenshot">📸 Screenshot</button>
@@ -2360,6 +2361,23 @@ body {
                 <div style="display: flex; gap: 10px; justify-content: flex-end;">
                     <button class="action-btn" id="cancelSignOutBtn" data-i18n="messages.signOutCancel">Cancel</button>
                     <button class="upload-btn" id="confirmSignOutBtn" data-i18n="messages.signOutConfirmBtn">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Donation Merge Week Modal -->
+    <div id="donationMergeWeekModal" class="modal">
+        <div class="modal-content" style="max-width: 720px;">
+            <div class="modal-header">
+                <h2 data-i18n="modals.mergeWeekTitle">🧹 Merge Week Duplicates</h2>
+                <span class="modal-close" id="closeDonationMergeWeekModal">&times;</span>
+            </div>
+            <div class="modal-body scrollable">
+                <div class="kpi-subtext" id="donationMergeWeekHint"></div>
+                <div class="merge-preview-list" id="donationMergeWeekList"></div>
+                <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+                    <button class="upload-btn" id="donationMergeWeekApplyBtn" data-i18n="buttons.mergeWeekApply">✅ Apply Selected</button>
                 </div>
             </div>
         </div>
@@ -4443,6 +4461,184 @@ body {
             return Object.keys(donationWeeksData).map(Number).sort((a, b) => a - b);
         }
 
+        // Donation Merge Week Functions
+        function buildDonationWeekFrequencyMap(weekNum) {
+            const rows = donationWeeksData[weekNum] || [];
+            const freqMap = new Map();
+            rows.forEach(row => {
+                const name = row.Commander;
+                if (!name) return;
+                const key = normalizePlayerName(name);
+                if (!key) return;
+                const entry = freqMap.get(key) || new Map();
+                entry.set(name, (entry.get(name) || 0) + 1);
+                freqMap.set(key, entry);
+            });
+            return freqMap;
+        }
+
+        function buildDuelWeekNameMap() {
+            const duelWeeks = getDuelWeeksList();
+            if (!duelWeeks.length) return new Map();
+            const latestDuelWeek = Math.max(...duelWeeks);
+            const duelRows = getWeekAggregateRows(latestDuelWeek);
+            const nameMap = new Map();
+            duelRows.forEach(row => {
+                const name = row['Player Name'];
+                if (!name) return;
+                const key = normalizePlayerName(name);
+                if (key) nameMap.set(key, name);
+            });
+            return nameMap;
+        }
+
+        function buildPreviousDonationWeekNameMap(currentWeek) {
+            const weeks = getDonationWeeksList();
+            const index = weeks.indexOf(Number(currentWeek));
+            if (index <= 0) return new Map();
+            const prevWeek = weeks[index - 1];
+            const prevRows = donationWeeksData[prevWeek] || [];
+            const nameMap = new Map();
+            prevRows.forEach(row => {
+                const name = row.Commander;
+                if (!name) return;
+                const key = normalizePlayerName(name);
+                if (key) nameMap.set(key, name);
+            });
+            return nameMap;
+        }
+
+        function pickMostFrequentDonationName(freqMap) {
+            const result = new Map();
+            freqMap.forEach((counts, key) => {
+                const variants = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
+                if (variants.length) result.set(key, variants[0][0]);
+            });
+            return result;
+        }
+
+        function getDonationWeekDuplicateCandidates(weekNum) {
+            const weekFreqMap = buildDonationWeekFrequencyMap(weekNum);
+            const candidates = [];
+            weekFreqMap.forEach((counts, key) => {
+                const variants = Array.from(counts.entries())
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([name, count]) => ({ name, count }));
+                if (variants.length > 1) {
+                    candidates.push({ key, variants });
+                }
+            });
+            return candidates;
+        }
+
+        function mergeDonationRowsByName(rows, renameMap) {
+            const merged = new Map();
+            rows.forEach(row => {
+                const rawName = row.Commander;
+                if (!rawName) return;
+                const normalized = normalizePlayerName(rawName);
+                const targetName = renameMap.get(normalized) || rawName;
+                const targetKey = normalizePlayerName(targetName);
+                const points = Number(row.Points || 0);
+
+                if (!merged.has(targetKey)) {
+                    merged.set(targetKey, {
+                        Commander: targetName,
+                        Points: 0
+                    });
+                }
+                const entry = merged.get(targetKey);
+                entry.Points += points;
+            });
+
+            const mergedRows = Array.from(merged.values()).sort((a, b) => b.Points - a.Points);
+            mergedRows.forEach((row, index) => {
+                row.Rank = index + 1;
+            });
+            return mergedRows;
+        }
+
+        async function openDonationMergeWeekModal() {
+            if (!auth.currentUser) {
+                await showAlert(t('messages.signInRequired'));
+                return;
+            }
+            const targetWeek = Number(currentDonationWeek);
+            const list = document.getElementById('donationMergeWeekList');
+            const hint = document.getElementById('donationMergeWeekHint');
+            if (!list || !hint) return;
+
+            // Build name maps from both previous donation week and latest duel week
+            const prevDonationMap = buildPreviousDonationWeekNameMap(targetWeek);
+            const duelNameMap = buildDuelWeekNameMap();
+            const candidates = getDonationWeekDuplicateCandidates(targetWeek);
+
+            list.innerHTML = '';
+            hint.textContent = t('modals.mergeWeekHint', { week: targetWeek });
+
+            if (!candidates.length) {
+                const empty = document.createElement('div');
+                empty.className = 'kpi-subtext';
+                empty.textContent = t('modals.mergeWeekEmpty', { week: targetWeek });
+                list.appendChild(empty);
+            } else {
+                candidates.forEach((candidate, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'merge-week-item';
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = true;
+                    checkbox.id = `donationMergeWeekCheck-${index}`;
+
+                    const content = document.createElement('div');
+                    const select = document.createElement('select');
+                    select.className = 'search-bar';
+                    select.setAttribute('data-key', candidate.key);
+
+                    candidate.variants.forEach(variant => {
+                        const option = document.createElement('option');
+                        option.value = variant.name;
+                        option.textContent = `${variant.name} (${variant.count})`;
+                        select.appendChild(option);
+                    });
+
+                    // Prefer: 1) previous donation week name, 2) duel week name, 3) most frequent
+                    const preferred = prevDonationMap.get(candidate.key)
+                        || duelNameMap.get(candidate.key)
+                        || candidate.variants[0].name;
+                    select.value = preferred;
+
+                    const label = document.createElement('div');
+                    label.textContent = preferred;
+
+                    const variantList = document.createElement('div');
+                    variantList.className = 'merge-week-variants';
+                    variantList.textContent = candidate.variants.map(v => `${v.name} (${v.count})`).join(' • ');
+
+                    content.appendChild(select);
+                    content.appendChild(variantList);
+
+                    item.appendChild(checkbox);
+                    item.appendChild(content);
+                    list.appendChild(item);
+                });
+            }
+
+            document.getElementById('donationMergeWeekModal').style.display = 'block';
+        }
+
+        async function applyDonationMergeWeekSelections(renameMap, targetWeek) {
+            if (!renameMap || !renameMap.size) return;
+            const rows = donationWeeksData[targetWeek] || [];
+            if (!rows.length) return;
+            const mergedRows = mergeDonationRowsByName(rows, renameMap);
+            donationWeeksData[targetWeek] = mergedRows;
+            const csvContent = 'Rank,Commander,Points\n' +
+                mergedRows.map(p => `${p.Rank},"${p.Commander}","${p.Points}"`).join('\n');
+            await saveDonationWeekToFirebase(targetWeek, csvContent);
+        }
+
         async function loadGuidesFromFirebase() {
             const grid = document.getElementById('guidesGrid');
             if (grid) {
@@ -5435,8 +5631,8 @@ body {
                 ${weeks.map(week =>
                     `<button class="week-btn ${!allActive && week == currentWeek ? 'active' : ''}" onclick="selectWeek(${week})">${t('week')} ${week}</button>`
                 ).join('')}
-                <button class="week-btn" id="newWeekBtn" data-i18n="buttons.newWeek" style="${newWeekStyle}" onclick="createNewDuelWeek()">➕ New Week</button>
-                <button class="week-btn" id="mergeWeekBtn" data-i18n="buttons.mergeWeek" style="${newWeekStyle}" onclick="openMergeWeekModal()">🧹 Merge Week</button>
+                <button class="week-btn" id="newWeekBtn" style="${newWeekStyle}" onclick="createNewDuelWeek()">${t('buttons.newWeek')}</button>
+                <button class="week-btn" id="mergeWeekBtn" style="${newWeekStyle}" onclick="openMergeWeekModal()">${t('buttons.mergeWeek')}</button>
             `;
         }
 
@@ -6672,6 +6868,10 @@ body {
                 const modal = document.getElementById('mergeWeekModal');
                 if (modal) modal.style.display = 'none';
             }
+            if (e.target.id === 'donationMergeWeekModal') {
+                const modal = document.getElementById('donationMergeWeekModal');
+                if (modal) modal.style.display = 'none';
+            }
         });
 
         // ============================================
@@ -7328,6 +7528,10 @@ body {
             document.getElementById('donationProfileModal').style.display = 'none';
             currentDonationProfile = null;
         });
+        document.getElementById('closeDonationMergeWeekModal')?.addEventListener('click', () => {
+            const modal = document.getElementById('donationMergeWeekModal');
+            if (modal) modal.style.display = 'none';
+        });
 
         document.getElementById('closeGuidePreview')?.addEventListener('click', () => {
             document.getElementById('guidePreviewModal').style.display = 'none';
@@ -7467,7 +7671,36 @@ body {
         document.getElementById('refreshDataBtn')?.addEventListener('click', refreshDataFromFirebase);
         document.getElementById('donationRefreshBtn')?.addEventListener('click', refreshDonationDataFromFirebase);
         document.getElementById('donationDeleteWeekBtn')?.addEventListener('click', deleteDonationWeek);
+        document.getElementById('donationMergeWeekBtn')?.addEventListener('click', openDonationMergeWeekModal);
         document.getElementById('donationAddCommanderBtn')?.addEventListener('click', showAddDonationModal);
+        document.getElementById('donationMergeWeekApplyBtn')?.addEventListener('click', async () => {
+            const list = document.getElementById('donationMergeWeekList');
+            const targetWeek = Number(currentDonationWeek);
+            if (!list) return;
+            const renameMap = new Map();
+            list.querySelectorAll('.merge-week-item').forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                const select = item.querySelector('select[data-key]');
+                if (!checkbox || !select) return;
+                if (!checkbox.checked) return;
+                const key = select.getAttribute('data-key');
+                if (!key) return;
+                renameMap.set(key, select.value);
+            });
+            if (!renameMap.size) {
+                await showAlert(t('modals.mergeWeekEmpty', { week: targetWeek }));
+                return;
+            }
+            try {
+                await applyDonationMergeWeekSelections(renameMap, targetWeek);
+                updateDonationDashboard();
+                document.getElementById('donationMergeWeekModal').style.display = 'none';
+                await showAlert(t('messages.mergeWeekSuccess', { week: targetWeek }));
+            } catch (error) {
+                console.error('Donation merge week apply error:', error);
+                await showAlert(t('messages.mergeWeekError', { error: error.message }));
+            }
+        });
         document.getElementById('newWeekBtn')?.addEventListener('click', createNewDuelWeek);
         document.getElementById('duelUploadMode')?.addEventListener('change', (e) => {
             duelUploadMode = e.target.value;
@@ -7734,6 +7967,11 @@ body {
                     donationDeleteWeekBtn.style.display = 'inline-block';
                     donationDeleteWeekBtn.textContent = t('buttons.deleteWeek');
                 }
+                const donationMergeWeekBtn = document.getElementById('donationMergeWeekBtn');
+                if (donationMergeWeekBtn) {
+                    donationMergeWeekBtn.style.display = 'inline-block';
+                    donationMergeWeekBtn.textContent = t('buttons.mergeWeek');
+                }
                 if (donationAddCommanderBtn) {
                     donationAddCommanderBtn.style.display = 'inline-block';
                     donationAddCommanderBtn.textContent = t('donation.buttons.addCommander');
@@ -7781,6 +8019,10 @@ body {
                 }
                 if (donationDeleteWeekBtn) {
                     donationDeleteWeekBtn.style.display = 'none';
+                }
+                const donationMergeWeekBtn = document.getElementById('donationMergeWeekBtn');
+                if (donationMergeWeekBtn) {
+                    donationMergeWeekBtn.style.display = 'none';
                 }
                 if (donationAddCommanderBtn) {
                     donationAddCommanderBtn.style.display = 'none';
