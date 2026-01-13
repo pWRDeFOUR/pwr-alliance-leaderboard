@@ -3547,13 +3547,14 @@ body {
             const minutes = String(tzTime.getUTCMinutes()).padStart(2, '0');
             const timeStr = `${hours}:${minutes}`;
 
-            // Build button text
+            // Build button text with proper directionality
             let labelText = '';
             if (config.label) {
                 labelText = ' ' + t('timezone.' + config.label);
             }
 
-            btn.textContent = `🕒 ${dateStr} | ${timeStr} ${config.flags}${labelText}`;
+            // Use innerHTML with explicit LTR direction for date/time to prevent RTL issues
+            btn.innerHTML = `🕒 <span dir="ltr">${dateStr} | ${timeStr}</span> ${config.flags}${labelText}`;
         }
 
         function cycleTimezone() {
