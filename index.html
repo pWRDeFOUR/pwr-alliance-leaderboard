@@ -2564,6 +2564,8 @@ body {
                 kpi: {
                     totalPlayers: "Total Players",
                     totalPlayersSub: "Active Warriors",
+                    totalScore: "Total Score",
+                    totalScoreSub: "All Points Combined",
                     avgScore: "Average Score",
                     avgScoreSub: "Points per Player",
                     champion: "Champion",
@@ -2993,6 +2995,8 @@ body {
                 kpi: {
                     totalPlayers: "إجمالي اللاعبين",
                     totalPlayersSub: "المقاتلون النشطون",
+                    totalScore: "مجموع النقاط",
+                    totalScoreSub: "جميع النقاط مجتمعة",
                     avgScore: "متوسط النقاط",
                     avgScoreSub: "نقاط لكل لاعب",
                     champion: "البطل",
@@ -5450,6 +5454,11 @@ body {
                     <div class="kpi-subtext">${t('kpi.totalPlayersSub')}</div>
                 </div>
                 <div class="kpi-card">
+                    <div class="kpi-label">${t('kpi.totalScore')}</div>
+                    <div class="kpi-value">${totalPoints.toLocaleString()}</div>
+                    <div class="kpi-subtext">${t('kpi.totalScoreSub')}</div>
+                </div>
+                <div class="kpi-card">
                     <div class="kpi-label">${t('kpi.avgScore')}</div>
                     <div class="kpi-value">${avgScore.toLocaleString()}</div>
                     <div class="kpi-subtext">${t('kpi.avgScoreSub')}</div>
@@ -6720,15 +6729,45 @@ body {
         }
 
         function updateSecretTasksDisplay() {
-            // Get current time in GMT-2 (server time)
+            // Get current time in GMT-2 (server time) using same method as timezone system
             const now = new Date();
-            const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const serverTime = new Date(utcTime + (-2 * 3600000));
+            const utcTimestamp = Date.UTC(
+                now.getUTCFullYear(),
+                now.getUTCMonth(),
+                now.getUTCDate(),
+                now.getUTCHours(),
+                now.getUTCMinutes(),
+                now.getUTCSeconds()
+            );
+
+            // Add GMT-2 offset to get server time
+            const serverTimestamp = utcTimestamp + (-2 * 3600000);
+            const serverTime = new Date(serverTimestamp);
+
+            // Get the date at midnight in server time (00:00)
+            const serverDateAtMidnight = Date.UTC(
+                serverTime.getUTCFullYear(),
+                serverTime.getUTCMonth(),
+                serverTime.getUTCDate(),
+                0, 0, 0, 0
+            );
 
             // Calculate day index in the rotation (0, 1, or 2)
-            const epoch = new Date('2026-01-13T00:00:00Z'); // Reference date (today in GMT-2)
-            const daysSinceEpoch = Math.floor((serverTime - epoch) / (24 * 3600000));
+            // Epoch: 12-Jan-2026 at midnight
+            // We want: 12-Jan = Day 0, 13-Jan = Day 1, 14-Jan = Day 2
+            const epochDateAtMidnight = Date.UTC(2026, 0, 12, 0, 0, 0, 0); // 12-Jan-2026 at 00:00
+            const daysSinceEpoch = Math.floor((serverDateAtMidnight - epochDateAtMidnight) / (24 * 3600000));
             const rotationIndex = daysSinceEpoch % 3;
+
+            // Debug logging
+            console.log('Secret Tasks Debug:', {
+                serverTime: serverTime.toISOString(),
+                serverDate: serverTime.getUTCDate() + '-' + (serverTime.getUTCMonth() + 1) + '-' + serverTime.getUTCFullYear(),
+                epochDate: '12-1-2026',
+                daysSinceEpoch,
+                rotationIndex,
+                servers: secretTasksRotation[rotationIndex]
+            });
 
             // Get today's servers
             const todaysServers = secretTasksRotation[rotationIndex];
