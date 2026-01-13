@@ -1505,6 +1505,7 @@ body {
             </div>
         </div>
             <div class="global-actions">
+                <button class="action-btn compact" id="timezoneToggle">🕒 13-Jan-2026 | 12:00 🇸🇦🇹🇷</button>
                 <button class="action-btn compact" id="languageToggle">🌐 العربية</button>
                 <a class="action-btn compact discord-link" href="https://discord.gg/U9ZMbREzEN" target="_blank" rel="noopener">
                     <img src="https://pngimg.com/uploads/discord/discord_PNG3.png" alt="Discord">
@@ -1520,6 +1521,7 @@ body {
         <div class="tab-buttons">
             <button class="tab-btn active" data-tab="duelTab" data-i18n="tabs.duel">⚔️ Alliance Duel</button>
             <button class="tab-btn" data-tab="donationTab" data-i18n="tabs.donation">🤝 Donation Leaderboard</button>
+            <button class="tab-btn" data-tab="plunderTab" data-i18n="tabs.plunder">🥷🏼 Plunder</button>
             <button class="tab-btn" data-tab="guidesTab" data-i18n="tabs.guides">📘 Guides</button>
         </div>
 
@@ -2136,6 +2138,69 @@ body {
             </div>
         </div>
 
+        <div id="plunderTab" class="tab-panel">
+            <div class="dashboard-container">
+                <div class="header">
+                    <div class="alliance-logo">
+                        <img src="https://raw.githubusercontent.com/pWRDeFOUR/pwr-alliance-leaderboard/refs/heads/main/logo.png" alt="pWR logo">
+                    </div>
+                    <h1 data-i18n="plunder.title">🥷🏼 Plunder Information</h1>
+                    <div class="cta-row">
+                        <a class="lootbar-cta" href="https://lootbar.gg/top-up/last-war-survival?aff_short=DeFOUR" target="_blank" rel="noopener">
+                            <img class="lootbar-icon" src="https://raw.githubusercontent.com/pWRDeFOUR/pwr-alliance-leaderboard/refs/heads/main/LBGG.png" alt="Lootbar icon">
+                            <span data-i18n="global.lootbarCta">Buy Last War: Survival Game Packages Cheaper</span>
+                        </a>
+                        <button class="lootbar-cta donate-cta" id="donateBinanceBtnPlunder" data-i18n="global.donateBinance">💛 Donate with Binance</button>
+                        <a class="lootbar-cta donate-cta" href="https://www.paypal.com/ncp/payment/YQSH264RDJNH8" target="_blank" rel="noopener" data-i18n="global.donatePaypal">💙 Donate with PayPal</a>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px; margin-top: 30px; max-width: 1200px; margin-left: auto; margin-right: auto;">
+                    <!-- Plunder Trucks Card -->
+                    <div class="kpi-card" style="padding: 30px;">
+                        <h2 style="font-size: 1.5rem; color: var(--accent); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                            <span>🚛</span>
+                            <span data-i18n="plunder.trucks">Plunder Trucks</span>
+                        </h2>
+                        <div style="display: grid; gap: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--surface-muted); border-radius: 8px;">
+                                <span style="color: var(--text-muted); font-weight: 600;" data-i18n="plunder.server">Server</span>
+                                <span id="truckServerDisplay" style="font-size: 1.3rem; font-weight: 700; color: var(--accent);">1923</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--surface-muted); border-radius: 8px;">
+                                <span style="color: var(--text-muted); font-weight: 600;" data-i18n="plunder.period">Period</span>
+                                <span style="font-size: 1.1rem; font-weight: 600; color: var(--text);" data-i18n="plunder.wholeWeek">Whole Week</span>
+                            </div>
+                        </div>
+                        <button class="action-btn" id="updateTruckServerBtn" data-i18n="plunder.updateTruckServer" style="width: 100%; margin-top: 20px; display: none;">Update Truck Server</button>
+                    </div>
+
+                    <!-- Plunder Server Tasks Card -->
+                    <div class="kpi-card" style="padding: 30px;">
+                        <h2 style="font-size: 1.5rem; color: var(--accent); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                            <span>🎯</span>
+                            <span data-i18n="plunder.secretTasks">Plunder Server Tasks</span>
+                        </h2>
+                        <div style="display: grid; gap: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--surface-muted); border-radius: 8px;">
+                                <span style="color: var(--text-muted); font-weight: 600;" data-i18n="plunder.server">Server</span>
+                                <span id="secretTasksServerDisplay" style="font-size: 1.3rem; font-weight: 700; color: var(--accent);">1919, 1922, 1923, 1924</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--surface-muted); border-radius: 8px;">
+                                <span style="color: var(--text-muted); font-weight: 600;" data-i18n="plunder.period">Period</span>
+                                <span style="font-size: 1.1rem; font-weight: 600; color: var(--text);" data-i18n="plunder.today">Today</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer">
+                    <p><span>Created with ❤️ by</span> <span class="creator-tag">#1918 [pWR] DeFOUR</span></p>
+                    <p style="font-size: 0.9rem; color: #808080; margin-top: 5px;" data-i18n="footer.subtitle">Elite Alliance Dashboard System</p>
+                </div>
+            </div>
+        </div>
+
         <div id="guidePreviewModal" class="modal">
             <div class="modal-content" style="max-width: 960px;">
                 <div class="modal-header">
@@ -2383,6 +2448,21 @@ body {
         </div>
     </div>
 
+    <!-- Update Truck Server Modal -->
+    <div id="updateTruckServerModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 data-i18n="plunder.updateTruckServer">Update Truck Server</h2>
+                <span class="modal-close" id="closeUpdateTruckServerModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="plunder.truckServerLabel">Truck Server Number</label>
+                <input type="number" id="truckServerInput" class="search-bar" placeholder="e.g., 1923" style="margin-bottom: 20px;">
+                <button class="upload-btn" id="saveTruckServerBtn" style="width: 100%;">💾 Save</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============================================
         // FIREBASE CONFIGURATION
@@ -2423,6 +2503,10 @@ body {
                     dark: "🌙 Dark",
                     light: "☀️ Light"
                 },
+                timezone: {
+                    jakarta: "Jakarta Time",
+                    server: "Server Time"
+                },
                 footer: {
                     createdBy: "Created by:",
                     subtitle: "Elite Alliance Dashboard System"
@@ -2430,6 +2514,7 @@ body {
                 tabs: {
                     duel: "⚔️ Alliance Duel",
                     donation: "🤝 Donation Leaderboard",
+                    plunder: "🥷🏼 Plunder",
                     guides: "📘 Guides"
                 },
                 header: {
@@ -2761,6 +2846,19 @@ body {
                         resetError: "❌ Reset failed: {error}"
                     }
                 },
+                plunder: {
+                    title: "🥷🏼 Plunder Information",
+                    trucks: "Plunder Trucks",
+                    secretTasks: "Plunder Secret Tasks",
+                    server: "Server",
+                    period: "Period",
+                    wholeWeek: "Whole Week",
+                    today: "Today",
+                    updateTruckServer: "Update Truck Server",
+                    truckServerLabel: "Truck Server Number",
+                    updateSuccess: "✅ Truck server updated successfully!",
+                    updateError: "❌ Update failed: {error}"
+                },
                 messages: {
                     signInRequired: "❌ Please sign in to upload data",
                     deleteConfirm: "Are you sure you want to delete",
@@ -2834,6 +2932,10 @@ body {
                     dark: "🌙 داكن",
                     light: "☀️ فاتح"
                 },
+                timezone: {
+                    jakarta: "توقيت جاكرتا",
+                    server: "توقيت الخادم"
+                },
                 footer: {
                     createdBy: "تم الإنشاء بواسطة:",
                     subtitle: "نظام لوحة قيادة تحالف النخبة"
@@ -2841,6 +2943,7 @@ body {
                 tabs: {
                     duel: "⚔️ مبارزة التحالف",
                     donation: "🤝 لوحة تبرعات التحالف",
+                    plunder: "🥷🏼 النهب",
                     guides: "📘 الشروحات"
                 },
                 header: {
@@ -3172,6 +3275,19 @@ body {
                         resetError: "❌ فشل إعادة الضبط: {error}"
                     }
                 },
+                plunder: {
+                    title: "🥷🏼 معلومات النهب",
+                    trucks: "شاحنات النهب",
+                    secretTasks: "مهام النهب السرية",
+                    server: "الخادم",
+                    period: "الفترة",
+                    wholeWeek: "الأسبوع كاملاً",
+                    today: "اليوم",
+                    updateTruckServer: "تحديث خادم الشاحنات",
+                    truckServerLabel: "رقم خادم الشاحنات",
+                    updateSuccess: "✅ تم تحديث خادم الشاحنات بنجاح!",
+                    updateError: "❌ فشل التحديث: {error}"
+                },
                 messages: {
                     signInRequired: "❌ يرجى تسجيل الدخول لرفع البيانات",
                     deleteConfirm: "هل أنت متأكد من حذف",
@@ -3239,6 +3355,9 @@ body {
         if (!currentTheme) {
             currentTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
+
+        // Timezone state: 0 = GMT+3 (Saudi/Turkey), 1 = GMT+7 (Jakarta), 2 = GMT-2 (Server)
+        let currentTimezoneIndex = parseInt(localStorage.getItem('dashboardTimezone') || '0');
         
         function setLanguage(lang) {
             currentLanguage = lang;
@@ -3321,6 +3440,7 @@ body {
 
             updateDuelUploadLabel();
             updateThemeToggle();
+            updateTimezoneButton();
         }
         
         function t(key, replacements = {}) {
@@ -3386,7 +3506,62 @@ body {
             updateThemeToggle();
             refreshChartsForTheme();
         }
-        
+
+        // Timezone configurations
+        const timezoneConfigs = [
+            { offset: 3, flags: '🇸🇦🇹🇷', label: '' },  // GMT+3 Saudi Arabia & Turkey
+            { offset: 7, flags: '🇮🇩', label: 'jakarta' },  // GMT+7 Indonesia
+            { offset: -2, flags: '🌍', label: 'server' }  // GMT-2 Server Time
+        ];
+
+        function updateTimezoneButton() {
+            const btn = document.getElementById('timezoneToggle');
+            if (!btn) return;
+
+            const config = timezoneConfigs[currentTimezoneIndex];
+            const now = new Date();
+
+            // Get UTC timestamp and create date object for target timezone
+            const utcTimestamp = Date.UTC(
+                now.getUTCFullYear(),
+                now.getUTCMonth(),
+                now.getUTCDate(),
+                now.getUTCHours(),
+                now.getUTCMinutes(),
+                now.getUTCSeconds()
+            );
+
+            // Add timezone offset
+            const targetTimestamp = utcTimestamp + (config.offset * 3600000);
+            const tzTime = new Date(targetTimestamp);
+
+            // Format date as "13-Jan-2026"
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const day = tzTime.getUTCDate();
+            const month = months[tzTime.getUTCMonth()];
+            const year = tzTime.getUTCFullYear();
+            const dateStr = `${day}-${month}-${year}`;
+
+            // Format time as "12:00"
+            const hours = String(tzTime.getUTCHours()).padStart(2, '0');
+            const minutes = String(tzTime.getUTCMinutes()).padStart(2, '0');
+            const timeStr = `${hours}:${minutes}`;
+
+            // Build button text
+            let labelText = '';
+            if (config.label) {
+                labelText = ' ' + t('timezone.' + config.label);
+            }
+
+            btn.textContent = `🕒 ${dateStr} | ${timeStr} ${config.flags}${labelText}`;
+        }
+
+        function cycleTimezone() {
+            currentTimezoneIndex = (currentTimezoneIndex + 1) % timezoneConfigs.length;
+            localStorage.setItem('dashboardTimezone', currentTimezoneIndex.toString());
+            updateTimezoneButton();
+        }
+
         // Language toggle button handler
         document.getElementById('languageToggle')?.addEventListener('click', () => {
             setLanguage(currentLanguage === 'en' ? 'ar' : 'en');
@@ -3395,6 +3570,16 @@ body {
         document.getElementById('themeToggle')?.addEventListener('click', () => {
             setTheme(currentTheme === 'dark' ? 'light' : 'dark');
         });
+
+        // Timezone toggle button handler
+        document.getElementById('timezoneToggle')?.addEventListener('click', cycleTimezone);
+
+        // Update timezone button immediately and every second (to catch minute changes)
+        updateTimezoneButton();
+        setInterval(updateTimezoneButton, 1000);
+
+        // Update secret tasks display every minute (to catch day change at midnight server time)
+        setInterval(updateSecretTasksDisplay, 60000);
         
         // Initialize language direction and translations (but not dashboard update)
         document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
@@ -6505,6 +6690,76 @@ body {
             }
         }
 
+        // ============================================
+        // PLUNDER FUNCTIONS
+        // ============================================
+
+        // Secret tasks rotation cycle (3-day rotation using GMT-2 server time)
+        const secretTasksRotation = [
+            [1919, 1922, 1923, 1924],  // Day 0
+            [1920, 1915],              // Day 1
+            [1921, 1917]               // Day 2
+        ];
+
+        // Load plunder data from Firebase
+        async function loadPlunderData() {
+            try {
+                const snapshot = await database.ref('plunder').once('value');
+                const data = snapshot.val() || {};
+
+                // Update truck server display
+                const truckServer = data.truckServer || 1923;
+                document.getElementById('truckServerDisplay').textContent = truckServer;
+
+                // Calculate today's secret tasks based on server time (GMT-2)
+                updateSecretTasksDisplay();
+            } catch (error) {
+                console.error('Error loading plunder data:', error);
+            }
+        }
+
+        function updateSecretTasksDisplay() {
+            // Get current time in GMT-2 (server time)
+            const now = new Date();
+            const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const serverTime = new Date(utcTime + (-2 * 3600000));
+
+            // Calculate day index in the rotation (0, 1, or 2)
+            const epoch = new Date('2026-01-13T00:00:00Z'); // Reference date (today in GMT-2)
+            const daysSinceEpoch = Math.floor((serverTime - epoch) / (24 * 3600000));
+            const rotationIndex = daysSinceEpoch % 3;
+
+            // Get today's servers
+            const todaysServers = secretTasksRotation[rotationIndex];
+            document.getElementById('secretTasksServerDisplay').textContent = todaysServers.join(', ');
+        }
+
+        // Update truck server in Firebase
+        async function updateTruckServer() {
+            if (!auth.currentUser) {
+                await showAlert(t('messages.signInRequired'));
+                return;
+            }
+
+            const input = document.getElementById('truckServerInput');
+            const serverNumber = parseInt(input.value);
+
+            if (!serverNumber || serverNumber < 1) {
+                await showAlert('⚠️ Please enter a valid server number');
+                return;
+            }
+
+            try {
+                await database.ref('plunder/truckServer').set(serverNumber);
+                document.getElementById('truckServerDisplay').textContent = serverNumber;
+                document.getElementById('updateTruckServerModal').style.display = 'none';
+                await showAlert(t('plunder.updateSuccess'));
+            } catch (error) {
+                console.error('Error updating truck server:', error);
+                await showAlert(t('plunder.updateError', { error: error.message }));
+            }
+        }
+
         // === USER INTERACTIONS ===
         function setActiveTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -6525,6 +6780,9 @@ body {
             }
             if (tabId === 'guidesTab') {
                 loadGuidesFromFirebase();
+            }
+            if (tabId === 'plunderTab') {
+                loadPlunderData();
             }
         }
 
@@ -6871,6 +7129,9 @@ body {
             if (e.target.id === 'donationMergeWeekModal') {
                 const modal = document.getElementById('donationMergeWeekModal');
                 if (modal) modal.style.display = 'none';
+            }
+            if (e.target.id === 'updateTruckServerModal') {
+                document.getElementById('updateTruckServerModal').style.display = 'none';
             }
         });
 
@@ -7533,6 +7794,19 @@ body {
             if (modal) modal.style.display = 'none';
         });
 
+        // Plunder event listeners
+        document.getElementById('updateTruckServerBtn')?.addEventListener('click', () => {
+            const currentServer = document.getElementById('truckServerDisplay').textContent;
+            document.getElementById('truckServerInput').value = currentServer;
+            document.getElementById('updateTruckServerModal').style.display = 'block';
+        });
+
+        document.getElementById('closeUpdateTruckServerModal')?.addEventListener('click', () => {
+            document.getElementById('updateTruckServerModal').style.display = 'none';
+        });
+
+        document.getElementById('saveTruckServerBtn')?.addEventListener('click', updateTruckServer);
+
         document.getElementById('closeGuidePreview')?.addEventListener('click', () => {
             document.getElementById('guidePreviewModal').style.display = 'none';
             document.getElementById('guidePreviewImage')?.classList.remove('zoomed');
@@ -7987,6 +8261,11 @@ body {
                     mergePreviewBtn.style.display = 'inline-block';
                     mergePreviewBtn.textContent = t('buttons.mergePreview');
                 }
+                const updateTruckServerBtn = document.getElementById('updateTruckServerBtn');
+                if (updateTruckServerBtn) {
+                    updateTruckServerBtn.style.display = 'inline-block';
+                    updateTruckServerBtn.textContent = t('plunder.updateTruckServer');
+                }
             } else {
                 // User is signed out - HIDE admin buttons
                 if (signInBtn) {
@@ -8036,10 +8315,14 @@ body {
                 if (mergePreviewBtn) {
                     mergePreviewBtn.style.display = 'none';
                 }
+                const updateTruckServerBtn = document.getElementById('updateTruckServerBtn');
+                if (updateTruckServerBtn) {
+                    updateTruckServerBtn.style.display = 'none';
+                }
             }
             updateDuelAdminVisibility();
         }
-        
+
         // Auth state observer
         auth.onAuthStateChanged((user) => {
             console.log('Auth state changed:', user ? `Signed in as ${user.email}` : 'Signed out');
