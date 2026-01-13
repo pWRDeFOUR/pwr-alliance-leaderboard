@@ -6704,9 +6704,9 @@ body {
         // PLUNDER FUNCTIONS
         // ============================================
 
-        // Secret tasks rotation cycle (3-day rotation using GMT-2 server time)
-        const secretTasksRotation = [
-            [1919, 1922, 1923, 1924],  // Day 0
+        // Secret tasks rotation cycle (loaded from Firebase)
+        let secretTasksRotation = [
+            [1919, 1922, 1923, 1924],  // Day 0 (default fallback)
             [1920, 1915],              // Day 1
             [1921, 1917]               // Day 2
         ];
@@ -6720,6 +6720,11 @@ body {
                 // Update truck server display
                 const truckServer = data.truckServer || 1923;
                 document.getElementById('truckServerDisplay').textContent = truckServer;
+
+                // Load secret tasks rotation from Firebase
+                if (data.secretTasksRotation && Array.isArray(data.secretTasksRotation)) {
+                    secretTasksRotation = data.secretTasksRotation;
+                }
 
                 // Calculate today's secret tasks based on server time (GMT-2)
                 updateSecretTasksDisplay();
