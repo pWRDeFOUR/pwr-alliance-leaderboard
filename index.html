@@ -59,7 +59,7 @@
     font-family: 'Cairo', sans-serif;
 }
 
-[dir="rtl"] #languageToggle {
+[dir="rtl"] #languageSelect {
     left: 20px;
     right: auto;
 }
@@ -74,6 +74,19 @@ body {
     color: #d4d4d4;
     min-height: 100vh;
     padding: 20px;
+}
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner-frame,
+.goog-te-balloon-frame,
+.skiptranslate > iframe {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+}
+html,
+body {
+    top: 0 !important;
+    margin-top: 0 !important;
 }
 
 .dashboard-container { max-width: 1600px; margin: 0 auto; }
@@ -1505,8 +1518,13 @@ body {
             </div>
         </div>
             <div class="global-actions">
-                <button class="action-btn compact" id="timezoneToggle">🕒 13-Jan-2026 | 12:00 🇸🇦🇹🇷</button>
-                <button class="action-btn compact" id="languageToggle">🌐 العربية</button>
+                <button class="action-btn compact notranslate" id="timezoneToggle" translate="no">🕒 13-Jan-2026 | 12:00 🇸🇦🇹🇷</button>
+                <select class="action-btn compact" id="languageSelect">
+                    <option value="en">🇬🇧 English</option>
+                    <option value="ar">🇸🇦 العربية</option>
+                    <option value="tr">🇹🇷 Türkçe</option>
+                    <option value="id">🇮🇩 Bahasa Indonesia</option>
+                </select>
                 <a class="action-btn compact discord-link" href="https://discord.gg/U9ZMbREzEN" target="_blank" rel="noopener">
                     <img src="https://pngimg.com/uploads/discord/discord_PNG3.png" alt="Discord">
                     Discord
@@ -2384,6 +2402,8 @@ body {
         </div>
 
     </div>
+
+    <div id="googleTranslateContainer" style="position: absolute; left: -9999px; top: -9999px;"></div>
 
     <!-- Auth Modal -->
     <div id="authModal" class="modal">
@@ -3355,6 +3375,7 @@ body {
         };
         
         let currentLanguage = localStorage.getItem('dashboardLanguage') || 'en';
+        let currentTranslateTarget = localStorage.getItem('translateTarget') || '';
         let currentTheme = localStorage.getItem('dashboardTheme');
         if (!currentTheme) {
             currentTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -3372,10 +3393,13 @@ body {
             document.documentElement.lang = lang;
             document.title = t('global.pageTitle');
             
-            // Update language toggle button
-            const toggleBtn = document.getElementById('languageToggle');
-            if (toggleBtn) {
-                toggleBtn.textContent = lang === 'en' ? '🌐 العربية' : '🌐 English';
+            const languageSelect = document.getElementById('languageSelect');
+            if (languageSelect) {
+                if (lang === 'ar') {
+                    languageSelect.value = 'ar';
+                } else if (!currentTranslateTarget) {
+                    languageSelect.value = 'en';
+                }
             }
             
             // Translate all elements with data-i18n
@@ -3567,9 +3591,76 @@ body {
             updateTimezoneButton();
         }
 
-        // Language toggle button handler
-        document.getElementById('languageToggle')?.addEventListener('click', () => {
-            setLanguage(currentLanguage === 'en' ? 'ar' : 'en');
+        function setTranslateTarget(lang) {
+            currentTranslateTarget = lang || '';
+            localStorage.setItem('translateTarget', currentTranslateTarget);
+            const combo = document.querySelector('.goog-te-combo');
+            const setCookie = (value) => {
+                document.cookie = `googtrans=${value}; path=/`;
+                document.cookie = `googtrans=${value}; path=/; domain=${location.hostname}`;
+            };
+            if (!combo) {
+                if (!currentTranslateTarget) {
+                    setCookie('/en/en');
+                    location.reload();
+                }
+                return;
+            }
+            if (!currentTranslateTarget) {
+                setCookie('/en/en');
+                combo.value = '';
+                combo.dispatchEvent(new Event('change'));
+                location.reload();
+                return;
+            }
+            setCookie(`/en/${currentTranslateTarget}`);
+            combo.value = currentTranslateTarget;
+            combo.dispatchEvent(new Event('change'));
+        }
+
+        function initGoogleTranslate() {
+            if (window.google && window.google.translate) return;
+            window.googleTranslateElementInit = function() {
+                new google.translate.TranslateElement({
+                    pageLanguage: 'en',
+                    includedLanguages: 'tr,id',
+                    autoDisplay: false
+                }, 'googleTranslateContainer');
+            };
+            const script = document.createElement('script');
+            script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+            document.body.appendChild(script);
+        }
+
+        function updateLanguageSelect() {
+            const select = document.getElementById('languageSelect');
+            if (!select) return;
+            if (currentLanguage === 'ar') {
+                select.value = 'ar';
+                return;
+            }
+            select.value = currentTranslateTarget || 'en';
+        }
+
+        // Language selector handler
+        document.getElementById('languageSelect')?.addEventListener('change', (e) => {
+            const value = e.target.value;
+            if (value === 'ar') {
+                currentTranslateTarget = '';
+                localStorage.setItem('translateTarget', '');
+                setLanguage('ar');
+                setTranslateTarget('');
+                return;
+            }
+            if (value === 'en') {
+                currentTranslateTarget = '';
+                localStorage.setItem('translateTarget', '');
+                setLanguage('en');
+                setTranslateTarget('');
+                return;
+            }
+            setLanguage('en');
+            setTranslateTarget(value);
         });
 
         document.getElementById('themeToggle')?.addEventListener('click', () => {
@@ -3591,12 +3682,10 @@ body {
         document.documentElement.lang = currentLanguage;
         document.documentElement.setAttribute('data-theme', currentTheme);
         
-        const toggleBtn = document.getElementById('languageToggle');
-        if (toggleBtn) {
-            toggleBtn.textContent = currentLanguage === 'en' ? '🌐 العربية' : '🌐 English';
-        }
+        updateLanguageSelect();
 
         updateThemeToggle();
+        initGoogleTranslate();
         
         // ============================================
         // FIREBASE FUNCTIONS
@@ -8221,6 +8310,10 @@ body {
             updateAuthUI();
             showDonationUpload();
             applyDuelSectionView();
+            if (currentTranslateTarget) {
+                initGoogleTranslate();
+                setTimeout(() => setTranslateTarget(currentTranslateTarget), 600);
+            }
             
             // Apply full language translations now that data is loaded
             setLanguage(currentLanguage);
