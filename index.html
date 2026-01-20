@@ -77,7 +77,7 @@ body {
     overflow-x: hidden;
 }
 [data-theme="dark"] body {
-    background: #0e0e0e;
+    background: #12100f;
     background-image: none;
 }
 [data-theme="light"] body {
@@ -344,10 +344,10 @@ body {
     padding: 6px;
     width: fit-content;
     backdrop-filter: none;
-    background: transparent;
+    background: color-mix(in srgb, var(--surface) 80%, transparent);
     border: none;
     border-radius: 999px;
-    box-shadow: none;
+    box-shadow: var(--shadow-sm);
 }
 .view-switcher .view-btn {
     padding: 10px 18px;
@@ -4229,6 +4229,10 @@ body {
         function aggregateWeekFromDays(weekNum) {
             const dayMap = weeklyDailyData[weekNum] || {};
             const playerMap = {};
+            const uploadedDays = duelDayKeys.filter(day => (dayMap[day] || []).length);
+            const latestDayIndex = uploadedDays.length
+                ? Math.max(...uploadedDays.map(day => duelDayKeys.indexOf(day)))
+                : -1;
 
             duelDayKeys.forEach(day => {
                 const rows = dayMap[day] || [];
@@ -4250,7 +4254,8 @@ body {
 
             const players = Object.values(playerMap).map(entry => {
                 const daysPresent = Array.from(entry.DaysPresent);
-                const missingDays = duelDayKeys.filter(day => !entry.DaysPresent.has(day));
+                const trackedDays = latestDayIndex >= 0 ? duelDayKeys.slice(0, latestDayIndex + 1) : [];
+                const missingDays = trackedDays.filter(day => !entry.DaysPresent.has(day));
                 return {
                     Rank: 0,
                     'Player Name': entry['Player Name'],
@@ -4259,6 +4264,30 @@ body {
                     MissingDays: missingDays
                 };
             });
+
+            if (latestDayIndex === 0) {
+                const weeks = getDuelWeeksList();
+                const currentIndex = weeks.indexOf(Number(weekNum));
+                if (currentIndex > 0) {
+                    const prevWeek = weeks[currentIndex - 1];
+                    const prevRows = hasDailyData(prevWeek)
+                        ? (weeklyDailyData[prevWeek]?.sat || [])
+                        : getWeekAggregateRows(prevWeek);
+                    const currentKeys = new Set(players.map(p => normalizePlayerName(p['Player Name'])));
+                    prevRows.forEach(row => {
+                        const name = row['Player Name'];
+                        const key = normalizePlayerName(name);
+                        if (!name || currentKeys.has(key)) return;
+                        players.push({
+                            Rank: 0,
+                            'Player Name': name,
+                            Points: 0,
+                            DaysPresent: [],
+                            MissingDays: ['mon']
+                        });
+                    });
+                }
+            }
 
             players.sort((a, b) => b.Points - a.Points);
             players.forEach((player, index) => { player.Rank = index + 1; });
