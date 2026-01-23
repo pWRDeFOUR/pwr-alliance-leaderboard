@@ -59,10 +59,7 @@
     font-family: 'Cairo', sans-serif;
 }
 
-[dir="rtl"] #languageSelect {
-    left: 20px;
-    right: auto;
-}
+
 
 /* ===== APOCALYPTIC BACKGROUND ===== */
 body {
@@ -403,6 +400,81 @@ body {
     transform: translateY(-2px);
     background: linear-gradient(135deg, #4a4030, #3a3025);
 }
+
+select.action-btn:focus,
+select.action-btn:focus-visible {
+    outline: none;
+    border-color: #ff9933;
+    color: #ffcc66;
+    box-shadow: 0 0 15px rgba(255, 153, 51, 0.4);
+    background: linear-gradient(135deg, #4a4030, #3a3025);
+    transform: none;
+}
+
+.language-dropdown {
+    position: relative;
+    display: inline-flex;
+}
+
+.language-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding-right: 20px;
+}
+
+.language-caret {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.language-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 200px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    padding: 6px;
+    display: none;
+    z-index: 120;
+}
+
+.language-dropdown.open .language-menu {
+    display: block;
+}
+
+.language-option {
+    width: 100%;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    padding: 8px 10px;
+    text-align: left;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.language-option:hover,
+.language-option[aria-selected="true"] {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+}
+
+[dir="rtl"] .language-menu {
+    left: 0;
+    right: auto;
+}
+
+[dir="rtl"] .language-option {
+    text-align: right;
+}
+
 
 .week-btn.active {
     background: linear-gradient(135deg, #ff6600, #cc5200);
@@ -965,6 +1037,7 @@ body {
 }
 
 [data-theme="dark"] {
+    color-scheme: dark;
     --bg: #151312;
     --bg-accent: #1a1715;
     --surface: #1d1a18;
@@ -988,6 +1061,10 @@ body {
     --row-hover: rgba(240, 165, 96, 0.15);
     --scroll-track: #1c1916;
     --scroll-thumb: linear-gradient(135deg, #f0a560, #c97a3d);
+}
+
+[data-theme="light"] {
+    color-scheme: light;
 }
 
 body {
@@ -1536,12 +1613,18 @@ body {
         </div>
             <div class="global-actions">
                 <button class="action-btn compact notranslate" id="timezoneToggle" translate="no">🕒 13-Jan-2026 | 12:00 🇸🇦🇹🇷</button>
-                <select class="action-btn compact" id="languageSelect">
-                    <option value="en">🇬🇧 English</option>
-                    <option value="ar">🇸🇦 العربية</option>
-                    <option value="tr">🇹🇷 Türkçe</option>
-                    <option value="id">🇮🇩 Bahasa Indonesia</option>
-                </select>
+                <div class="language-dropdown" id="languageDropdown">
+                    <button class="action-btn compact language-toggle" id="languageToggle" type="button" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="language-label">🇬🇧 English</span>
+                        <span class="language-caret">▾</span>
+                    </button>
+                    <div class="language-menu" id="languageMenu" role="listbox" aria-label="Language">
+                        <button class="language-option" type="button" data-lang="en" role="option">🇬🇧 English</button>
+                        <button class="language-option" type="button" data-lang="ar" role="option">🇸🇦 العربية</button>
+                        <button class="language-option" type="button" data-lang="tr" role="option">🇹🇷 Türkçe</button>
+                        <button class="language-option" type="button" data-lang="id" role="option">🇮🇩 Bahasa Indonesia</button>
+                    </div>
+                </div>
                 <a class="action-btn compact discord-link" href="https://discord.gg/U9ZMbREzEN" target="_blank" rel="noopener">
                     <img src="https://pngimg.com/uploads/discord/discord_PNG3.png" alt="Discord">
                     Discord
@@ -3410,14 +3493,7 @@ body {
             document.documentElement.lang = lang;
             document.title = t('global.pageTitle');
             
-            const languageSelect = document.getElementById('languageSelect');
-            if (languageSelect) {
-                if (lang === 'ar') {
-                    languageSelect.value = 'ar';
-                } else if (!currentTranslateTarget) {
-                    languageSelect.value = 'en';
-                }
-            }
+            updateLanguageSelect();
             
             // Translate all elements with data-i18n
             document.querySelectorAll('[data-i18n]').forEach(element => {
@@ -3650,23 +3726,27 @@ body {
         }
 
         function updateLanguageSelect() {
-            const select = document.getElementById('languageSelect');
-            if (!select) return;
-            if (currentLanguage === 'ar') {
-                select.value = 'ar';
-                return;
+            const toggle = document.getElementById('languageToggle');
+            const menu = document.getElementById('languageMenu');
+            if (!toggle || !menu) return;
+            const label = toggle.querySelector('.language-label');
+            const selected = currentLanguage === 'ar' ? 'ar' : (currentTranslateTarget || 'en');
+            const option = menu.querySelector(`.language-option[data-lang="${selected}"]`);
+            if (label && option) {
+                label.textContent = option.textContent;
             }
-            select.value = currentTranslateTarget || 'en';
+            menu.querySelectorAll('.language-option').forEach(btn => {
+                btn.setAttribute('aria-selected', btn.getAttribute('data-lang') === selected ? 'true' : 'false');
+            });
         }
 
-        // Language selector handler
-        document.getElementById('languageSelect')?.addEventListener('change', (e) => {
-            const value = e.target.value;
+        function applyLanguageSelection(value) {
             if (value === 'ar') {
                 currentTranslateTarget = '';
                 localStorage.setItem('translateTarget', '');
                 setLanguage('ar');
                 setTranslateTarget('');
+                updateLanguageSelect();
                 return;
             }
             if (value === 'en') {
@@ -3674,10 +3754,49 @@ body {
                 localStorage.setItem('translateTarget', '');
                 setLanguage('en');
                 setTranslateTarget('');
+                updateLanguageSelect();
                 return;
             }
             setLanguage('en');
             setTranslateTarget(value);
+            updateLanguageSelect();
+        }
+
+        const languageDropdown = document.getElementById('languageDropdown');
+        const languageToggle = document.getElementById('languageToggle');
+        const languageMenu = document.getElementById('languageMenu');
+
+        languageToggle?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            if (!languageDropdown) return;
+            languageDropdown.classList.toggle('open');
+            languageToggle.setAttribute('aria-expanded', languageDropdown.classList.contains('open') ? 'true' : 'false');
+        });
+
+        languageMenu?.addEventListener('click', (event) => {
+            const option = event.target.closest('.language-option');
+            if (!option) return;
+            const value = option.getAttribute('data-lang');
+            if (!value) return;
+            applyLanguageSelection(value);
+            if (languageDropdown) {
+                languageDropdown.classList.remove('open');
+                languageToggle?.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!languageDropdown || !languageDropdown.classList.contains('open')) return;
+            if (languageDropdown.contains(event.target)) return;
+            languageDropdown.classList.remove('open');
+            languageToggle?.setAttribute('aria-expanded', 'false');
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            if (!languageDropdown || !languageDropdown.classList.contains('open')) return;
+            languageDropdown.classList.remove('open');
+            languageToggle?.setAttribute('aria-expanded', 'false');
         });
 
         document.getElementById('themeToggle')?.addEventListener('click', () => {
@@ -4215,6 +4334,19 @@ body {
             return !!(weeklyDailyData[weekNum] && Object.keys(weeklyDailyData[weekNum]).length);
         }
 
+        function getLatestUploadedDayIndex(weekNum) {
+            const dayMap = weeklyDailyData[weekNum] || {};
+            const uploadedDays = duelDayKeys.filter(day => (dayMap[day] || []).length);
+            return uploadedDays.length
+                ? Math.max(...uploadedDays.map(day => duelDayKeys.indexOf(day)))
+                : -1;
+        }
+
+        function isWeekComplete(weekNum) {
+            if (!hasDailyData(weekNum)) return true;
+            return getLatestUploadedDayIndex(weekNum) >= duelDayKeys.length - 1;
+        }
+
         function getDayLabel(dayKey) {
             const map = {
                 all: t('leaderboard.dayAll'),
@@ -4231,10 +4363,7 @@ body {
         function aggregateWeekFromDays(weekNum) {
             const dayMap = weeklyDailyData[weekNum] || {};
             const playerMap = {};
-            const uploadedDays = duelDayKeys.filter(day => (dayMap[day] || []).length);
-            const latestDayIndex = uploadedDays.length
-                ? Math.max(...uploadedDays.map(day => duelDayKeys.indexOf(day)))
-                : -1;
+            const latestDayIndex = getLatestUploadedDayIndex(weekNum);
 
             duelDayKeys.forEach(day => {
                 const rows = dayMap[day] || [];
@@ -4307,9 +4436,41 @@ body {
             return weeklyDailyData[weekNum]?.[dayKey] || [];
         }
 
+        function buildDayViewRows(weekNum, dayKey) {
+            const dayRows = getWeekDayRows(weekNum, dayKey);
+            const dayMap = new Map();
+            dayRows.forEach(row => {
+                const key = normalizePlayerName(row['Player Name']);
+                if (!key) return;
+                dayMap.set(key, row);
+            });
+
+            const aggregateRows = aggregateWeekFromDays(weekNum);
+            const rows = aggregateRows.map(entry => {
+                const key = normalizePlayerName(entry['Player Name']);
+                const match = dayMap.get(key);
+                if (match) {
+                    return {
+                        Rank: 0,
+                        'Player Name': match['Player Name'],
+                        Points: match.Points || 0
+                    };
+                }
+                return {
+                    Rank: 0,
+                    'Player Name': entry['Player Name'],
+                    Points: 0
+                };
+            });
+
+            rows.sort((a, b) => (b.Points || 0) - (a.Points || 0));
+            rows.forEach((row, index) => { row.Rank = index + 1; });
+            return rows;
+        }
+
         function getWeekDisplayRows(weekNum) {
             if (currentDuelDay !== 'all' && hasDailyData(weekNum)) {
-                return getWeekDayRows(weekNum, currentDuelDay);
+                return buildDayViewRows(weekNum, currentDuelDay);
             }
             if (currentDuelDay !== 'all' && !hasDailyData(weekNum)) {
                 return [];
@@ -4742,28 +4903,14 @@ body {
             const weeks = getDuelWeeksList();
             if (!weeks.length) return [];
 
-            const latestWeek = getLatestDuelWeekWithData();
-            const latestPlayers = latestWeek ? getWeekPlayersSet(latestWeek) : null;
-            const latestNameMap = new Map();
-            if (latestWeek) {
-                getWeekAggregateRows(latestWeek).forEach(row => {
-                    const key = normalizePlayerName(row['Player Name']);
-                    if (key) {
-                        latestNameMap.set(key, row['Player Name']);
-                    }
-                });
-            }
             const map = {};
             weeks.forEach(week => {
                 const rows = getWeekAggregateRows(week);
                 rows.forEach(row => {
                     const key = normalizePlayerName(row['Player Name']);
-                    if (latestPlayers && !latestPlayers.has(key)) {
-                        return;
-                    }
                     if (!map[key]) {
                         map[key] = {
-                            'Player Name': latestNameMap.get(key) || row['Player Name'],
+                            'Player Name': row['Player Name'],
                             TotalPoints: 0,
                             WeekPoints: {}
                         };
@@ -5540,7 +5687,7 @@ body {
                         achievements.push(t('achievements.newPlayer'));
                     }
                 }
-                if (currentIndex >= 0 && currentIndex < weeks.length - 1) {
+                if (currentIndex >= 0 && currentIndex < weeks.length - 1 && isWeekComplete(week)) {
                     const nextWeek = weeks[currentIndex + 1];
                     if (!isPlayerInWeek(player['Player Name'], nextWeek)) {
                         achievements.push(t('achievements.removedPlayer'));
