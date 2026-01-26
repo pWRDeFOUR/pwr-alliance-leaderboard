@@ -7480,6 +7480,11 @@ body {
             return { editable: true, mode: 'week' };
         }
 
+        function findPlayerIndexByName(players, name) {
+            const targetKey = normalizePlayerName(name);
+            return players.findIndex(p => normalizePlayerName(p['Player Name']) === targetKey);
+        }
+
         async function saveDuelRows(context, players) {
             const csvContent = 'Rank,Player Name,Points\n' +
                 players.map(p => `${p.Rank},"${p['Player Name']}","${p.Points}"`).join('\n');
@@ -7511,7 +7516,23 @@ body {
             const players = context.mode === 'day'
                 ? getWeekDayRows(currentWeek, context.day)
                 : (weeklyData[currentWeek] || []);
-            const player = players.find(p => p['Player Name'] === playerName && p.Rank === rank);
+            let player = null;
+            if (context.mode === 'day') {
+                const idx = findPlayerIndexByName(players, playerName);
+                if (idx !== -1) {
+                    player = players[idx];
+                } else {
+                    player = { 'Player Name': playerName, Rank: rank, Points: 0 };
+                }
+            } else {
+                player = players.find(p => p['Player Name'] === playerName && p.Rank === rank);
+                if (!player) {
+                    const idx = findPlayerIndexByName(players, playerName);
+                    if (idx !== -1) {
+                        player = players[idx];
+                    }
+                }
+            }
             
             if (!player) {
                 await showAlert(t('messages.playerNotFound'));
@@ -7564,20 +7585,36 @@ body {
                     : (weeklyData[currentWeek] || []);
                 
                 // Find and update the player
-                const playerIndex = players.findIndex(p => 
-                    p['Player Name'] === originalName && p.Rank === originalRank
-                );
-                
-                if (playerIndex === -1) {
-                    throw new Error('Player not found');
+                let playerIndex = -1;
+                if (context.mode === 'day') {
+                    playerIndex = findPlayerIndexByName(players, originalName);
+                } else {
+                    playerIndex = players.findIndex(p => 
+                        p['Player Name'] === originalName && p.Rank === originalRank
+                    );
+                    if (playerIndex === -1) {
+                        playerIndex = findPlayerIndexByName(players, originalName);
+                    }
                 }
                 
-                // Update player data
-                players[playerIndex] = {
-                    Rank: newRank,
-                    'Player Name': newName,
-                    Points: newPoints
-                };
+                if (playerIndex === -1) {
+                    if (context.mode === 'day') {
+                        players.push({
+                            Rank: newRank,
+                            'Player Name': newName,
+                            Points: newPoints
+                        });
+                    } else {
+                        throw new Error('Player not found');
+                    }
+                } else {
+                    // Update player data
+                    players[playerIndex] = {
+                        Rank: newRank,
+                        'Player Name': newName,
+                        Points: newPoints
+                    };
+                }
                 
                 // Sort by rank
                 players.sort((a, b) => a.Rank - b.Rank);
@@ -7624,9 +7661,9 @@ body {
                     : (weeklyData[currentWeek] || []);
                 
                 // Remove the player
-                const filteredPlayers = players.filter(p => 
-                    !(p['Player Name'] === playerName && p.Rank === rank)
-                );
+                const filteredPlayers = context.mode === 'day'
+                    ? players.filter(p => normalizePlayerName(p['Player Name']) !== normalizePlayerName(playerName))
+                    : players.filter(p => !(p['Player Name'] === playerName && p.Rank === rank));
                 
                 if (filteredPlayers.length === players.length) {
                     await showAlert(t('messages.playerNotFound'));
