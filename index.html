@@ -5737,7 +5737,7 @@ body {
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-label">${t('kpi.totalScore')}</div>
-                    <div class="kpi-value">${totalPoints.toLocaleString()}</div>
+                    <div class="kpi-value">${formatCompactNumber(totalPoints)}</div>
                     <div class="kpi-subtext">${t('kpi.totalScoreSub')}</div>
                 </div>
                 <div class="kpi-card">
@@ -6080,6 +6080,19 @@ body {
                     setDuelSort(key);
                 });
             });
+        }
+
+        function formatCompactNumber(value) {
+            const num = Number(value || 0);
+            if (!Number.isFinite(num)) return '-';
+            if (Math.abs(num) < 1_000_000_000) {
+                return num.toLocaleString();
+            }
+            const locale = currentLanguage === 'ar' ? 'ar' : 'en';
+            return new Intl.NumberFormat(locale, {
+                notation: 'compact',
+                maximumFractionDigits: 1
+            }).format(num);
         }
 
         function updateWeekButtons() {
