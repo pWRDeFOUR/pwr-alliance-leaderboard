@@ -2319,6 +2319,7 @@ body {
                                 <span id="secretTasksExceptionsDisplay" style="font-size: 1.3rem; font-weight: 700; color: var(--accent); text-align: left; direction: ltr; unicode-bidi: isolate;">-</span>
                             </div>
                         </div>
+                        <button class="action-btn" id="manageSecretTasksRotationBtn" data-i18n="plunder.manageTaskRotation" style="width: 100%; margin-top: 20px; display: none;">Manage Task Rotation</button>
                     </div>
                 </div>
 
@@ -2623,6 +2624,37 @@ body {
                 <div>
                     <h3 style="font-size: 1.05rem; margin-bottom: 10px; color: var(--text);" data-i18n="plunder.currentExceptions">Current Exceptions</h3>
                     <div id="plunderExceptionsList" class="merge-preview-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="manageSecretTasksRotationModal" class="modal">
+        <div class="modal-content" style="max-width: 760px;">
+            <div class="modal-header">
+                <h2 data-i18n="plunder.manageTaskRotation">Manage Task Rotation</h2>
+                <span class="modal-close" id="closeManageSecretTasksRotationModal">&times;</span>
+            </div>
+            <div class="modal-body scrollable">
+                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 16px;">
+                    <div>
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="plunder.rotationGroup">Rotation Group</label>
+                        <select id="secretTasksRotationGroup" class="search-bar">
+                            <option value="0" data-i18n="plunder.rotationGroup1">Group 1</option>
+                            <option value="1" data-i18n="plunder.rotationGroup2">Group 2</option>
+                            <option value="2" data-i18n="plunder.rotationGroup3">Group 3</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="color: #997755; display: block; margin-bottom: 8px; font-weight: 600;" data-i18n="plunder.serverNumber">Server</label>
+                        <input type="number" id="secretTasksRotationServer" class="search-bar" placeholder="1920">
+                    </div>
+                    <button class="upload-btn" id="addSecretTasksRotationServerBtn" data-i18n="plunder.addServer" style="height: 46px;">➕ Add</button>
+                </div>
+                <div id="secretTasksRotationStatus" style="text-align: center; color: #ffaa33; margin: 10px 0 12px; font-weight: 600;"></div>
+                <div>
+                    <h3 style="font-size: 1.05rem; margin-bottom: 10px; color: var(--text);" data-i18n="plunder.currentTaskRotation">Current Rotation</h3>
+                    <div id="secretTasksRotationList" class="merge-preview-list"></div>
                 </div>
             </div>
         </div>
@@ -3025,6 +3057,14 @@ body {
                     today: "Today",
                     updateTruckServer: "Update Truck Server",
                     manageExceptions: "Manage Exceptions",
+                    manageTaskRotation: "Manage Task Rotation",
+                    rotationGroup: "Rotation Group",
+                    rotationGroup1: "Group 1",
+                    rotationGroup2: "Group 2",
+                    rotationGroup3: "Group 3",
+                    currentTaskRotation: "Current Rotation",
+                    addServer: "➕ Add",
+                    removeServer: "🗑 Remove",
                     exceptionType: "Target",
                     exceptionTargetTruck: "Trucks",
                     exceptionTargetSecret: "Secret Tasks",
@@ -3042,6 +3082,7 @@ body {
                     invalidTruckServer: "⚠️ Please enter a server value",
                     invalidServer: "⚠️ Please enter a valid server number",
                     invalidTag: "⚠️ Please enter a valid alliance tag",
+                    rotationUpdateSuccess: "✅ Secret task rotation updated",
                     addExceptionSuccess: "✅ Exception added: #{server} [{tag}]",
                     removeExceptionSuccess: "✅ Exception removed: #{server} [{tag}]",
                     copyRulesSuccess: "✅ Plunder rules copied",
@@ -3477,6 +3518,14 @@ body {
                     today: "اليوم",
                     updateTruckServer: "تحديث خادم الشاحنات",
                     manageExceptions: "إدارة الاستثناءات",
+                    manageTaskRotation: "إدارة دوران المهام",
+                    rotationGroup: "مجموعة الدوران",
+                    rotationGroup1: "المجموعة 1",
+                    rotationGroup2: "المجموعة 2",
+                    rotationGroup3: "المجموعة 3",
+                    currentTaskRotation: "الدوران الحالي",
+                    addServer: "➕ إضافة",
+                    removeServer: "🗑 إزالة",
                     exceptionType: "الهدف",
                     exceptionTargetTruck: "الشاحنات",
                     exceptionTargetSecret: "المهام السرية",
@@ -3494,6 +3543,7 @@ body {
                     invalidTruckServer: "⚠️ يرجى إدخال قيمة الخادم",
                     invalidServer: "⚠️ يرجى إدخال رقم خادم صحيح",
                     invalidTag: "⚠️ يرجى إدخال اختصار تحالف صحيح",
+                    rotationUpdateSuccess: "✅ تم تحديث دوران المهام السرية",
                     addExceptionSuccess: "✅ تمت إضافة الاستثناء: #{server} [{tag}]",
                     removeExceptionSuccess: "✅ تمت إزالة الاستثناء: #{server} [{tag}]",
                     copyRulesSuccess: "✅ تم نسخ قواعد النهب",
@@ -3651,6 +3701,7 @@ body {
             updateTimezoneButton();
             renderPlunderExceptionsDisplay();
             renderPlunderExceptionsList();
+            renderSecretTasksRotationList();
         }
         
         function t(key, replacements = {}) {
@@ -7115,6 +7166,24 @@ body {
                 .trim();
         }
 
+        function normalizeSecretTasksRotation(rawRotation) {
+            const fallback = secretTasksRotation.length ? secretTasksRotation : [[], [], []];
+            const source = Array.isArray(rawRotation) ? rawRotation : fallback;
+            const normalized = source.map(group => {
+                const values = Array.isArray(group)
+                    ? group
+                    : (group && typeof group === 'object' ? Object.values(group) : []);
+                return [...new Set(values
+                    .map(value => parseInt(value, 10))
+                    .filter(value => Number.isFinite(value) && value > 0))]
+                    .sort((a, b) => a - b);
+            });
+            while (normalized.length < 3) {
+                normalized.push([]);
+            }
+            return normalized;
+        }
+
         function normalizePlunderExceptions(raw) {
             const normalized = { trucks: {}, secretTasks: {} };
             ['trucks', 'secretTasks'].forEach(type => {
@@ -7196,7 +7265,9 @@ body {
 
                 // Load secret tasks rotation from Firebase
                 if (data.secretTasksRotation && Array.isArray(data.secretTasksRotation)) {
-                    secretTasksRotation = data.secretTasksRotation;
+                    secretTasksRotation = normalizeSecretTasksRotation(data.secretTasksRotation);
+                } else {
+                    secretTasksRotation = normalizeSecretTasksRotation(secretTasksRotation);
                 }
                 plunderExceptions = normalizePlunderExceptions(data.exceptions || {});
 
@@ -7204,6 +7275,7 @@ body {
                 updateSecretTasksDisplay();
                 renderPlunderExceptionsDisplay();
                 renderPlunderExceptionsList();
+                renderSecretTasksRotationList();
             } catch (error) {
                 console.error('Error loading plunder data:', error);
             }
@@ -7251,10 +7323,78 @@ body {
             });
 
             // Get today's servers
-            const todaysServers = secretTasksRotation[rotationIndex];
+            const todaysServers = (secretTasksRotation[rotationIndex] || []).slice().sort((a, b) => a - b);
             todaysSecretTaskServers = todaysServers.slice();
             document.getElementById('secretTasksServerDisplay').textContent = todaysServers.join(', ');
             renderPlunderExceptionsDisplay();
+        }
+
+        async function saveSecretTasksRotation() {
+            secretTasksRotation = normalizeSecretTasksRotation(secretTasksRotation);
+            await database.ref('plunder/secretTasksRotation').set(secretTasksRotation);
+            updateSecretTasksDisplay();
+            renderSecretTasksRotationList();
+        }
+
+        async function addSecretTasksRotationServer() {
+            if (!auth.currentUser) {
+                await showAlert(t('messages.signInRequired'));
+                return;
+            }
+            const groupIndex = parseInt(document.getElementById('secretTasksRotationGroup')?.value || '0', 10);
+            const serverValue = parseInt(document.getElementById('secretTasksRotationServer')?.value || '', 10);
+            if (!Number.isFinite(serverValue) || serverValue < 1) {
+                await showAlert(t('plunder.invalidServer'));
+                return;
+            }
+            if (!secretTasksRotation[groupIndex]) {
+                secretTasksRotation[groupIndex] = [];
+            }
+            if (!secretTasksRotation[groupIndex].includes(serverValue)) {
+                secretTasksRotation[groupIndex].push(serverValue);
+            }
+            try {
+                await saveSecretTasksRotation();
+                document.getElementById('secretTasksRotationServer').value = '';
+                await showAlert(t('plunder.rotationUpdateSuccess'));
+            } catch (error) {
+                await showAlert(t('plunder.updateError', { error: error.message }));
+            }
+        }
+
+        async function removeSecretTasksRotationServer(groupIndex, server) {
+            if (!auth.currentUser) {
+                await showAlert(t('messages.signInRequired'));
+                return;
+            }
+            if (!secretTasksRotation[groupIndex]) return;
+            secretTasksRotation[groupIndex] = secretTasksRotation[groupIndex].filter(value => value !== server);
+            try {
+                await saveSecretTasksRotation();
+                await showAlert(t('plunder.rotationUpdateSuccess'));
+            } catch (error) {
+                await showAlert(t('plunder.updateError', { error: error.message }));
+            }
+        }
+
+        function renderSecretTasksRotationList() {
+            const listEl = document.getElementById('secretTasksRotationList');
+            if (!listEl) return;
+            const isAdmin = !!auth.currentUser;
+            secretTasksRotation = normalizeSecretTasksRotation(secretTasksRotation);
+            listEl.innerHTML = secretTasksRotation.map((group, index) => {
+                const label = t(`plunder.rotationGroup${index + 1}`);
+                const servers = group.length ? group.map(server => `#${server}`).join(', ') : '-';
+                const removeButtons = isAdmin && group.length
+                    ? `<div style="display: flex; flex-wrap: wrap; gap: 6px;">${group.map(server => `<button class="action-btn compact" style="padding: 6px 10px;" onclick="removeSecretTasksRotationServer(${index}, ${server})">${t('plunder.removeServer')} #${server}</button>`).join('')}</div>`
+                    : '';
+                return `
+                    <div class="merge-week-item" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <div><strong>${label}</strong>: <span dir="ltr">${servers}</span></div>
+                        ${removeButtons}
+                    </div>
+                `;
+            }).join('');
         }
 
         // Update truck server in Firebase
@@ -7851,6 +7991,9 @@ body {
             }
             if (e.target.id === 'managePlunderExceptionsModal') {
                 document.getElementById('managePlunderExceptionsModal').style.display = 'none';
+            }
+            if (e.target.id === 'manageSecretTasksRotationModal') {
+                document.getElementById('manageSecretTasksRotationModal').style.display = 'none';
             }
         });
 
@@ -8576,6 +8719,14 @@ body {
         });
         document.getElementById('addPlunderExceptionBtn')?.addEventListener('click', addPlunderException);
         document.getElementById('copyPlunderRulesBtn')?.addEventListener('click', copyPlunderRules);
+        document.getElementById('manageSecretTasksRotationBtn')?.addEventListener('click', () => {
+            renderSecretTasksRotationList();
+            document.getElementById('manageSecretTasksRotationModal').style.display = 'block';
+        });
+        document.getElementById('closeManageSecretTasksRotationModal')?.addEventListener('click', () => {
+            document.getElementById('manageSecretTasksRotationModal').style.display = 'none';
+        });
+        document.getElementById('addSecretTasksRotationServerBtn')?.addEventListener('click', addSecretTasksRotationServer);
 
         document.getElementById('closeGuidePreview')?.addEventListener('click', () => {
             document.getElementById('guidePreviewModal').style.display = 'none';
@@ -9050,6 +9201,11 @@ body {
                     copyPlunderRulesBtn.style.display = 'inline-block';
                     copyPlunderRulesBtn.textContent = t('plunder.copyRules');
                 }
+                const manageSecretTasksRotationBtn = document.getElementById('manageSecretTasksRotationBtn');
+                if (manageSecretTasksRotationBtn) {
+                    manageSecretTasksRotationBtn.style.display = 'inline-block';
+                    manageSecretTasksRotationBtn.textContent = t('plunder.manageTaskRotation');
+                }
             } else {
                 // User is signed out - HIDE admin buttons
                 if (signInBtn) {
@@ -9111,9 +9267,14 @@ body {
                 if (copyPlunderRulesBtn) {
                     copyPlunderRulesBtn.style.display = 'none';
                 }
+                const manageSecretTasksRotationBtn = document.getElementById('manageSecretTasksRotationBtn');
+                if (manageSecretTasksRotationBtn) {
+                    manageSecretTasksRotationBtn.style.display = 'none';
+                }
             }
             updateDuelAdminVisibility();
             renderPlunderExceptionsList();
+            renderSecretTasksRotationList();
         }
 
         // Auth state observer
